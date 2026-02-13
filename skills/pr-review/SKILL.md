@@ -13,6 +13,8 @@ allowed-tools:
   - Bash(git merge-base *)
   - Bash(ls *)
   - Bash(find *)
+  - Bash(gh api repos/*/pulls/*/comments*)
+  - Bash(gh api repos/*/pulls/*/reviews*)
 ---
 
 Review GitHub pull request #$ARGUMENTS. Do NOT run tests, build commands, or attempt to fix anything — this is a read-only review.
