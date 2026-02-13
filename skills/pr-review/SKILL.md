@@ -1,5 +1,5 @@
 ---
-name: gitreview
+name: pr-review
 description: Checkout and review a GitHub pull request
 disable-model-invocation: true
 argument-hint: <PR-number>
