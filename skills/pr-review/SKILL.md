@@ -23,7 +23,7 @@ Review GitHub pull request #$ARGUMENTS. Do NOT run tests, build commands, or att
 
 1. **Checkout the PR**
 
-   ```
+   ```bash
    gh pr checkout $ARGUMENTS
    ```
 
