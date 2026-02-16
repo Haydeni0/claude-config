@@ -23,6 +23,7 @@
       "Bash(helm show *)",
       "Bash(helm get *)",
       "Bash(helm search *)",
+      "Bash(helm list *)",
       "Bash(kt *)",
       "Bash(sacct*)",
       "Bash(squeue*)",
