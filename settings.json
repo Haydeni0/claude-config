@@ -68,7 +68,10 @@
       "Bash(pstree*)",
       "Bash(lsof*)",
       "Bash(export PATH=*)",
-      "WebFetch(domain:lightning.ai)"
+      "WebFetch(domain:lightning.ai)",
+      "Read(~/**)",
+      "Grep(~/**)",
+      "Glob(~/**)"
     ]
   },
   "enabledPlugins": {
