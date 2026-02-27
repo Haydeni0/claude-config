@@ -7,13 +7,23 @@
 !CLAUDE.md
 !settings.json
 !settings.local.json
+
 # Track skills
 !skills/
 !skills/*/
 !skills/**
+
+# Track commands
+!commands/
+!commands/*/
+!commands/**
 
 # Track agents
 !agents/
 !agents/*/
 !agents/**
 
+
+# Track some special commands
+# From https://raba.pl/resources/claude-statusline
+!statusline-command.sh
