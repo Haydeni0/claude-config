@@ -8,4 +8,6 @@ In all interactions, be extremely concise and sacrifice grammar for the sake of 
 
 If you run into a `zsh: command not found:` error, double check your path (with `echo $PATH`) and make sure you've used `~/.zshenv` to add the proper directories to the path.
 
-Never use "--" as a dash when writing text, use a single dash "-".
+Never use an mdash (or --) as a dash when writing text, use a single dash (-).
+
+When quoting code, for example in docstrings, use the single quote style `my_variable` instead of double quote ``my_variable``.
