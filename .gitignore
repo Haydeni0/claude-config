@@ -24,6 +24,10 @@
 !agents/**
 
 
+# Track plugin marketplaces
+!plugins/
+!plugins/known_marketplaces.json
+
 # Track some special commands
 # From https://raba.pl/resources/claude-statusline
 !statusline-command.sh

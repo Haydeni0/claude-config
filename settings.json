@@ -76,7 +76,9 @@
       "Grep(~/**)",
       "Glob(~/**)",
       "WebFetch(domain:lightning.ai)",
-      "WebFetch(domain:arxiv.org)"
+      "WebFetch(domain:arxiv.org)",
+      "mcp__excalidraw__*",
+      "mcp__claude_ai_Excalidraw__*"
     ]
   },
   "statusLine": {
