@@ -72,18 +72,19 @@
       "Bash(pstree*)",
       "Bash(lsof*)",
       "Bash(export PATH=*)",
-      "WebFetch(domain:lightning.ai)",
       "Read(~/**)",
       "Grep(~/**)",
-      "Glob(~/**)"
+      "Glob(~/**)",
+      "WebFetch(domain:lightning.ai)",
+      "WebFetch(domain:arxiv.org)"
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
     "pyright-lsp@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true
-  },
-  "statusLine": {
-      "type": "command",
-      "command": "bash ~/.claude/statusline-command.sh"
-    }
+  }
 }
