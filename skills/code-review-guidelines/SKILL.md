@@ -10,8 +10,9 @@ Evaluate against these criteria (skip any that don't apply):
 
 - **Correctness**: Bugs, edge cases, off-by-one errors, race conditions
 - **Security**: Injection, auth gaps, secrets, input validation
-- **Performance**: Unnecessary allocations, O(n²) where O(n) is possible, missing indexes
-- **Readability**: Naming, structure, unnecessary complexity
+- **Performance**: Unnecessary allocations, O(n²) where O(n) is possible, missing indexes, unnecessary I/O in hot paths, missing caching opportunities (in non-negligible cases)
+- **Readability**: Naming, structure, unnecessary complexity, deep nesting, unclear control flow, functions that are too long to hold in your head
+- **Maintainability**: Separation of concerns, tight coupling, scattered cohesion, duplicated logic, unclear module boundaries, hardcoded assumptions, over/under-abstraction
 - **Breaking changes**: API surface, backward compatibility, config changes
 - **Dependencies**: New dependencies justified and secure
 - **Missing coverage**: Untested paths that should have tests (note them, don't write them)
