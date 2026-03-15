@@ -78,7 +78,15 @@
       "WebFetch(domain:lightning.ai)",
       "WebFetch(domain:arxiv.org)",
       "mcp__excalidraw__*",
-      "mcp__claude_ai_Excalidraw__*"
+      "mcp__claude_ai_Excalidraw__*",
+      "mcp__claude_ai_Notion__notion-search",
+      "mcp__claude_ai_Notion__notion-fetch",
+      "mcp__claude_ai_Notion__notion-get-comments",
+      "mcp__claude_ai_Notion__notion-get-users",
+      "mcp__claude_ai_Notion__notion-get-teams",
+      "mcp__claude_ai_Notion__notion-query-data-sources",
+      "mcp__claude_ai_Notion__notion-query-meeting-notes",
+      "Bash(source .venv/bin/activate)"
     ]
   },
   "statusLine": {
@@ -88,5 +96,6 @@
   "enabledPlugins": {
     "pyright-lsp@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true
-  }
+  },
+  "skipDangerousModePermissionPrompt": true
 }
