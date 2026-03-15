@@ -1,3 +1,9 @@
+---
+name: autoresearch
+description: Autonomous Goal-directed Iteration. Apply Karpathy's autoresearch principles to ANY task. Loops autonomously — modify, verify, keep/discard, repeat. Supports optional loop count via Claude Code's /loop command.
+version: 1.0.3
+---
+
 # Claude Autoresearch — Overview
 
 **Claude Autoresearch** is an autonomous iteration system inspired by Karpathy's autoresearch framework, designed to apply goal-directed loops to any task requiring repeated improvement cycles.
