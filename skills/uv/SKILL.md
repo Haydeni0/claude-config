@@ -1,6 +1,6 @@
 ---
 name: uv
-description: Use when managing Python packages, running scripts, setting up environments, or running pytest - enforces uv as the only package manager.
+description: Use when managing Python packages, running scripts, setting up environments, or running pytest.
 ---
 
 # Using uv
