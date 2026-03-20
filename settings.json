@@ -87,15 +87,41 @@
       "mcp__claude_ai_Notion__notion-query-data-sources",
       "mcp__claude_ai_Notion__notion-query-meeting-notes",
       "Bash(source .venv/bin/activate)"
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bash ~/.claude/statusline-command.sh"
+    ],
+    "deny": [],
+    "ask": [],
+    "disableBypassPermissionsMode": "disable"
   },
   "enabledPlugins": {
     "pyright-lsp@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true
   },
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/statusline-command.sh --hook"
+          }
+        ],
+        "matcher": "Skill"
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/statusline-command.sh --hook"
+          }
+        ]
+      }
+    ]
+  }
 }
