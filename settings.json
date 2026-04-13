@@ -1,7 +1,6 @@
 {
   "permissions": {
     "allow": [
-      "Bash(source */.venv/bin/activate)",
       "Bash(git status*)",
       "Bash(git diff*)",
       "Bash(git log*)",
@@ -85,8 +84,7 @@
       "mcp__claude_ai_Notion__notion-get-users",
       "mcp__claude_ai_Notion__notion-get-teams",
       "mcp__claude_ai_Notion__notion-query-data-sources",
-      "mcp__claude_ai_Notion__notion-query-meeting-notes",
-      "Bash(source .venv/bin/activate)"
+      "mcp__claude_ai_Notion__notion-query-meeting-notes"
     ],
     "deny": [],
     "ask": [],
