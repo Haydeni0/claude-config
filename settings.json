@@ -36,6 +36,7 @@
       "Bash(sacctmgr show *)",
       "Bash(docker info*)",
       "Bash(aws s3 ls*)",
+      "Bash(.venv/bin/*)",
       "Bash(pytest*)",
       "Bash(ruff check *)",
       "Bash(pyright*)",
