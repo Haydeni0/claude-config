@@ -99,7 +99,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ~/.claude/custom/plugins/caveman/hooks/caveman-activate.js"
+            "command": "bash ~/.claude/custom/hooks/caveman-activate.sh"
           }
         ]
       }
@@ -121,7 +121,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ~/.claude/custom/plugins/caveman/hooks/caveman-mode-tracker.js"
+            "command": "bash ~/.claude/custom/hooks/caveman-mode-tracker.sh"
           }
         ]
       }
