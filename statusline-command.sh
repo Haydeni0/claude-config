@@ -1,29 +1,5 @@
 #!/usr/bin/env bash
 
-# --- Hook mode: track skill usage ---
-# Called with --hook for PreToolUse and UserPromptSubmit events
-if [ "$1" = "--hook" ]; then
-    hook_input=$(cat)
-    session_id=$(echo "$hook_input" | jq -r '.session_id // ""')
-    hook_event=$(echo "$hook_input" | jq -r '.hook_event_name // ""')
-    tool_name=$(echo "$hook_input" | jq -r '.tool_name // ""')
-    skill=""
-
-    if [ "$hook_event" = "PreToolUse" ] && [ "$tool_name" = "Skill" ]; then
-        skill=$(echo "$hook_input" | jq -r '.tool_input.skill // ""')
-    elif [ "$hook_event" = "UserPromptSubmit" ]; then
-        prompt=$(echo "$hook_input" | jq -r '.prompt // ""')
-        skill=$(echo "$prompt" | grep -oE '^/[a-zA-Z0-9_:-]+' | sed 's|^/||')
-    fi
-
-    if [ -n "$skill" ] && [ -n "$session_id" ]; then
-        log_file="$HOME/.claude/statusline-skills-${session_id}.log"
-        echo "$(date +%s)|${session_id}|${skill}|${hook_event}" >> "$log_file"
-    fi
-    echo "{}"
-    exit 0
-fi
-
 input=$(cat)
 
 # --- Parse JSON fields ---
@@ -36,7 +12,6 @@ cur_in=$(echo "$input" | jq -r '.context_window.current_usage.input_tokens // 0'
 cache_create=$(echo "$input" | jq -r '.context_window.current_usage.cache_creation_input_tokens // 0')
 cache_read=$(echo "$input" | jq -r '.context_window.current_usage.cache_read_input_tokens // 0')
 context_size=$(echo "$input" | jq -r '.context_window.context_window_size // 200000')
-session_id=$(echo "$input" | jq -r '.session_id // ""')
 
 # --- Colors (ANSI 256) ---
 cyn=$'\033[36m'
@@ -88,18 +63,6 @@ ctx_w="${dim}Context: ${bar}${dim} ${usedK}k/${totalK}k (${used_pct}%)${rst}"
 # ============================================================
 cost_fmt=$(printf '$%.2f' "$cost_usd")
 cost_w="${slt}Cost: ${cost_fmt}${rst}"
-
-# ============================================================
-# Widget: skills  (magenta, mode=current)
-# ============================================================
-skills_w="${dim}Skill: none${rst}"
-if [ -n "$session_id" ]; then
-    skill_log="$HOME/.claude/statusline-skills-${session_id}.log"
-    if [ -f "$skill_log" ]; then
-        last_skill=$(tail -1 "$skill_log" | cut -d'|' -f3)
-        [ -n "$last_skill" ] && skills_w="${mag}Skill: ${last_skill}${rst}"
-    fi
-fi
 
 # ============================================================
 # Widget: thinking-effort  (magenta)
@@ -159,8 +122,8 @@ cwd_w="${cfb}${display_cwd}${rst}"
 # Output
 # ============================================================
 
-# Line 1: model | ctx | cost | skills | thinking | speed
-line1="${model_w}${sep}${ctx_w}${sep}${cost_w}${sep}${skills_w}${sep}${thinking_w}"
+# Line 1: model | ctx | cost | thinking | speed
+line1="${model_w}${sep}${ctx_w}${sep}${cost_w}${sep}${thinking_w}"
 [ -n "$speed_w" ] && line1+="${sep}${speed_w}"
 
 # Line 2: git-root-dir | git-branch | cwd
