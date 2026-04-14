@@ -19,6 +19,7 @@
       "Bash(gh pr checks *)",
       "Bash(gh run list *)",
       "Bash(gh run view *)",
+      "Bash(gh api:*)",
       "Bash(kubectl get *)",
       "Bash(kubectl logs *)",
       "Bash(kubectl describe *)",
@@ -100,6 +101,16 @@
           {
             "type": "command",
             "command": "bash ~/.claude/statusline-command.sh --hook"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(gh api:*)",
+            "command": "jq -r '.tool_input.command' | grep -qE '(-X (DELETE|POST|PATCH|PUT)|--method[= ](DELETE|POST|PATCH|PUT)|--input)' && printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"gh api write methods blocked\"}}' || true"
           }
         ]
       }
