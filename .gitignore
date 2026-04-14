@@ -25,6 +25,11 @@ settings.local.json
 
 
 
+# Track custom plugins and hooks
+!custom/
+!custom/*/
+!custom/**
+
 # Track some special commands
 # From https://raba.pl/resources/claude-statusline
 !statusline-command.sh

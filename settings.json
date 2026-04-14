@@ -94,6 +94,16 @@
   },
   "model": "sonnet",
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/custom/plugins/caveman/hooks/caveman-activate.js"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -106,6 +116,16 @@
           {
             "type": "command",
             "command": "bash ~/.claude/statusline-command.sh --hook"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/custom/plugins/caveman/hooks/caveman-mode-tracker.js"
           }
         ]
       }
