@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# caveman UserPromptSubmit hook (bash port — no node required)
-# Reads JSON from stdin, detects /caveman commands, updates flag file.
+# caveman UserPromptSubmit hook
+# Bash port of custom/plugins/caveman/hooks/caveman-mode-tracker.js — no node required.
+# Sync manually if upstream JS changes after a submodule update.
 
 FLAG_FILE="$HOME/.claude/.caveman-active"
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# caveman SessionStart activation hook (bash port — no node required)
-# Writes flag file and emits caveman ruleset as system context.
+# caveman SessionStart activation hook
+# Bash port of custom/plugins/caveman/hooks/caveman-activate.js — no node required.
+# Sync manually if upstream JS changes after a submodule update.
 
 FLAG_FILE="$HOME/.claude/.caveman-active"
 SKILL_FILE="$HOME/.claude/custom/plugins/caveman/skills/caveman/SKILL.md"
