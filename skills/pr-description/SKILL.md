@@ -2,7 +2,7 @@
 name: pr-description
 description: Generate a PR description from the repo's PR template
 disable-model-invocation: true
-argument-hint: "[PR number]"
+argument-hint: "[PR number (optional)]"
 allowed-tools:
   - Read
   - Grep
@@ -15,15 +15,19 @@ Generate a pull request description based on the repo's PR template. Output this
 
 ## PR template
 
-!`for f in .github/pull_request_template.md .github/PULL_REQUEST_TEMPLATE.md pull_request_template.md; do [ -f "$f" ] && cat "$f" && break; done; if [ -d .github/PULL_REQUEST_TEMPLATE ]; then for f in .github/PULL_REQUEST_TEMPLATE/*.md; do [ -f "$f" ] && cat "$f" && break; done; fi`
+!`cat .github/pull_request_template.md 2>/dev/null || cat .github/PULL_REQUEST_TEMPLATE.md 2>/dev/null || cat pull_request_template.md 2>/dev/null || echo "No PR template found."`
 
 ## PR metadata
 
-!`gh pr view $ARGUMENTS --json title,body,author,baseRefName,headRefName,additions,deletions,changedFiles,commits 2>/dev/null || { BASE=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo main); echo "No open PR found. Using local diff."; echo "Branch: $(git branch --show-current)"; echo "Base: $BASE"; git log $(git merge-base HEAD "origin/$BASE" 2>/dev/null || echo HEAD~20)..HEAD --oneline; }`
+!`gh pr view $ARGUMENTS --json title,body,author,baseRefName,headRefName,additions,deletions,changedFiles,commits 2>/dev/null || git log --oneline -30`
+
+## Current branch (if no open PR)
+
+!`git branch --show-current`
 
 ## PR diff
 
-!`gh pr diff $ARGUMENTS 2>/dev/null || { BASE=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo main); git diff $(git merge-base HEAD "origin/$BASE" 2>/dev/null)..HEAD; }`
+!`gh pr diff $ARGUMENTS 2>/dev/null || git diff origin/main...HEAD`
 
 ## Instructions
 
