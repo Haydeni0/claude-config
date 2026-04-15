@@ -23,7 +23,10 @@ settings.local.json
 !agents/*/
 !agents/**
 
-
+# Track claude_md_imports
+!claude_md_imports/
+!claude_md_imports/*/
+!claude_md_imports/**
 
 # Track custom plugins and hooks
 !custom/

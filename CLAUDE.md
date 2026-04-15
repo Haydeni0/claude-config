@@ -14,3 +14,5 @@ When quoting code, for example in docstrings, use the single quote style `my_var
 
 - Never `git commit` or `git push`
 - Never use an mdash (or --) as a dash when writing text, use a single dash (-).
+
+@claude_md_imports/karpathy-guidelines.md
