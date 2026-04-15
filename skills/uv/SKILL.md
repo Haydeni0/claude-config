@@ -1,6 +1,6 @@
 ---
 name: uv
-description: Use when managing Python packages, running scripts, setting up environments, or running pytest.
+description: Use when running Python, managing Python packages, setting up environments, or running pytest.
 ---
 
 # Using uv
