@@ -7,14 +7,14 @@ description: Use when running Python, managing Python packages, setting up envir
 
 All Python package management uses `uv`. Never use `pip`, `pip3`, `python -m pip`, `conda`, or `poetry`.
 
-## Venv
+## Running
 
-Never use `source` to activate the venv. Invoke venv binaries directly:
+Use `uv run` - never activate the venv directly:
 
 ```bash
-.venv/bin/python script.py
-.venv/bin/pytest [args...]
-.venv/bin/<tool>
+uv run python script.py
+uv run pytest [args...]
+uv run <tool>
 ```
 
 ## Common Commands
@@ -33,7 +33,6 @@ Never use `source` to activate the venv. Invoke venv binaries directly:
 
 - NEVER use `pip` or `pip3` directly
 - NEVER use `python -m pip`
-- NEVER use `python -m pytest`, `uv run pytest`, or `uv run python -m pytest`
-- NEVER use `source` to activate the venv - invoke venv binaries directly (`.venv/bin/python`, `.venv/bin/pytest`, etc.)
-- Use `.venv/bin/python`, not `.venv/bin/python3`
+- NEVER use `python -m pytest` or `python -m pip`
+- NEVER activate the venv with `source` - use `uv run`
 - Package source code lives at `./.venv/lib/<python_version>/site-packages/`

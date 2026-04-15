@@ -1,8 +1,8 @@
 # Claude guidelines
 
-Assume that all repositories use python and uv as the package manager. See @skills/uv for full uv usage rules. The python environment is at the workspace root `./.venv` - never use `source` to activate it; invoke venv binaries directly (e.g. `.venv/bin/python`, `.venv/bin/pytest`); prefer `python` over `python3`. Look into the virtual environment for any information you need from package source code.
+Assume all repositories use python and uv. See @skills/uv for full uv usage rules.
 
-The package PXS (pxs) is labelled as `physicsx-pxs`, and therefore will be somewhere like `./.venv/lib/my_python_version/pxs`.
+The package PXS (pxs) is labelled as `physicsx-pxs`, found at `.venv/lib/<python_version>/site-packages/pxs`.
 
 In all interactions, be extremely concise and sacrifice grammar for the sake of concision.
 
