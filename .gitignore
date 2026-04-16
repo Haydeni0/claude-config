@@ -36,3 +36,8 @@ settings.local.json
 # Track some special commands
 # From https://raba.pl/resources/claude-statusline
 !statusline-command.sh
+
+# Track RTK files
+!hooks/
+!hooks/**
+!RTK.md
