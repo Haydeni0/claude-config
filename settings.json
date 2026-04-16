@@ -87,7 +87,8 @@
       "mcp__claude_ai_Notion__notion-get-users",
       "mcp__claude_ai_Notion__notion-get-teams",
       "mcp__claude_ai_Notion__notion-query-data-sources",
-      "mcp__claude_ai_Notion__notion-query-meeting-notes"
+      "mcp__claude_ai_Notion__notion-query-meeting-notes",
+      "Bash(bash ~/.claude/skills/copy-claude-md/sync.sh*)"
     ],
     "deny": [],
     "ask": [],
