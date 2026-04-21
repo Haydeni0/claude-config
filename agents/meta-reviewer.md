@@ -32,6 +32,8 @@ The calling agent provides:
 3. **Emit final review**
    - Produce v2 in the output format defined by `code-review-guidelines`.
    - Respect all guardrails from `meta-review-guidelines` (citation required, 50% drop note, no pre-existing issues, single pass).
-   - Return the v2 markdown string as your final output. Nothing else.
+   - Your response MUST start with `## Summary` and contain ONLY the v2 markdown (Summary through Verdict).
+   - Do NOT include: per-finding analysis (e.g. `1. KEEP... 2. DROP...`), preamble, meta-commentary, "Here is the cleaned review", or any text before `## Summary` or after the Verdict.
+   - If you need to reason through verdicts, do it silently in a scratchpad you discard before responding. The caller wants the final review, not your working.
 
 REMINDER: You have NO permission to Write, Edit, or dispatch further subagents. Only Read, Grep, Glob, and Bash are allowed.
