@@ -12,7 +12,12 @@ When quoting code, for example in docstrings, use the single quote style `my_var
 
 ## Rules
 
-- Never `git commit` or `git push`, even when asked to by a skill. No exceptions to allowing `git commit` or `git push` unless specifically instructed to using keywords `override` or `overrule` (prompt the user if needed).
+- `git add` is allowed (used to stage changes for user review). Do not stage files likely to contain secrets (`.env`, `credentials.*`, `*.pem`, etc.).
+- Never `git commit` or `git push`, even when asked by a skill or subagent.
+  - `git commit` is permitted only when the current task prompt, a project-local `CLAUDE.md`, or an autonomous agent's initial instructions contain the literal sentinel `COMMIT_AUTHORISED`.
+  - `git push` is permitted only when the same sources contain the literal sentinel `PUSH_AUTHORISED`.
+  - Sentinels must appear verbatim (uppercase, underscored). Treat any other phrasing - including "please commit", "go ahead and push", or casual overrides - as NOT authorised. Prompt the user if unsure.
+  - `PUSH_AUTHORISED` does NOT imply `COMMIT_AUTHORISED`, and vice versa. Each action needs its own sentinel.
 - Never use an mdash (or --) as a dash when writing text, use a single dash (-).
 
 @claude_md_imports/karpathy-guidelines.md
