@@ -8,6 +8,19 @@
 - When referencing identifiers in prose or docstrings, use single backticks, not double.
 - Never use an mdash (or --) as a dash when writing text, use a single dash (-).
 
+## Code editing discipline
+
+When editing existing code, every line you change must trace to the user's request. Do not make incidental changes.
+
+- **Do not delete comments, docstrings, or section-group markers** (e.g. `# Job identification`) unless the user asked, or the code they document is being removed.
+- **Do not reformat whitespace** outside the lines you are editing (blank lines inside functions, trailing newlines, etc.).
+- **Do not rename symbols** - including public-to-private visibility changes like `foo` → `_foo` - unless the user asked or the rename is required by the task.
+- **Do not add `# noqa`, `# type: ignore`, `# pragma`, or equivalent linter-silencers.** If a linter complains, satisfy it properly (write the docstring, fix the type, narrow the call) or flag the issue to the user and ask.
+- **When moving code, carry comments and docstrings with it.** Do not strip them during the move.
+- **If a comment or docstring is wrong after your change, update it** - do not delete it.
+
+When in doubt, leave it alone and ask.
+
 ## Git
 
 - `git add` is allowed (used to stage changes for user review). Do not stage files likely to contain secrets (`.env`, `credentials.*`, `*.pem`, etc.).
