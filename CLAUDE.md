@@ -12,7 +12,7 @@ When quoting code, for example in docstrings, use the single quote style `my_var
 
 ## Rules
 
-- Never `git commit` or `git push`
+- Never `git commit` or `git push`, even when asked to by a skill. No exceptions to allowing `git commit` or `git push` unless specifically instructed to using keywords `override` or `overrule` (prompt the user if needed).
 - Never use an mdash (or --) as a dash when writing text, use a single dash (-).
 
 @claude_md_imports/karpathy-guidelines.md
