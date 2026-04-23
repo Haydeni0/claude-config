@@ -4,8 +4,7 @@
 
 ## Writing style
 
-- In all interactions, be extremely concise and sacrifice grammar for the sake of concision.
-- When referencing identifiers in prose or docstrings, use single backticks, not double.
+- In all interactions, be extremely concise and sacrifice grammar for the sake of concision (caveman).
 - Never use an mdash (or --) as a dash when writing text, use a single dash (-).
 
 ## Code editing discipline

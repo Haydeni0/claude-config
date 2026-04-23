@@ -162,7 +162,7 @@
     "pyright-lsp@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true
   },
-  "effortLevel": "medium",
+  "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
   "skipAutoPermissionPrompt": true
 }
