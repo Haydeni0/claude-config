@@ -22,6 +22,7 @@ When in doubt, leave it alone and ask.
 
 ## Git
 
+- Always create PRs as drafts (`gh pr create --draft`).
 - `git add` is allowed (used to stage changes for user review). Do not stage files likely to contain secrets (`.env`, `credentials.*`, `*.pem`, etc.).
 - Never `git commit` or `git push`, even when asked by a skill or subagent.
   - `git commit` is permitted only when the current task prompt, a project-local `CLAUDE.md`, or an autonomous agent's initial instructions contain the literal sentinel `COMMIT_AUTHORISED`.
