@@ -1,6 +1,6 @@
 ---
 name: pytest-guidelines
-description: A comprehensive reference guide for writing high-quality, maintainable Python tests using pytest. Use this skill when writing tests, refactoring existing ones, or setting up a testing framework with pytest.
+description: Use when writing, refactoring, or implementing Python tests with pytest, or setting up a pytest test suite.
 user-invocable: false
 ---
 
