@@ -1,6 +1,6 @@
 ---
 name: test-trim
-description: Aggressively review changed tests for redundancy and low-signal assertions, then propose a numbered trim plan. Use when user asks to clean test diffs, dedupe tests, reduce overlap, or simplify test suites before PR.
+description: Use when user asks to clean up tests, remove redundant tests, dedupe tests, reduce test overlap, or simplify a test suite before PR.
 ---
 
 # Test Trim

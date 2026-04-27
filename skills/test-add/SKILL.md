@@ -1,6 +1,6 @@
 ---
 name: test-add
-description: Review changed production code in current branch/PR and identify missing tests with prioritized, numbered recommendations. Use when user asks what test coverage is missing, what tests to add before PR, or where regressions are under-tested.
+description: Use when user asks what tests are missing, what coverage is lacking, or which regressions are under-tested on the current branch/PR.
 ---
 
 # Test Add
