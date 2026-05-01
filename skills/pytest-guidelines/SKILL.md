@@ -8,10 +8,10 @@ user-invocable: false
 
 ## Running Pytest
 
-Always invoke via the venv binary — never use bare `pytest`, `python -m pytest`, or `uv run pytest`. See the `uv` skill for full rules.
+Always invoke via `uv run` — never use bare `pytest`, `python -m pytest`, or `.venv/bin/pytest`. See the `uv` skill for full rules.
 
 ```bash
-.venv/bin/pytest [args...]
+uv run pytest [args...]
 ```
 
 ## Instructions
