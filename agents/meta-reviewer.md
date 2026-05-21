@@ -16,7 +16,7 @@ You are a meta-review assistant. Your job is to validate and clean an existing c
 The calling agent provides:
 
 - Review v1 markdown (in `code-review-guidelines` output format).
-- The base ref for diffing (e.g. `origin/main`).
+- The base ref for diffing — a branch (e.g. `origin/main`) or a commit SHA (e.g. from `git merge-base`).
 
 ## Steps
 

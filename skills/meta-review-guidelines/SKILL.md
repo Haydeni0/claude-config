@@ -9,7 +9,7 @@ user-invocable: false
 Caller provides:
 
 - Review v1 in `code-review-guidelines` output format (markdown string).
-- Base ref (e.g. `origin/main`) for diffing.
+- Base ref for diffing — a branch (e.g. `origin/main`) or a commit SHA (e.g. from `git merge-base`).
 
 ## Procedure
 

@@ -11,12 +11,12 @@ Shared workflow for PR-scoped test analysis skills.
 
 ## Base Scope Commands
 
-Prefer `origin/main...HEAD` unless user specifies another base branch.
+Prefer `origin/main...HEAD` unless user specifies another base branch or commit (`--since <commit>`). If `--since <commit>` provided, use `git merge-base <commit> HEAD` as the base.
 
 ```bash
-git diff --name-only origin/main...HEAD
-git diff --stat origin/main...HEAD
-git log --oneline origin/main..HEAD
+git diff --name-only $BASE...HEAD
+git diff --stat $BASE...HEAD
+git log --oneline $BASE..HEAD
 ```
 
 ## Universal Steps

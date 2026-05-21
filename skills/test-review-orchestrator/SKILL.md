@@ -32,12 +32,12 @@ You are a test review orchestrator. Review the current branch/PR for both test r
 
 **Step 1 — Scope**
 
-Prefer `origin/main...HEAD` unless the user specified a base.
+Prefer `origin/main...HEAD` unless the user specified a base branch or `--since <commit>`. If `--since <commit>` provided, compute `BASE=$(git merge-base <commit> HEAD)` and use that.
 
 ```bash
-git diff --name-only origin/main...HEAD
-git diff --stat origin/main...HEAD
-git log --oneline origin/main..HEAD
+git diff --name-only $BASE...HEAD
+git diff --stat $BASE...HEAD
+git log --oneline $BASE..HEAD
 ```
 
 **Step 2 — Parallel dispatch**
