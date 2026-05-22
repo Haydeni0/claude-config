@@ -1,6 +1,6 @@
 ---
 name: pytest-guidelines
-description: Use when writing, refactoring, or implementing Python tests with pytest, or setting up a pytest test suite.
+description: Use for any tasks involving Python tests with pytest, or when any file uses or imports `unittest.mock`.
 ---
 
 # Pytest Best Practices
@@ -64,7 +64,7 @@ Avoid writing loops inside tests or duplicating test logic. Use `@pytest.mark.pa
 
 ### 5. Mocking
 
-Prefer the `pytest-mock` plugin (which provides the `mocker` fixture) over strict `unittest.mock.patch` decorators. It ensures mocks are automatically stopped after the test.
+Prefer the `pytest-mock` plugin (which provides the `mocker` fixture) over `unittest.mock` directly. It ensures mocks are automatically stopped after the test. If `pytest-mock` is not installed, fall back to `unittest.mock.patch` as a context manager or decorator - never use it as a standalone call without cleanup.
 
 * **Pattern:** `mocker.patch("path.to.dependency", return_value=...)`
 * **Verification:** `mock_obj.assert_called_once_with(...)`
