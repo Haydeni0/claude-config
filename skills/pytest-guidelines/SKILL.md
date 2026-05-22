@@ -1,7 +1,6 @@
 ---
 name: pytest-guidelines
 description: Use when writing, refactoring, or implementing Python tests with pytest, or setting up a pytest test suite.
-user-invocable: false
 ---
 
 # Pytest Best Practices
