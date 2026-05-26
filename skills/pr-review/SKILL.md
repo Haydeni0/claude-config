@@ -55,36 +55,41 @@ Forbidden: python, python3, pip, npm, node, make, cargo, docker run/build, pytes
    - `gh pr view $PR_NUMBER --json title,body,author,baseRefName,headRefName,additions,deletions,changedFiles`
    - `gh pr checks $PR_NUMBER` to note CI status (for context only — do not act on failures)
 
-4. **Compute base ref**
+4. **Compute base ref** (only when `--since` was provided)
 
-   If `--since` was provided:
    ```bash
    BASE=$(git merge-base $SINCE HEAD)
    ```
-   Otherwise:
-   ```bash
-   BASE=$(git merge-base HEAD origin/$(gh pr view $PR_NUMBER --json baseRefName -q .baseRefName))
-   ```
+
+   Skip this step if `--since` was NOT provided — `gh pr diff` is used instead (see step 6).
+
+   > **Why not `git merge-base` for the default path?** Repos using squash-merge or rebase-merge cause `git merge-base HEAD origin/<base>` to return a commit older than the PR's true base, pulling in changes already on the base branch. `gh pr diff` uses GitHub's server-side diff and is always correct.
 
 5. **Check diff size** (only when `--since` was NOT provided)
 
-   ```bash
-   git diff $BASE..HEAD --stat
-   ```
+   Use `changedFiles`, `additions`, and `deletions` already fetched in step 3. No extra command needed.
 
    If the diff exceeds 500 lines or 10 files, ask the user:
    > "This diff is large (X files, Y lines). Want me to focus on a specific area, file pattern, or concern? Or proceed with full review?"
 
-   - If the user narrows scope, apply it as a file/path filter when reading the diff.
+   - If the user narrows scope, note the requested paths/patterns for step 6.
    - If the user says proceed, continue as normal.
 
 6. **Get diff**
 
+   If `--since` was provided:
    ```bash
    git diff $BASE..HEAD
    ```
 
-   Apply any scope filter from step 5 if relevant.
+   Otherwise:
+   ```bash
+   gh pr diff $PR_NUMBER
+   ```
+
+   If the user narrowed scope in step 5:
+   - To exclude paths: `gh pr diff $PR_NUMBER -e '<glob-pattern>'`
+   - To focus on specific files: get the full diff, then use the Read tool on only the files in scope for step 7.
 
 7. **Deep review** — for each changed file in scope:
    - Read the full file (not just the diff) to understand surrounding logic
@@ -100,7 +105,9 @@ Forbidden: python, python3, pip, npm, node, make, cargo, docker run/build, pytes
 
 10. **Meta-review pass**
 
-    - Use the `Agent` tool with `subagent_type: meta-reviewer`. Pass review v1 (full markdown) and `$BASE` as the base ref in the prompt.
+    - Use the `Agent` tool with `subagent_type: meta-reviewer`. Pass review v1 (full markdown) and the base ref in the prompt:
+      - If `--since` was provided: use `$BASE` (the merge-base SHA from step 4).
+      - Otherwise: use `origin/<baseRefName>` (e.g. `origin/main`) so the meta-reviewer's diff sweep matches the correct PR diff.
     - Output the meta-reviewer's return value (v2) as the final review. If the meta-reviewer errors, output v1 with a one-line note appended to its Summary: `Meta-review unavailable.`
 
 REMINDER: You have NO permission to run Python, pip, build tools, or any code execution. Only use the tools listed in allowed-tools.
