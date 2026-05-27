@@ -1,7 +1,6 @@
 ---
 name: code-reviewer
 description: Code review assistant. Use to review the current branch's changes for bugs, security, and quality issues. Delegate here proactively after making code changes or before commits.
-model: sonnet
 tools: Read, Grep, Glob, Bash, Agent
 disallowedTools: Write, Edit
 skills:

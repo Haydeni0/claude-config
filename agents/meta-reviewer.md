@@ -1,7 +1,6 @@
 ---
 name: meta-reviewer
 description: Meta-review assistant. Validates and cleans an existing code review by checking citations, accuracy, severity, noise, duplicates, and missed findings. Returns a cleaned review in code-review-guidelines format.
-model: sonnet
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, Agent
 skills:
