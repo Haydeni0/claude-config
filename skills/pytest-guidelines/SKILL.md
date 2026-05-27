@@ -77,7 +77,9 @@ Use standard Python `assert` statements. Pytest rewrites these at runtime to pro
 
 ### 7. Testing Philosophy: Behavior over Implementation
 
-Strictly adhere to testing **Public APIs only**.
+These guidelines apply to keeper tests. TDD scaffolding tests (in `tdd_scaffolding/`) are temporary and exempt from the public-API rule below - they are deleted after implementation.
+
+Strictly adhere to testing **Public APIs only** in keeper tests.
 
 * **Do not test private methods:** Never write tests for functions or methods starting with an underscore (`_function_name`). These are implementation details.
 * **Test Observable Behavior:** Tests should verify *what* the code does (inputs/outputs, side effects), not *how* it does it.
