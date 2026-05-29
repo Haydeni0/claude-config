@@ -1,181 +1,93 @@
 ---
 name: pytest-guidelines
-description: Use for any tasks involving Python tests with pytest, or when any file uses or imports `unittest.mock`.
+description: Use when writing or reviewing Python pytest tests, when tests import unittest.mock, or when keeper tests target private methods or implementation details.
 ---
 
-# Pytest Best Practices
+# Pytest Guidelines
 
-## Running Pytest
+## Overview
 
-Always invoke via `uv run` — never use bare `pytest`, `python -m pytest`, or `.venv/bin/pytest`. See the `uv` skill for full rules.
+Keeper tests document **public behavior** only. During TDD, temporary tests live in `tests/tdd_scaffolding/` and are deleted when done.
 
-```bash
-uv run pytest [args...]
+## Quick Reference
+
+| Do | Don't |
+|---|---|
+| `uv run pytest` | bare `pytest`, `python -m pytest`, `.venv/bin/pytest` |
+| `mocker.patch(...)` (`pytest-mock`) | `unittest.mock` |
+| Patch where the name is **used**, not where it's defined | patch at definition site |
+| Test public inputs/outputs and side effects | test `_private` methods in keeper tests |
+| `@pytest.mark.parametrize` for input variants | loops inside test bodies |
+| `with pytest.raises(...)` for errors | manual try/except in tests |
+
+Discovery: files `test_*.py`, functions `test_*()`, classes `Test*`. Shared fixtures in `tests/conftest.py`.
+
+## Running
+
+**REQUIRED:** See `uv` skill. Always `uv run pytest [args...]`.
+
+## Mocking
+
+Never import or use `unittest.mock`. Use the `pytest-mock` `mocker` fixture only - mocks auto-stop after each test.
+
+```python
+mock_get = mocker.patch("my_package.api_client.requests.get", ...)
+mock_get.assert_called_once_with(...)
 ```
 
-## Instructions
+If a project lacks `pytest-mock`, add it (`uv add pytest-mock`) - do not fall back to `unittest.mock`.
 
-### 1. Project Structure & Discovery
+## Keeper Tests
 
-Pytest discovers tests based on naming conventions. Adhere to this standard structure to ensure tests are found and executed correctly.
+Applies to tests in `tests/` outside `tdd_scaffolding/`.
 
-* **Directory Layout:**
+Test **observable behavior** through public APIs. Never write keeper tests for names starting with `_`.
 
-    ```text
-    my_project/
-    ├── src/
-    │   └── my_package/
-    │       └── module.py
-    ├── tests/
-    │   ├── conftest.py       # Shared fixtures
-    │   ├── __init__.py       # Makes 'tests' a package (optional but recommended)
-    │   └── test_module.py    # Test files must start with test_ or end with _test
-    └── pyproject.toml        # Configuration
-    ```
+If refactoring internals forces keeper test changes, the test was too coupled - rewrite at a higher level.
 
-* **Naming Conventions:**
-  * Files: `test_*.py` or `*_test.py`
-  * Functions: `test_*()`
-  * Classes: `Test*` (Do not use `__init__` in test classes)
+### Rationalizations
 
-### 2. The AAA Pattern
+| Excuse | Reality |
+|---|---|
+| "The bug is in the private helper" | Exercise it through the public API that calls it |
+| "Easier to unit-test in isolation" | Use `tests/tdd_scaffolding/` during TDD, then delete |
+| "I'll mock with unittest.mock quickly" | Use `mocker`; install `pytest-mock` if missing |
+| "This helper is stable enough to test directly" | Stability doesn't make it public API |
+| "Scaffolding is useful documentation - keep it" | Convert edge cases to keeper tests; delete `tdd_scaffolding/` |
 
-Structure every test function using the **Arrange-Act-Assert** pattern to maximize readability.
+### Red Flags - STOP
 
-* **Arrange:** Set up the initial state (variables, database, mocks).
-* **Act:** Trigger the specific behavior or function you are testing.
-* **Assert:** Verify the result matches expectations.
+- Keeper test imports or calls `_something`
+- `from unittest.mock import patch` or `import unittest.mock`
+- Granular TDD test left in `tests/` after implementation complete
+- Bare `pytest` in commands
 
-### 3. Fixtures (Setup & Teardown)
+## TDD Scaffolding
 
-Use fixtures instead of `setup_method` or `teardown_method`. Fixtures are dependency injection for tests.
+**REQUIRED BACKGROUND:** Use `tdd` skill. Scaffolding tests may target internals; they are temporary and deleted before done. Convert behavior to keeper tests per this skill.
 
-* **Define in `conftest.py`:** Place fixtures used by multiple test files in `tests/conftest.py`. You do not need to import them manually.
-* **Scopes:** Use the tightest scope possible (`function` is default).
-  * `function`: Run once per test.
-  * `class`: Run once per test class.
-  * `module`: Run once per file.
-  * `session`: Run once per entire test suite (e.g., spinning up a Docker container).
-* **Teardown with `yield`:** Code after the `yield` statement runs after the test finishes.
+## Common Mistakes
 
-### 4. Parametrization
+- Patching `my_package.utils.requests` when code imports `requests` inside `api_client` - patch `my_package.api_client.requests`
+- Leaving `tdd_scaffolding/` after TDD completes
+- Testing return value structure field-by-field when one behavioral assertion suffices
+- `@pytest.fixture` duplicated across files instead of shared `conftest.py`
 
-Avoid writing loops inside tests or duplicating test logic. Use `@pytest.mark.parametrize` to run the same test function with different inputs.
+## Example
 
-### 5. Mocking
-
-Prefer the `pytest-mock` plugin (which provides the `mocker` fixture) over `unittest.mock` directly. It ensures mocks are automatically stopped after the test. If `pytest-mock` is not installed, fall back to `unittest.mock.patch` as a context manager or decorator - never use it as a standalone call without cleanup.
-
-* **Pattern:** `mocker.patch("path.to.dependency", return_value=...)`
-* **Verification:** `mock_obj.assert_called_once_with(...)`
-
-### 6. Assertions
-
-Use standard Python `assert` statements. Pytest rewrites these at runtime to provide detailed introspection (diffs) on failure.
-
-* **Exceptions:** Use `with pytest.raises(ExpectedException):` to test error handling.
-
-### 7. Testing Philosophy: Behavior over Implementation
-
-These guidelines apply to keeper tests. TDD scaffolding tests (in `tdd_scaffolding/`) are temporary and exempt from the public-API rule below - they are deleted after implementation.
-
-Strictly adhere to testing **Public APIs only** in keeper tests.
-
-* **Do not test private methods:** Never write tests for functions or methods starting with an underscore (`_function_name`). These are implementation details.
-* **Test Observable Behavior:** Tests should verify *what* the code does (inputs/outputs, side effects), not *how* it does it.
-* **Refactoring Safety:** If refactoring the internal logic of a function requires changing the test, the test was likely too coupled to implementation. Rewrite the test to be more high-level.
-
-## Examples
-
-### Basic Test with Fixture (AAA Pattern)
+Public API test with fixture and mock at the use site:
 
 ```python
 import pytest
-from my_package.wallet import Wallet
+
 
 @pytest.fixture
-def empty_wallet():
-    """Returns a Wallet instance with 0 balance."""
-    return Wallet(balance=0)
+def calculator():
+    return OrderCalculator()
 
-def test_wallet_add_cash(empty_wallet):
-    # Arrange
-    wallet = empty_wallet
-    amount = 10
 
-    # Act
-    wallet.add_cash(amount)
-
-    # Assert
-    assert wallet.balance == 10
-```
-
-### Parametrization (Data-Driven Tests)
-
-```python
-import pytest
-from my_package.math import add
-
-@pytest.mark.parametrize("a, b, expected", [
-    (1, 1, 2),
-    (10, 20, 30),
-    (0, 0, 0),
-    (-1, 1, 0),
-])
-def test_add(a, b, expected):
-    assert add(a, b) == expected
-```
-
-### Mocking External Dependencies
-
-```python
-def test_fetch_user_data(mocker):
-    # Arrange: Mock the 'requests.get' call in the module being tested
-    mock_get = mocker.patch("my_package.api_client.requests.get")
-    
-    # Configure the mock to return a specific JSON response
-    mock_response = mocker.Mock()
-    mock_response.json.return_value = {"id": 1, "name": "Test User"}
-    mock_get.return_value = mock_response
-
-    from my_package.api_client import get_user
-
-    # Act
-    user = get_user(1)
-
-    # Assert
-    assert user["name"] == "Test User"
-    mock_get.assert_called_once_with("[https://api.example.com/users/1](https://api.example.com/users/1)")
-```
-
-### Testing Exceptions
-
-```python
-import pytest
-
-def test_divide_by_zero():
-    with pytest.raises(ZeroDivisionError):
-        1 / 0
-```
-
-### ❌ Bad (Testing Implementation)
-
-```python
-# Testing a private helper function directly
-def test_internal_tax_calculation():
-    calculator = OrderCalculator()
-    # This method might be deleted or renamed later!
-    tax = calculator._calculate_state_tax(100, "NY") 
-    assert tax == 8.875
-```
-
-### ✅ Good (Testing Public API)
-
-```python
-# Testing the result the user actually cares about
-def test_order_total_includes_ny_tax():
-    calculator = OrderCalculator()
-    # The public method calls the private helper internally
+def test_order_total_includes_ny_tax(mocker, calculator):
+    mocker.patch("my_package.tax.lookup_rate", return_value=0.08875)
     total = calculator.get_order_total(subtotal=100, state="NY")
-    assert total == 108.875
+    assert total == pytest.approx(108.875)
 ```
