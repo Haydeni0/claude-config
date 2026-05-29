@@ -9,14 +9,31 @@
 
 ## Code editing discipline
 
-When editing existing code, every line you change must trace to the user's request. Do not make incidental changes.
+**Principle:** Every changed line traces to the user's request. Extends karpathy Surgical Changes with these specifics:
 
-- **Do not delete comments, docstrings, or section-group markers** (e.g. `# Job identification`) unless the user asked, or the code they document is being removed.
-- **Do not reformat whitespace** outside the lines you are editing (blank lines inside functions, trailing newlines, etc.).
-- **Do not rename symbols** - including public-to-private visibility changes like `foo` → `_foo` - unless the user asked or the rename is required by the task.
-- **Do not add `# noqa`, `# type: ignore`, `# pragma`, or equivalent linter-silencers.** Also do not suppress logs a different way (e.g., by modifying `pyproject.toml` rules). If a linter complains, satisfy it properly (write the docstring, fix the type, narrow the call) or flag the issue to the user and ask.
-- **When moving code, carry comments and docstrings with it.** Do not strip them during the move.
-- **If a comment or docstring is wrong after your change, update it** - do not delete it.
+| Do | Don't |
+|---|---|
+| Fix only what was asked | reformat, rename, or tidy adjacent code |
+| Update wrong comments/docstrings | delete comments, docstrings, section markers unless user explicitly asked to remove that item |
+| Carry comments/docstrings when moving code | strip them during moves |
+| Fix linter issues properly | `# noqa`, `# type: ignore`, `# pragma`, or pyproject suppressions |
+| Remove imports/symbols YOUR edit orphaned | delete pre-existing dead code unprompted |
+
+### Rationalizations
+
+| Excuse | Reality |
+|---|---|
+| "Cleaner to reformat the whole file" | Hides the real diff from review |
+| "I'll rename to `_foo` - better encapsulation" | Rename only when asked or required |
+| "`# type: ignore` is faster" | Fix the type, docstring, or call; or ask |
+| "This comment is stale anyway" | Update it if wrong; don't delete unprompted |
+
+### Red flags - stop
+
+- Whole-file or out-of-scope whitespace changes
+- Symbol renames (including `foo` → `_foo`) not required by task
+- Linter silencers or config rule changes to suppress warnings
+- Deleting section-group markers or docstrings unprompted
 
 When in doubt, leave it alone and ask.
 
