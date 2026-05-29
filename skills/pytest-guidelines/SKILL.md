@@ -1,6 +1,6 @@
 ---
 name: pytest-guidelines
-description: Use when writing or reviewing Python pytest tests, when tests import unittest.mock, or when keeper tests target private methods or implementation details.
+description: Use when writing or reviewing Python pytest tests, when tests import unittest.mock, when keeper tests target private methods or implementation details, or when fixture params or definitions lack type annotations.
 ---
 
 # Pytest Guidelines
@@ -19,6 +19,7 @@ Keeper tests document **public behavior** only. During TDD, temporary tests live
 | Test public inputs/outputs and side effects | test `_private` methods in keeper tests |
 | `@pytest.mark.parametrize` for input variants | loops inside test bodies |
 | `with pytest.raises(...)` for errors | manual try/except in tests |
+| Type every fixture param and `@pytest.fixture` return | untyped fixtures or `Any` on fixture params |
 
 Discovery: files `test_*.py`, functions `test_*()`, classes `Test*`. Shared fixtures in `tests/conftest.py`.
 
@@ -62,6 +63,39 @@ If refactoring internals forces keeper test changes, the test was too coupled - 
 - Granular TDD test left in `tests/` after implementation complete
 - Bare `pytest` in commands
 
+## Typing
+
+Review aid for keeper tests - not full typing enforcement. Scaffolding exempt.
+
+Type **all fixtures** in keeper tests:
+
+- **`@pytest.fixture` definitions:** always `-> ReturnType`
+- **Test params:** annotate every injected fixture, including built-ins and plugin fixtures
+- **Chained fixtures:** annotate fixture params that depend on other fixtures
+- Skip `-> None` on test functions
+
+Plugin fixtures: use types from plugin stubs or docs - never `Any` for convenience.
+
+### Built-in fixture types
+
+| Fixture | Type |
+|---|---|
+| `tmp_path` | `pathlib.Path` |
+| `tmp_path_factory` | `pytest.TempPathFactory` |
+| `monkeypatch` | `pytest.MonkeyPatch` |
+| `capsys` / `capfd` | `pytest.CaptureFixture[str]` |
+| `mocker` | `pytest_mock.MockerFixture` |
+| `request` | `pytest.FixtureRequest` |
+
+```python
+@pytest.fixture
+def calculator() -> OrderCalculator:
+    return OrderCalculator()
+
+def test_total(mocker: MockerFixture, calculator: OrderCalculator):
+    ...
+```
+
 ## TDD Scaffolding
 
 **REQUIRED BACKGROUND:** Use `tdd` skill. Scaffolding tests may target internals; they are temporary and deleted before done. Convert behavior to keeper tests per this skill.
@@ -72,21 +106,25 @@ If refactoring internals forces keeper test changes, the test was too coupled - 
 - Leaving `tdd_scaffolding/` after TDD completes
 - Testing return value structure field-by-field when one behavioral assertion suffices
 - `@pytest.fixture` duplicated across files instead of shared `conftest.py`
+- Custom fixture without return type in keeper tests
+- Untyped fixture param on keeper test (`tmp_path` with no annotation)
+- `Any` on a fixture param when a concrete type exists
 
 ## Example
 
-Public API test with fixture and mock at the use site:
+Public API test with typed fixture and mock:
 
 ```python
 import pytest
+from pytest_mock import MockerFixture
 
 
 @pytest.fixture
-def calculator():
+def calculator() -> OrderCalculator:
     return OrderCalculator()
 
 
-def test_order_total_includes_ny_tax(mocker, calculator):
+def test_order_total_includes_ny_tax(mocker: MockerFixture, calculator: OrderCalculator):
     mocker.patch("my_package.tax.lookup_rate", return_value=0.08875)
     total = calculator.get_order_total(subtotal=100, state="NY")
     assert total == pytest.approx(108.875)
