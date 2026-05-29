@@ -14,6 +14,20 @@ Backup of `~/.claude` config for [Claude Code](https://docs.anthropic.com/en/doc
 - `hooks/` + `RTK.md` — RTK token-rewrite hook
 - `statusline-command.sh` — CLI statusline
 
+## Typical workflows
+
+> Personal notes. One conversation unless context stale or switching repos.
+> 
+> Single living spec; after Interfaces and Tests grills: `Fold our decisions into the spec. Also, review the spec for consistency after.`
+
+### Feature pipeline
+
+- **Understand** — `Help me plan <feature>. <why> <starter idea> <existing integration surface in repo> /grill-me` — exit: scope, non-goals, key decisions agreed
+- **Spec** — `Write a spec from our agreed design. /superpowers:brainstorming` — exit: spec file exists and reviewed
+- **Interfaces** — `Help me brainstorm interfaces/classes for this spec. /grill-me` — exit: protocols, classes, module layout agreed — then: spec merge
+- **Tests** — `Help me plan tests for this spec before we implement. /grill-me /pytest-guidelines` — exit: public API test strategy agreed — then: spec merge
+- **Implement** — `Implement per spec. /tdd` — exit: `tdd_scaffolding/` deleted; behavioral tests pass per `pytest-guidelines`
+
 ## Install (new machine)
 
 ```bash
