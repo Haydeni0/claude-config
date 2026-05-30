@@ -85,8 +85,7 @@
       "Glob(~/**)",
       "WebFetch(domain:lightning.ai)",
       "WebFetch(domain:arxiv.org)",
-      "mcp__excalidraw__*",
-      "mcp__claude_ai_Excalidraw__*",
+
       "mcp__claude_ai_Notion__notion-search",
       "mcp__claude_ai_Notion__notion-fetch",
       "mcp__claude_ai_Notion__notion-get-comments",
