@@ -81,7 +81,7 @@ Apply when writing, reviewing or editing code.
 
 - **Prefer EAFP (try/except) for operations that genuinely fail at runtime** (I/O, lookups) - a check-then-act has a TOCTOU race. But don't use exceptions to branch on *expected* business logic; that's control flow, use a conditional.
 
-- **Use f-strings for interpolation and `f"{x=}"` for debug output. Never use f-strings in logging calls** - they evaluate eagerly even when the level is suppressed; use lazy `%` args.
+- **Don't use f-strings in `logging` calls** - they evaluate eagerly even when the log level is suppressed; pass lazy `%` args. (`f"{x=}"` is handy for debug output, though.)
 
   ```python
   # bad
