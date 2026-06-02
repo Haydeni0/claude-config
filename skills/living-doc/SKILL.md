@@ -21,16 +21,16 @@ A living doc is an evidence-grounded markdown reference, built *during* an inves
 
 | `$ARGUMENTS` | Mode |
 |---|---|
-| empty | **START** |
+| empty, `start`, or `start <name>` | **START** |
 | `resume <name>` | **RESUME** |
 | `finalise` or `finalise <name>` | **FINALISE** |
 
 ## START
 
-1. Ask exactly these two questions, then wait for answers:
+1. Ask exactly these two questions, then wait for answers (always, even if a name was given):
    - **Goal** - what are you trying to achieve?
    - **Success criteria** - how will you know it's done?
-2. Propose a concise, sensible doc name from the task. Get the user's OK before creating the file.
+2. If `start <name>` supplied a name, use it. Otherwise propose a concise, sensible name from the task and get the user's OK before creating the file.
 3. Create `<name>.md` at the workspace root with this skeleton:
    ```markdown
    # <name>
