@@ -6,9 +6,9 @@ argument-hint: <PR-number> [--since <commit>]
 allowed-tools:
   - Bash(gh pr checkout *)
   - Bash(gh pr view *)
-  - Bash(gh pr diff *)
   - Bash(gh pr checks *)
   - Bash(git diff *)
+  - Bash(git fetch *)
   - Bash(git log *)
   - Bash(git merge-base *)
   - Read(*)
@@ -55,27 +55,33 @@ Forbidden: python, python3, pip, npm, node, make, cargo, docker run/build, pytes
    - `gh pr view $PR_NUMBER --json title,body,author,baseRefName,headRefName,additions,deletions,changedFiles`
    - `gh pr checks $PR_NUMBER` to note CI status (for context only — do not act on failures)
 
-4. **Compute base ref** (only when `--since` was provided)
+4. **Fetch base branch**
+
+   ```bash
+   git fetch origin <baseRefName>
+   ```
+
+   This ensures `origin/<baseRefName>` is current before computing diffs. Use the `baseRefName` from step 3.
+
+5. **Compute base ref** (only when `--since` was provided)
 
    ```bash
    BASE=$(git merge-base $SINCE HEAD)
    ```
 
-   Skip this step if `--since` was NOT provided — `gh pr diff` is used instead (see step 6).
+   Skip this step if `--since` was NOT provided.
 
-   > **Why not `git merge-base` for the default path?** Repos using squash-merge or rebase-merge cause `git merge-base HEAD origin/<base>` to return a commit older than the PR's true base, pulling in changes already on the base branch. `gh pr diff` uses GitHub's server-side diff and is always correct.
-
-5. **Check diff size** (only when `--since` was NOT provided)
+6. **Check diff size** (only when `--since` was NOT provided)
 
    Use `changedFiles`, `additions`, and `deletions` already fetched in step 3. No extra command needed.
 
    If the diff exceeds 500 lines or 10 files, ask the user:
    > "This diff is large (X files, Y lines). Want me to focus on a specific area, file pattern, or concern? Or proceed with full review?"
 
-   - If the user narrows scope, note the requested paths/patterns for step 6.
+   - If the user narrows scope, note the requested paths/patterns for step 7.
    - If the user says proceed, continue as normal.
 
-6. **Get diff**
+7. **Get diff**
 
    If `--since` was provided:
    ```bash
@@ -84,30 +90,36 @@ Forbidden: python, python3, pip, npm, node, make, cargo, docker run/build, pytes
 
    Otherwise:
    ```bash
-   gh pr diff $PR_NUMBER
+   git diff origin/<baseRefName>...HEAD
    ```
 
-   If the user narrowed scope in step 5:
-   - To exclude paths: `gh pr diff $PR_NUMBER -e '<glob-pattern>'`
-   - To focus on specific files: get the full diff, then use the Read tool on only the files in scope for step 7.
+   Three dots (`...`) = diff from merge-base, matching GitHub's PR Changes tab. Never two dots (`..`) — that compares tips directly and pulls in unrelated commits from branches that haven't rebased onto main.
 
-7. **Deep review** — for each changed file in scope:
+   If the user narrowed scope in step 6:
+   - To focus on specific paths: `git diff origin/<baseRefName>...HEAD -- <path>`
+   - To exclude paths: get the full diff, then use the Read tool on only the files in scope.
+
+   **Enumerate changed files** (for step 8):
+   ```bash
+   git diff --name-only origin/<baseRefName>...HEAD
+   ```
+
+8. **Deep review** — for each file listed by step 7's `--name-only` output:
    - Read the full file (not just the diff) to understand surrounding logic
    - Trace how the changes interact with callers, dependencies, and downstream consumers
    - Check whether the change breaks any implicit contracts or assumptions in adjacent code
 
-8. **Check existing discussion**
+9. **Check existing discussion**
    - `gh pr view $PR_NUMBER --comments` to see existing review comments
 
-9. **Produce review v1**
+10. **Produce review v1**
 
-   Apply the review criteria and output format from [code-review-guidelines](../code-review-guidelines/SKILL.md). Add a "CI Status" section after the Summary with a brief note on passing/failing checks (do not investigate or fix failures). Hold this as review v1 - do NOT output it to the user yet.
+    Apply the review criteria and output format from [code-review-guidelines](../code-review-guidelines/SKILL.md). Add a "CI Status" section after the Summary with a brief note on passing/failing checks (do not investigate or fix failures). Hold this as review v1 - do NOT output it to the user yet.
 
-10. **Meta-review pass**
+11. **Meta-review pass**
 
     - Use the `Agent` tool with `subagent_type: meta-reviewer`. Pass review v1 (full markdown) and the base ref in the prompt:
-      - If `--since` was provided: use `$BASE` (the merge-base SHA from step 4).
-      - Otherwise: use `origin/<baseRefName>` (e.g. `origin/main`) so the meta-reviewer's diff sweep matches the correct PR diff.
+      - If `--since` was provided: use `$BASE` (the merge-base SHA from step 5).
+      - Otherwise: use `origin/<baseRefName>` (e.g. `origin/main`) so the meta-reviewer's diff sweep uses the same three-dot base.
     - Output the meta-reviewer's return value (v2) as the final review. If the meta-reviewer errors, output v1 with a one-line note appended to its Summary: `Meta-review unavailable.`
 
-REMINDER: You have NO permission to run Python, pip, build tools, or any code execution. Only use the tools listed in allowed-tools.

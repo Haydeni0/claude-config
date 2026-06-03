@@ -14,7 +14,7 @@ Caller provides:
 ## Procedure
 
 1. **Load ground truth**
-   - `git diff $BASE..HEAD` for the full diff.
+   - `git diff $BASE...HEAD` for the full diff.
    - For each finding, `Read` the cited file around the cited line.
 
 2. **Per-finding verdict** - for each finding in v1, apply in order:
