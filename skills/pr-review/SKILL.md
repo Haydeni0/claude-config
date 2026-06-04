@@ -71,17 +71,7 @@ Forbidden: python, python3, pip, npm, node, make, cargo, docker run/build, pytes
 
    Skip this step if `--since` was NOT provided.
 
-6. **Check diff size** (only when `--since` was NOT provided)
-
-   Use `changedFiles`, `additions`, and `deletions` already fetched in step 3. No extra command needed.
-
-   If the diff exceeds 500 lines or 10 files, ask the user:
-   > "This diff is large (X files, Y lines). Want me to focus on a specific area, file pattern, or concern? Or proceed with full review?"
-
-   - If the user narrows scope, note the requested paths/patterns for step 7.
-   - If the user says proceed, continue as normal.
-
-7. **Get diff**
+6. **Get diff**
 
    If `--since` was provided:
    ```bash
@@ -95,28 +85,24 @@ Forbidden: python, python3, pip, npm, node, make, cargo, docker run/build, pytes
 
    Three dots (`...`) = diff from merge-base, matching GitHub's PR Changes tab. Never two dots (`..`) — that compares tips directly and pulls in unrelated commits from branches that haven't rebased onto main.
 
-   If the user narrowed scope in step 6:
-   - To focus on specific paths: `git diff origin/<baseRefName>...HEAD -- <path>`
-   - To exclude paths: get the full diff, then use the Read tool on only the files in scope.
-
    **Enumerate changed files** (for step 8):
    ```bash
    git diff --name-only origin/<baseRefName>...HEAD
    ```
 
-8. **Deep review** — for each file listed by step 7's `--name-only` output:
+7. **Deep review** — for each file listed by step 6's `--name-only` output:
    - Read the full file (not just the diff) to understand surrounding logic
    - Trace how the changes interact with callers, dependencies, and downstream consumers
    - Check whether the change breaks any implicit contracts or assumptions in adjacent code
 
-9. **Check existing discussion**
+8. **Check existing discussion**
    - `gh pr view $PR_NUMBER --comments` to see existing review comments
 
-10. **Produce review v1**
+9. **Produce review v1**
 
     Apply the review criteria and output format from [code-review-guidelines](../code-review-guidelines/SKILL.md). Add a "CI Status" section after the Summary with a brief note on passing/failing checks (do not investigate or fix failures). Hold this as review v1 - do NOT output it to the user yet.
 
-11. **Meta-review pass**
+10. **Meta-review pass**
 
     - Use the `Agent` tool with `subagent_type: meta-reviewer`. Pass review v1 (full markdown) and the base ref in the prompt:
       - If `--since` was provided: use `$BASE` (the merge-base SHA from step 5).
