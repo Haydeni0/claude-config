@@ -27,9 +27,17 @@ A living doc is an evidence-grounded markdown reference, built *during* an inves
 
 ## START
 
-1. Ask exactly these two questions, then wait for answers (always, even if a name was given):
+1. Ask exactly these two questions, adding your interpretation of the user's likely answer only when the user's request gives enough context to infer it; otherwise ask without an interpretation and wait for answers (always, even if a name was given):
    - **Goal** - what are you trying to achieve?
    - **Success criteria** - how will you know it's done?
+   When adding interpretations, use this format:
+   ```markdown
+   **Goal** - what are you trying to achieve?
+   Interpretation: I think you want to <agent's concrete read of the goal>. Is that right?
+
+   **Success criteria** - how will you know it's done?
+   Interpretation: I think this is done when <agent's concrete read of completion>. Is that right?
+   ```
 2. If `start <name>` supplied a name, use it. Otherwise propose a concise, sensible name from the task and get the user's OK before creating the file.
 3. Create `<name>.md` at the workspace root with this skeleton:
    ```markdown
