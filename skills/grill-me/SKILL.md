@@ -7,7 +7,7 @@ metadata:
 
 Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
 
-Ask one question at a time, waiting for feedback before continuing.
+Ask one question at a time, waiting for feedback before continuing. If the user affirms (yes / ok / y / sure), treat your recommendation as accepted and advance to the next question.
 
 If a question can be answered by exploring the codebase, explore it instead of asking.
 
