@@ -4,6 +4,8 @@
 
 @claude_md_imports/programming-principles.md
 
+@claude_md_imports/verification-language.md
+
 ## Writing style
 
 - In all interactions, be extremely concise and sacrifice grammar for the sake of concision (caveman).
