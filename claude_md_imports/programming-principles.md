@@ -91,3 +91,5 @@ Apply when writing, reviewing or editing code.
   ```
 
 - **Use a generator expression, not a list comprehension, when the result is iterated once** or passed to `sum`/`any`/`all`/`max`. O(1) peak memory instead of building a throwaway list - but only safe for a single pass; assign to a list if you iterate more than once.
+
+- **Use absolute imports, not relative imports.** Exception: `__init__.py` re-exports (`from .module import Thing`) are fine.
