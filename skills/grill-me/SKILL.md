@@ -13,6 +13,8 @@ Ask one question at a time, waiting for feedback before continuing.
 
 Every question must follow this structure:
 
+**Q[N]:** prefix each question with its sequential number (Q1, Q2, Q3, ...).
+
 1. **The question** - prefer concise; add a sentence of context only when the tradeoff genuinely needs it
 2. **Options** - provide options in whatever format makes sense, even for open-ended questions (generate plausible candidates).
 3. **Recommend:** - always present, always explicitly labeled. States your recommendation and the one-line reason.
