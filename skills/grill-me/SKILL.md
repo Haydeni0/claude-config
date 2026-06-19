@@ -23,6 +23,7 @@ Every question must follow this structure:
 
 - User says **yes / ok / y / sure**: treat your recommendation as accepted. Move to the next question silently - no echo, no confirmation.
 - User gives **free text override**: incorporate it and move on. Only echo back if the override is ambiguous.
+- User asks a follow-up question or gives a non-answer: answer the question, then **re-ask the same question** (same Q[N], mark as revised if needed). Do NOT move to the next question until the user has explicitly chosen an option or accepted the recommendation.
 
 ## During the session
 
