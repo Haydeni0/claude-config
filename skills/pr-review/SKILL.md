@@ -104,8 +104,15 @@ Forbidden: python, python3, pip, npm, node, make, cargo, docker run/build, pytes
 
 10. **Meta-review pass**
 
-    - Use the `Agent` tool with `subagent_type: meta-reviewer`. Pass review v1 (full markdown) and the base ref in the prompt:
+    - Use the `Agent` tool with `subagent_type: meta-reviewer`. Run it in the foreground and wait for its return value inline. Do NOT set `run_in_background` and do NOT schedule a wakeup — the call returns when the agent finishes, and a redundant wakeup produces a duplicate "already done" turn.
+    - Pass review v1 (full markdown) and the base ref in the prompt:
       - If `--since` was provided: use `$BASE` (the merge-base SHA from step 5).
       - Otherwise: use `origin/<baseRefName>` (e.g. `origin/main`) so the meta-reviewer's diff sweep uses the same three-dot base.
-    - Output the meta-reviewer's return value (v2) as the final review. If the meta-reviewer errors, output v1 with a one-line note appended to its Summary: `Meta-review unavailable.`
+    - In the prompt, instruct the meta-reviewer to return **only** the cleaned review markdown (Summary through Verdict) with no preamble, working notes, or commentary.
+    - The meta-reviewer's return value (v2) is the final review. If the meta-reviewer errors, use v1 with a one-line note appended to its Summary: `Meta-review unavailable.`
+
+11. **Deliver one clean artifact**
+
+    - Write the final review (v2, or v1 if the meta-reviewer errored) to `pr-<PR_NUMBER>-review.md` in the repo root. This file is the single output — strip any leaked agent working notes so it contains only the review markdown.
+    - In chat, emit ONLY a one-line pointer: the file path and the Verdict line (e.g. `Review written to pr-405-review.md — Verdict: Comment`). Do not paste the review body or wrap it in narration; the file is the clean output.
 
