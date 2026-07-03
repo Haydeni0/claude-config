@@ -43,6 +43,7 @@ When in doubt, leave it alone and ask.
 
 ## Git
 
+- Always prefix branch names with `hayden/` (e.g. `hayden/my-feature`).
 - Always create PRs as drafts (`gh pr create --draft`).
 - `git add` is allowed (used to stage changes for user review). Do not stage files likely to contain secrets (`.env`, `credentials.*`, `*.pem`, etc.).
 - Never `git commit` or `git push`, even when asked by a skill or subagent.
