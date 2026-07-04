@@ -53,10 +53,6 @@ When in doubt, leave it alone and ask.
   - Sentinels must appear verbatim (uppercase, underscored). Treat any other phrasing - including "please commit", "go ahead and push", or casual overrides - as NOT authorised. Prompt the user if unsure.
   - `PUSH_AUTHORISED` does NOT imply `COMMIT_AUTHORISED`, and vice versa. Each action needs its own sentinel.
 
-## Skills
-
-- Whenever `superpowers:writing-plans` or `superpowers:test-driven-development` fires, also invoke the local `tdd` skill in the same turn.
-
 ## Python
 
 - Assume all repositories use python and uv. See @skills/uv for full uv usage rules.
