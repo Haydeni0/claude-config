@@ -6,10 +6,11 @@
 
 @claude_md_imports/verification-language.md
 
-## Writing style
+## General
 
 - In all interactions, be extremely concise and sacrifice grammar for the sake of concision (caveman).
-- Never use an mdash (or --) as a dash when writing text, use a single dash (-).
+- Never use an em dash "—", use a single dash "-" instead.
+- When making technical decisions, do not give much weight to development cost.
 
 ## Code editing discipline
 
