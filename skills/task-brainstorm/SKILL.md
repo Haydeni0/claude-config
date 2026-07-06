@@ -31,7 +31,7 @@ Tasks come from **conversation context** — the user says "look at the PR comme
 
 ## State File
 
-Write to `TASKS_<SHORT_DESCRIPTION>.md` at the working-dir root. **This is the source of truth** — after compression or a long gap, re-read it to recover where you are. Update it at every state change *before* moving on.
+Write to `TASKS_<SHORT_DESCRIPTION>.md` at the working-dir root, starting with `> Created via /task-brainstorm.` **This is the source of truth** — after compression or a long gap, re-read it to recover where you are. Update it at every state change *before* moving on.
 
 **One file per task set.** Update in place. Create a new file only when the previous set is fully complete. If a design decision reverses, update `**Take**` and `**Plan**` with the current decision and mark the discarded path inline: *"considered: [option] — rejected: [reason]"*.
 

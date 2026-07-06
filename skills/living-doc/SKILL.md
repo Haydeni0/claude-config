@@ -42,6 +42,7 @@ A living doc is an evidence-grounded markdown reference, built *during* an inves
 3. Create `<name>.md` at the workspace root with this skeleton:
    ```markdown
    # <name>
+   > Created via `/living-doc`. Resume with `/living-doc resume <name>`.
    ## Goal
    ## Success criteria
    ## Findings   <!-- verified facts -->
