@@ -157,7 +157,7 @@
     "command": "bash ~/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
-    "pyright-lsp@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": false,
     "superpowers@claude-plugins-official": true
   },
   "effortLevel": "medium",
