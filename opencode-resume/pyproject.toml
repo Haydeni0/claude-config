@@ -1,0 +1,25 @@
+[project]
+name = "opencode-resume"
+version = "0.1.0"
+description = "Convert an opencode session (SQLite) into a Claude Code transcript. Stdlib only; runs with python3, no venv."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+opencode-resume = "opencode_resume.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-mock>=3.12",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["opencode_resume"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

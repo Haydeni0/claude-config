@@ -33,6 +33,11 @@ settings.local.json
 !sync-opencode/*/
 !sync-opencode/**
 
+# Track opencode-resume
+!opencode-resume/
+!opencode-resume/*/
+!opencode-resume/**
+
 # Track opencode base config
 !opencode/
 !opencode/*/
