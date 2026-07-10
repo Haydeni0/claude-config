@@ -1,8 +1,8 @@
 """CLI entrypoint: sync ~/.claude config into opencode and pi.
 
-~/.claude is the single source of truth. `settings-sync opencode` derives config
-into ~/.config/opencode; `settings-sync pi` writes pointers + inlined context
-into ~/.pi/agent. Bare `settings-sync` (or `settings-sync all`) runs both.
+~/.claude is the single source of truth. `sync opencode` derives config
+into ~/.config/opencode; `sync pi` writes pointers + inlined context
+into ~/.pi/agent. Bare `sync` (or `sync all`) runs both.
 """
 
 import difflib

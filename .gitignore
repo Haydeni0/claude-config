@@ -57,6 +57,6 @@ settings.local.json
 !hooks/**
 !RTK.md
 
-# Track pi config (shared with pi via settings-sync pi)
+# Track pi config (shared with pi via sync pi)
 !pi/
 !pi/**

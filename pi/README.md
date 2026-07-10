@@ -5,7 +5,7 @@ resources too. Your skills and commands are already shared with Claude Code; pi 
 them directly via pointers — no duplication, no per-resource symlinks.
 
 Sync is handled by [`settings-sync`](../settings-sync/README.md) (one tool syncs both opencode
-and pi): `settings-sync pi` writes the pointer template into `~/.pi/agent/settings.json`
+and pi): `sync pi` writes the pointer template into `~/.pi/agent/settings.json`
 and an inlined `CLAUDE.md` into `~/.pi/agent/CLAUDE.md`.
 
 ## Architecture
@@ -41,16 +41,16 @@ reads:
   "themes":     ["~/.claude/pi/themes"]
 }
 ```
-Paths use `~`, so they're identical on every machine. `settings-sync pi config` **wholesale-copies**
+Paths use `~`, so they're identical on every machine. `sync pi config` **wholesale-copies**
 this file to `~/.pi/agent/settings.json` — no merge, no preserved machine keys. pi's own state
 (e.g. `lastChangelogVersion`, which pi writes after showing a changelog) is disposable: a sync
 resets it, pi re-shows the changelog once, then rewrites it. Per-machine model/auth/provider
 choices belong in `auth.json`/`models.json`/env, not in `settings.json`.
 
-`settings-sync pi context` inlines `~/.claude/CLAUDE.md` into `~/.pi/agent/CLAUDE.md`: it expands
+`sync pi context` inlines `~/.claude/CLAUDE.md` into `~/.pi/agent/CLAUDE.md`: it expands
 `@claude_md_imports/*` recursively and rewrites `@skills/<n>` to ``the `<n>` skill`` (pi can't
-expand `@` imports itself). This runs by default with `settings-sync pi`; pass `--no-context` is
-not needed — opt out via `settings-sync pi config` (context only with `settings-sync pi context`).
+expand `@` imports itself). This runs by default with `sync pi`; pass `--no-context` is
+not needed — opt out via `sync pi config` (context only with `sync pi context`).
 
 ## Set up a new machine
 
@@ -65,7 +65,7 @@ git clone git@github-haydeni0:Haydeni0/claude-config.git ~/.claude   # first tim
 git -C ~/.claude pull                                               # existing machine
 
 # 3. sync pi (needs uv: https://docs.astral.sh/uv/)
-uv run --directory ~/.claude/settings-sync settings-sync pi   # writes pointers + inlined CLAUDE.md into ~/.pi/agent
+uv run --directory ~/.claude/settings-sync sync pi   # writes pointers + inlined CLAUDE.md into ~/.pi/agent
 
 # 4. authenticate, then use
 pi            # then /login  (or: export ANTHROPIC_API_KEY=... etc.)
@@ -80,8 +80,8 @@ pi            # then /login  (or: export ANTHROPIC_API_KEY=... etc.)
 | Add a command / prompt template | `~/.claude/commands/<name>.md` | as above |
 | Add an extension | `~/.claude/pi/extensions/<name>.ts` | as above |
 | Add a theme | `~/.claude/pi/themes/<name>.json` | as above |
-| **Change pointers** | `~/.claude/pi/settings.json` | commit → `git pull` → `settings-sync pi config` → `/reload` |
-| **Change global context** | `~/.claude/CLAUDE.md` or its `@` imports | commit → `git pull` → `settings-sync pi context` (or `settings-sync pi`) |
+| **Change pointers** | `~/.claude/pi/settings.json` | commit → `git pull` → `sync pi config` → `/reload` |
+| **Change global context** | `~/.claude/CLAUDE.md` or its `@` imports | commit → `git pull` → `sync pi context` (or `sync pi`) |
 
 Skill discovery is **recursive** over directories containing `SKILL.md`, so dropping a new
 `<name>/SKILL.md` is automatically picked up — no second touch, no symlink per skill. Skills
@@ -106,16 +106,16 @@ Note: `~/.pi/agent/settings.json` is **not** machine-local — it's a wholesale 
 
 ## Re-running the sync
 
-`settings-sync pi` is idempotent. Re-run it after changing `pi/settings.json` or `CLAUDE.md` in
+`sync pi` is idempotent. Re-run it after changing `pi/settings.json` or `CLAUDE.md` in
 the repo. It wholesale-copies the pointers and re-inlines the context; identical files report
 `unchanged`.
 
 To target a different pi agent dir (e.g. a throwaway harness), use `--pi-dir`:
 ```bash
-settings-sync --pi-dir /tmp/glm-pi pi
+sync --pi-dir /tmp/glm-pi pi
 ```
 
-Common flags (apply to `settings-sync` and any subcommand, before the group name):
+Common flags (apply to `sync` and any subcommand, before the group name):
 - `--check` — exit nonzero if drift detected, write nothing
 - `--dry-run` — show what would change, write nothing
 - `--force` — overwrite diverging derived files (context); pi config always overwrites
@@ -125,8 +125,8 @@ Common flags (apply to `settings-sync` and any subcommand, before the group name
 
 - **New skill not showing?** Run `/reload` in pi (or restart). Confirm it has `SKILL.md`
   with `name` + `description` frontmatter. Dirs without `SKILL.md` are ignored silently.
-- **Pointers lost / `/settings` clobbered them?** Re-run `settings-sync pi config`.
-- **Context stale after editing CLAUDE.md?** Re-run `settings-sync pi context` (or `settings-sync pi`).
+- **Pointers lost / `/settings` clobbered them?** Re-run `sync pi config`.
+- **Context stale after editing CLAUDE.md?** Re-run `sync pi context` (or `sync pi`).
 - **Command name mismatch?** pi uses the filename, not the `name:` frontmatter.
 - **Excluding a Claude-only skill** from pi: edit `pi/settings.json`, e.g.
   `"skills": ["~/.claude/skills", "!~/.claude/skills/caveman*"]` (arrays support globs + `!`).

@@ -7,7 +7,7 @@ description: Use when user asks to clean up tests, remove redundant tests, dedup
 
 Review redundant tests in current branch/PR while preserving high-signal behavior coverage. Review-only: do not edit files in this skill.
 
-Use shared workflow from `../test-pr-core/reference.md`, then apply this trim-specific rubric.
+Use shared workflow from `../test-pr-core.md`, then apply this trim-specific rubric.
 
 ## Scope
 

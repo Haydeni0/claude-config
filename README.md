@@ -15,7 +15,7 @@ Backup of `~/.claude` config — the single source of truth for [Claude Code](ht
 - `statusline-command.sh` — CLI statusline
 - `opencode/` — base opencode config (`opencode.json`, `tui.json`), synced by settings-sync
 - `settings-sync/` — syncs this config into [opencode](https://opencode.ai) and [pi](https://pi.dev); see [settings-sync/README.md](settings-sync/README.md)
-- `pi/` — base pi config (pointer template), wired by `settings-sync pi`; see [pi/README.md](pi/README.md)
+- `pi/` — base pi config (pointer template), wired by `sync pi`; see [pi/README.md](pi/README.md)
 
 ## Typical workflows
 
@@ -59,14 +59,14 @@ git submodule update --init --recursive
 
 ```bash
 # install opencode: https://opencode.ai  •  install pi: https://pi.dev  (e.g. curl -fsSL https://pi.dev/install.sh | sh)
-uv run --directory ~/.claude/settings-sync settings-sync          # sync everything (opencode + pi)
-uv run --directory ~/.claude/settings-sync settings-sync opencode # granular: opencode only
-uv run --directory ~/.claude/settings-sync settings-sync pi       # granular: pi only
-uv run --directory ~/.claude/settings-sync settings-sync --check  # drift check (read-only)
-# tip: alias ssync='uv run --directory ~/.claude/settings-sync settings-sync' for brevity
+uv run --directory ~/.claude/settings-sync sync          # sync everything (opencode + pi)
+uv run --directory ~/.claude/settings-sync sync opencode # granular: opencode only
+uv run --directory ~/.claude/settings-sync sync pi       # granular: pi only
+uv run --directory ~/.claude/settings-sync sync --check  # drift check (read-only)
+# tip: alias ssync='uv run --directory ~/.claude/settings-sync sync' for brevity
 ```
 
-- **opencode** — derives config into `~/.config/opencode`; re-run `settings-sync` after every `~/.claude` edit.
+- **opencode** — derives config into `~/.config/opencode`; re-run `sync` after every `~/.claude` edit.
 - **pi** — writes pointers + inlined context into `~/.pi/agent`; skills/commands are read directly (just `/reload` in pi after edits), only the context file is derived.
 
 See [settings-sync/README.md](settings-sync/README.md) and [pi/README.md](pi/README.md).

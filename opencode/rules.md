@@ -37,8 +37,8 @@ These rules apply to all opencode sessions. They are opencode-specific additions
 | Edit `~/.claude/opencode/opencode.json` | Edit `~/.config/opencode/opencode.json` |
 | Edit `~/.claude/opencode/tui.json` | Edit `~/.config/opencode/tui.json` |
 | Edit `~/.claude/CLAUDE.md` | Edit `~/.config/opencode/AGENTS.md` |
-| Run `settings-sync opencode <step> --force` after changes | Assume changes propagate without sync |
+| Run `sync opencode <step> --force` after changes | Assume changes propagate without sync |
 
 **Red flags - stop:**
 - About to write/edit a file under `~/.config/opencode/` - STOP. Edit `~/.claude/` source, then sync.
-- `~/.config/opencode/` file doesn't match `~/.claude/` source - run `settings-sync --check` to find drift.
+- `~/.config/opencode/` file doesn't match `~/.claude/` source - run `sync --check` to find drift.

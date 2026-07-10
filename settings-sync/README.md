@@ -2,7 +2,7 @@
 
 Syncs `~/.claude` config into both [opencode](https://opencode.ai) (`~/.config/opencode`) and [pi](https://pi.dev) (`~/.pi/agent`). `~/.claude` stays the single source of truth; the target dirs are fully derived and regenerated on each run.
 
-`~/.claude` is your git repo — `git pull` on any machine, then `settings-sync`. Skills and commands are read directly by both tools (no duplication); only the things each tool can't read natively are derived.
+`~/.claude` is your git repo — `git pull` on any machine, then `sync`. Skills and commands are read directly by both tools (no duplication); only the things each tool can't read natively are derived.
 
 ## What it syncs
 
@@ -35,25 +35,25 @@ pi's `settings.json` is **wholesale-copied** (no merge, no preserved machine key
 ## Usage
 
 ```bash
-# In the examples below, `settings-sync` is the invocation from Run above, i.e.
-# `uv run --directory ~/.claude/settings-sync settings-sync` (or your `ssync` alias).
+# In the examples below, `sync` is the invocation from Run above, i.e.
+# `uv run --directory ~/.claude/settings-sync sync` (or your `ssync` alias).
 
 # sync everything (opencode + pi); refuse on conflict, exit 1 if any conflict
-settings-sync
-settings-sync all                       # explicit
+sync
+sync all                       # explicit
 
 # per tool
-settings-sync opencode                  # all opencode steps
-settings-sync pi                        # pointers + inlined context
-settings-sync opencode config           # one step (config|tui|agents-md|agents|commands|plugins|skills)
-settings-sync pi config                 # one step (config|context|skills)
+sync opencode                  # all opencode steps
+sync pi                        # pointers + inlined context
+sync opencode config           # one step (config|tui|agents-md|agents|commands|plugins|skills)
+sync pi config                 # one step (config|context|skills)
 
 # flags (before the group name)
-settings-sync --dry-run                 # preview, write nothing
-settings-sync --check                   # exit nonzero on drift, write nothing
-settings-sync --force                   # clobber diverging derived files
-settings-sync --verbose                 # show diffs for changed text artifacts
-settings-sync --pi-dir /tmp/glm-pi pi   # target a different pi agent dir
+sync --dry-run                 # preview, write nothing
+sync --check                   # exit nonzero on drift, write nothing
+sync --force                   # clobber diverging derived files
+sync --verbose                 # show diffs for changed text artifacts
+sync --pi-dir /tmp/glm-pi pi   # target a different pi agent dir
 ```
 
 Global options (`--force`, `--dry-run`, `--check`, `--verbose`, `--claude-dir`, `--opencode-dir`, `--pi-dir`) go before the subcommand. Override paths for testing or alternate harnesses.
@@ -63,13 +63,13 @@ Global options (`--force`, `--dry-run`, `--check`, `--verbose`, `--claude-dir`, 
 Stateless — no install step, just run it from the repo each time (needs [uv](https://docs.astral.sh/uv/)):
 
 ```bash
-uv run --directory ~/.claude/settings-sync settings-sync          # sync everything (opencode + pi)
-uv run --directory ~/.claude/settings-sync settings-sync opencode # granular
-uv run --directory ~/.claude/settings-sync settings-sync pi       # granular
-# tip: alias ssync='uv run --directory ~/.claude/settings-sync settings-sync' for brevity
+uv run --directory ~/.claude/settings-sync sync          # sync everything (opencode + pi)
+uv run --directory ~/.claude/settings-sync sync opencode # granular
+uv run --directory ~/.claude/settings-sync sync pi       # granular
+# tip: alias ssync='uv run --directory ~/.claude/settings-sync sync' for brevity
 ```
 
-No persistent install, no shim on PATH — `git pull` and you're on the latest version. (If you prefer a global command, `uv tool install ~/.claude/settings-sync` puts `settings-sync` on PATH, but you must reinstall to update.)
+No persistent install, no shim on PATH — `git pull` and you're on the latest version. (If you prefer a global command, `uv tool install ~/.claude/settings-sync` puts `sync` on PATH, but you must reinstall to update.)
 
 ## Conflicts and safety
 
@@ -104,7 +104,7 @@ Claude Code `tools`/`disallowedTools`/`skills` map to opencode `permission`:
 
 ## Run after editing `~/.claude`
 
-After changing anything in `~/.claude`, re-run `settings-sync` (or the relevant group). It is idempotent — unchanged artifacts report `unchanged`, changed ones update.
+After changing anything in `~/.claude`, re-run `sync` (or the relevant group). It is idempotent — unchanged artifacts report `unchanged`, changed ones update.
 
 - **Skills/commands** are read directly by both tools — editing them needs only a `/reload` in pi (opencode picks them up live via symlink), no re-sync required.
-- **Derived files** (opencode's `AGENTS.md`/`agents/`/`opencode.json`, pi's `settings.json`/`CLAUDE.md`) update on next `settings-sync` run. So: edit CLAUDE.md or its `@` imports → `settings-sync` to refresh both `AGENTS.md` (opencode) and `CLAUDE.md` (pi).
+- **Derived files** (opencode's `AGENTS.md`/`agents/`/`opencode.json`, pi's `settings.json`/`CLAUDE.md`) update on next `sync` run. So: edit CLAUDE.md or its `@` imports → `sync` to refresh both `AGENTS.md` (opencode) and `CLAUDE.md` (pi).
