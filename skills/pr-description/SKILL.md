@@ -13,19 +13,35 @@ Generate a pull request description using the repo's structure (template if pres
 
 ## PR template
 
-!`cat .github/pull_request_template.md 2>/dev/null || cat .github/PULL_REQUEST_TEMPLATE.md 2>/dev/null || cat pull_request_template.md 2>/dev/null || echo "No PR template found."`
+Run via Bash to find the repo's PR template:
+
+```bash
+cat .github/pull_request_template.md 2>/dev/null || cat .github/PULL_REQUEST_TEMPLATE.md 2>/dev/null || cat pull_request_template.md 2>/dev/null || echo "No PR template found."
+```
 
 ## PR metadata
 
-!`gh pr view $ARGUMENTS --json title,body,author,baseRefName,headRefName,additions,deletions,changedFiles,commits 2>/dev/null || git log --oneline -30`
+Run via Bash to gather PR metadata (`$ARGUMENTS` is the PR number if given):
+
+```bash
+gh pr view $ARGUMENTS --json title,body,author,baseRefName,headRefName,additions,deletions,changedFiles,commits 2>/dev/null || git log --oneline -30
+```
 
 ## Current branch (if no open PR)
 
-!`git branch --show-current`
+Run via Bash:
+
+```bash
+git branch --show-current
+```
 
 ## PR diff
 
-!`gh pr diff $ARGUMENTS 2>/dev/null || git diff origin/main...HEAD`
+Run via Bash to get the diff:
+
+```bash
+gh pr diff $ARGUMENTS 2>/dev/null || git diff origin/main...HEAD
+```
 
 ## Author style
 
