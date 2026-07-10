@@ -59,10 +59,11 @@ git submodule update --init --recursive
 
 ```bash
 # install opencode: https://opencode.ai  •  install pi: https://pi.dev  (e.g. curl -fsSL https://pi.dev/install.sh | sh)
-uv tool install ~/.claude/settings-sync          # install once; puts `settings-sync` on PATH
-settings-sync                                     # sync everything (opencode + pi)
-# granular:   settings-sync opencode    /    settings-sync pi
-# drift check (read-only):   settings-sync --check
+uv run --directory ~/.claude/settings-sync settings-sync          # sync everything (opencode + pi)
+uv run --directory ~/.claude/settings-sync settings-sync opencode # granular: opencode only
+uv run --directory ~/.claude/settings-sync settings-sync pi       # granular: pi only
+uv run --directory ~/.claude/settings-sync settings-sync --check  # drift check (read-only)
+# tip: alias ssync='uv run --directory ~/.claude/settings-sync settings-sync' for brevity
 ```
 
 - **opencode** — derives config into `~/.config/opencode`; re-run `settings-sync` after every `~/.claude` edit.

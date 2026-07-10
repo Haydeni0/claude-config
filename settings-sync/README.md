@@ -35,6 +35,9 @@ pi's `settings.json` is **wholesale-copied** (no merge, no preserved machine key
 ## Usage
 
 ```bash
+# In the examples below, `settings-sync` is the invocation from Run above, i.e.
+# `uv run --directory ~/.claude/settings-sync settings-sync` (or your `ssync` alias).
+
 # sync everything (opencode + pi); refuse on conflict, exit 1 if any conflict
 settings-sync
 settings-sync all                       # explicit
@@ -55,13 +58,18 @@ settings-sync --pi-dir /tmp/glm-pi pi   # target a different pi agent dir
 
 Global options (`--force`, `--dry-run`, `--check`, `--verbose`, `--claude-dir`, `--opencode-dir`, `--pi-dir`) go before the subcommand. Override paths for testing or alternate harnesses.
 
-## Install
+## Run
+
+Stateless — no install step, just run it from the repo each time (needs [uv](https://docs.astral.sh/uv/)):
 
 ```bash
-uv tool install ~/.claude/settings-sync   # puts `settings-sync` on PATH
-# or run without installing:
-uv run --directory ~/.claude/settings-sync settings-sync
+uv run --directory ~/.claude/settings-sync settings-sync          # sync everything (opencode + pi)
+uv run --directory ~/.claude/settings-sync settings-sync opencode # granular
+uv run --directory ~/.claude/settings-sync settings-sync pi       # granular
+# tip: alias ssync='uv run --directory ~/.claude/settings-sync settings-sync' for brevity
 ```
+
+No persistent install, no shim on PATH — `git pull` and you're on the latest version. (If you prefer a global command, `uv tool install ~/.claude/settings-sync` puts `settings-sync` on PATH, but you must reinstall to update.)
 
 ## Conflicts and safety
 

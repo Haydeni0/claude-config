@@ -9,7 +9,7 @@ dependencies = [
 ]
 
 [project.scripts]
-settings-sync = "settings_sync.cli:main"
+sync = "settings_sync.cli:main"
 
 [dependency-groups]
 dev = [

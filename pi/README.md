@@ -64,9 +64,8 @@ curl -fsSL https://pi.dev/install.sh | sh
 git clone git@github-haydeni0:Haydeni0/claude-config.git ~/.claude   # first time
 git -C ~/.claude pull                                               # existing machine
 
-# 3. install settings-sync and sync pi (needs uv: https://docs.astral.sh/uv/)
-uv tool install ~/.claude/settings-sync
-settings-sync pi            # writes pointers + inlined CLAUDE.md into ~/.pi/agent
+# 3. sync pi (needs uv: https://docs.astral.sh/uv/)
+uv run --directory ~/.claude/settings-sync settings-sync pi   # writes pointers + inlined CLAUDE.md into ~/.pi/agent
 
 # 4. authenticate, then use
 pi            # then /login  (or: export ANTHROPIC_API_KEY=... etc.)
