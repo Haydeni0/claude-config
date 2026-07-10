@@ -52,6 +52,9 @@ settings.local.json
 # From https://raba.pl/resources/claude-statusline
 !statusline-command.sh
 
+# Track the machine setup script (runs settings-sync + installs evo/pi packages)
+!sync.sh
+
 # Track RTK files
 !hooks/
 !hooks/**

@@ -19,12 +19,12 @@ and an inlined `CLAUDE.md` into `~/.pi/agent/CLAUDE.md`.
 ├── pi/                                     pi-only resources (Claude ignores these)
 │   ├── extensions/    *.ts                 pi extensions
 │   ├── themes/        *.json               pi themes
-│   ├── settings.json                       pointer template (source of truth for locations)
+│   ├── settings.json                       pointer template + pinned packages[] (SOT)
 │   └── README.md                          this file
 └── settings-sync/                  the sync tool (opencode + pi)
 
 ~/.pi/agent/                       <-- machine-local (NOT in the repo)
-├── settings.json                   wholesale copy of pi/settings.json (pointers only)
+├── settings.json                   wholesale copy of pi/settings.json (pointers + packages[])
 ├── keybindings.json                wholesale copy of pi/keybindings.json (optional)
 ├── CLAUDE.md                       generated: inlined CLAUDE.md (@imports expanded)
 ├── auth.json                       credentials (per machine)
@@ -39,7 +39,8 @@ reads:
   "skills":     ["~/.claude/skills"],
   "prompts":    ["~/.claude/commands"],
   "extensions": ["~/.claude/pi/extensions"],
-  "themes":     ["~/.claude/pi/themes"]
+  "themes":     ["~/.claude/pi/themes"],
+  "packages":   ["npm:@evo-hq/pi-evo", "npm:pi-subagents", "npm:pi-web-access"]
 }
 ```
 Paths use `~`, so they're identical on every machine. `sync pi config` **wholesale-copies**
@@ -47,6 +48,11 @@ this file to `~/.pi/agent/settings.json` — no merge, no preserved machine keys
 (e.g. `lastChangelogVersion`, which pi writes after showing a changelog) is disposable: a sync
 resets it, pi re-shows the changelog once, then rewrites it. Per-machine model/auth/provider
 choices belong in `auth.json`/`models.json`/env, not in `settings.json`.
+
+`packages[]` is the declared list of pi-packages (evo + pi-subagents + pi-web-access).
+settings-sync carries the declaration (it's part of the wholesale copy), but pi doesn't
+auto-fetch user-settings packages on startup — so [`sync.sh`](../sync.sh) (or `pi install <spec>`)
+materializes the fetch. Add a package = append to `packages[]` + run `sync.sh`.
 
 `sync pi context` inlines `~/.claude/CLAUDE.md` into `~/.pi/agent/CLAUDE.md`: it expands
 `@claude_md_imports/*` recursively and rewrites `@skills/<n>` to ``the `<n>` skill`` (pi can't

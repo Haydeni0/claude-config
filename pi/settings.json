@@ -2,5 +2,6 @@
   "skills": ["~/.claude/skills"],
   "prompts": ["~/.claude/commands"],
   "extensions": ["~/.claude/pi/extensions"],
-  "themes": ["~/.claude/pi/themes"]
+  "themes": ["~/.claude/pi/themes"],
+  "packages": ["npm:@evo-hq/pi-evo", "npm:pi-subagents", "npm:pi-web-access"]
 }

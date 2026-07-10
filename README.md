@@ -15,7 +15,8 @@ Backup of `~/.claude` config — the single source of truth for [Claude Code](ht
 - `statusline-command.sh` — CLI statusline
 - `opencode/` — base opencode config (`opencode.json`, `tui.json`), synced by settings-sync
 - `settings-sync/` — syncs this config into [opencode](https://opencode.ai) and [pi](https://pi.dev); see [settings-sync/README.md](settings-sync/README.md)
-- `pi/` — base pi config (pointer template), wired by `sync pi`; see [pi/README.md](pi/README.md)
+- `pi/` — base pi config (pointer template + pinned `packages[]`), wired by `sync`; see [pi/README.md](pi/README.md)
+- `sync.sh` — one-command machine setup: runs settings-sync + installs the machine-local tools the repo declares ([evo](https://github.com/evo-hq/evo) for claude-code/opencode, pi packages incl. [pi-web-access](https://github.com/nicobailon/pi-web-access))
 
 ## Typical workflows
 
@@ -55,19 +56,20 @@ git submodule update --init --recursive
 
 **Claude Code** reads `~/.claude` directly — nothing to run.
 
-**opencode** and **pi** are both synced by one tool — `settings-sync` (needs [uv](https://docs.astral.sh/uv/)):
+**opencode** and **pi** are both synced by `settings-sync`, and the machine-local tools the repo declares (evo, pi packages) are installed by `sync.sh`. Both need [uv](https://docs.astral.sh/uv/).
 
 ```bash
 # install opencode: https://opencode.ai  •  install pi: https://pi.dev  (e.g. curl -fsSL https://pi.dev/install.sh | sh)
-uv run --directory ~/.claude/settings-sync sync          # sync everything (opencode + pi)
-uv run --directory ~/.claude/settings-sync sync opencode # granular: opencode only
-uv run --directory ~/.claude/settings-sync sync pi       # granular: pi only
+bash ~/.claude/sync.sh                                    # one command: settings-sync + install evo + pi packages
+uv run --directory ~/.claude/settings-sync sync opencode # granular: opencode config only (no installs)
+uv run --directory ~/.claude/settings-sync sync pi       # granular: pi config only (no installs)
 uv run --directory ~/.claude/settings-sync sync --check  # drift check (read-only)
 # tip: alias ssync='uv run --directory ~/.claude/settings-sync sync' for brevity
 ```
 
-- **opencode** — derives config into `~/.config/opencode`; re-run `sync` after every `~/.claude` edit.
-- **pi** — writes pointers + inlined context into `~/.pi/agent`; skills/commands are read directly (just `/reload` in pi after edits), only the context file is derived.
+- **sync.sh** — runs settings-sync, then materializes machine-local installs: `pi install` for each entry in `pi/settings.json#packages[]` (evo + pi-subagents + pi-web-access), and `evo install` for claude-code/opencode (skipped if that host isn't on PATH). Idempotent; re-run after `git pull` or any `~/.claude` edit.
+- **opencode** — derives config into `~/.config/opencode`; re-run `sync.sh` (or `sync`) after every `~/.claude` edit.
+- **pi** — writes pointers + inlined context + `packages[]` into `~/.pi/agent`; skills/commands are read directly (just `/reload` in pi after edits), only the context file is derived.
 
 See [settings-sync/README.md](settings-sync/README.md) and [pi/README.md](pi/README.md).
 

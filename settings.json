@@ -158,7 +158,16 @@
   },
   "enabledPlugins": {
     "pyright-lsp@claude-plugins-official": false,
-    "superpowers@claude-plugins-official": true
+    "superpowers@claude-plugins-official": true,
+    "evo@evo-hq-evo": true
+  },
+  "extraKnownMarketplaces": {
+    "evo-hq-evo": {
+      "source": {
+        "source": "github",
+        "repo": "evo-hq/evo"
+      }
+    }
   },
   "effortLevel": "medium",
   "tui": "fullscreen",
