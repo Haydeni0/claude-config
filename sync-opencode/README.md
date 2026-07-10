@@ -6,7 +6,8 @@ Bridges `~/.claude` config into `~/.config/opencode` so both Claude Code and ope
 
 | Source in `~/.claude` | Target in `~/.config/opencode` | Mechanism |
 |---|---|---|
-| `opencode.json` (base config) | `opencode.json` | passthrough, adds `$schema` |
+| `opencode/opencode.json` (base config) | `opencode.json` | passthrough, adds `$schema` |
+| `opencode/tui.json` (TUI config) | `tui.json` | passthrough, adds `$schema` |
 | `CLAUDE.md` + `@` imports | `AGENTS.md` | `@path` imports inlined recursively, `@skills/<n>` rewritten to `the \`<n>\` skill` |
 | `agents/*.md` | `agents/*.md` | frontmatter transform (see below) |
 | `commands/` | `commands` | relative symlink |
@@ -56,7 +57,7 @@ uv run sync-opencode --force
 uv run sync-opencode --verbose
 ```
 
-Run an individual step: `config`, `agents-md`, `agents`, `commands`, `plugins`, `skills`.
+Run an individual step: `config`, `tui`, `agents-md`, `agents`, `commands`, `plugins`, `skills`.
 
 ```bash
 uv run sync-opencode agents          # only transform agents
@@ -78,7 +79,7 @@ sync-opencode   # on PATH
 - By default the tool **refuses to delete or overwrite** anything it didn't create. A conflicting real file/dir at a managed path is skipped with a warning.
 - `--force` removes/replaces conflicting managed paths, reconciles orphaned agent files (target `.md` not in source), and retargets wrong symlinks.
 - No files are deleted without `--force`.
-- The tool manages only: `opencode.json`, `AGENTS.md`, `agents/`, `commands`, `plugins/superpowers.js`. Everything else in `~/.config/opencode` (e.g. `tui.json`, `package.json`, cache) is left untouched.
+- The tool manages only: `opencode.json`, `tui.json`, `AGENTS.md`, `agents/`, `commands`, `plugins/superpowers.js`. Everything else in `~/.config/opencode` (e.g. `package.json`, cache) is left untouched.
 
 ## Run after editing `~/.claude`
 

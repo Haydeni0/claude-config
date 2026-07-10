@@ -9,14 +9,14 @@ import typer
 from sync_opencode.agents import sync_agents_dir
 from sync_opencode.agents_md import sync_agents_md
 from sync_opencode.commands import sync_commands
-from sync_opencode.config import sync_config
+from sync_opencode.config import sync_config, sync_tui
 from sync_opencode.plugins import sync_superpowers
 from sync_opencode.skills import validate_skills
 from sync_opencode.sync import Outcome, Status
 
 app = typer.Typer(add_completion=False, no_args_is_help=False)
 
-SYNC_STEPS = ("config", "agents-md", "agents", "commands", "plugins")
+SYNC_STEPS = ("config", "tui", "agents-md", "agents", "commands", "plugins")
 
 
 @dataclass(slots=True, frozen=True)
@@ -27,7 +27,9 @@ class Paths:
 
 def run_step(name: str, paths: Paths, force: bool, dry_run: bool) -> list[Outcome]:
     if name == "config":
-        return [sync_config(paths.opencode_dir / "opencode.json", paths.claude_dir / "opencode.json", force, dry_run)]
+        return [sync_config(paths.opencode_dir / "opencode.json", paths.claude_dir / "opencode" / "opencode.json", force, dry_run)]
+    if name == "tui":
+        return [sync_tui(paths.opencode_dir / "tui.json", paths.claude_dir / "opencode" / "tui.json", force, dry_run)]
     if name == "agents-md":
         return [sync_agents_md(paths.opencode_dir / "AGENTS.md", paths.claude_dir / "CLAUDE.md", force, dry_run)]
     if name == "agents":
@@ -124,6 +126,19 @@ def config(
     opencode_dir: Path = typer.Option(Path.home() / ".config" / "opencode", "--opencode-dir"),
 ) -> None:
     code = _run(("config",), _paths(claude_dir, opencode_dir), force, dry_run, check, verbose)
+    raise typer.Exit(code)
+
+
+@app.command()
+def tui(
+    force: bool = typer.Option(False, "--force"),
+    dry_run: bool = typer.Option(False, "--dry-run"),
+    check: bool = typer.Option(False, "--check"),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+    claude_dir: Path = typer.Option(Path.home() / ".claude", "--claude-dir"),
+    opencode_dir: Path = typer.Option(Path.home() / ".config" / "opencode", "--opencode-dir"),
+) -> None:
+    code = _run(("tui",), _paths(claude_dir, opencode_dir), force, dry_run, check, verbose)
     raise typer.Exit(code)
 
 

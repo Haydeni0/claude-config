@@ -7,6 +7,7 @@ from pathlib import Path
 from sync_opencode.sync import Outcome, Status, sync_text
 
 OPENCODE_SCHEMA = "https://opencode.ai/config.json"
+TUI_SCHEMA = "https://opencode.ai/tui.json"
 
 _LINE_COMMENT = re.compile(r"//[^\n]*")
 _TRAILING_COMMA = re.compile(r",(\s*[}\]])")
@@ -78,5 +79,20 @@ def sync_config(target: Path, base_path: Path, force: bool = False, dry_run: boo
                 Status.WARNED,
                 f"could not parse existing {target.with_suffix('.jsonc')}; fix or remove it manually",
             )
+    content = json.dumps(config, indent=2) + "\n"
+    return sync_text(target, content, force=force, dry_run=dry_run)
+
+
+def build_tui(base_path: Path) -> dict:
+    if base_path.is_file():
+        config = json.loads(base_path.read_text())
+    else:
+        config = {}
+    config.setdefault("$schema", TUI_SCHEMA)
+    return config
+
+
+def sync_tui(target: Path, base_path: Path, force: bool = False, dry_run: bool = False) -> Outcome:
+    config = build_tui(base_path)
     content = json.dumps(config, indent=2) + "\n"
     return sync_text(target, content, force=force, dry_run=dry_run)

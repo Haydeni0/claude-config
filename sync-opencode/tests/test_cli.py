@@ -12,7 +12,9 @@ def _make_claude_home(tmp_path: pathlib.Path) -> pathlib.Path:
     (home / "claude_md_imports").mkdir(parents=True)
     (home / "claude_md_imports" / "extra.md").write_text("Extra rules.\n")
     (home / "CLAUDE.md").write_text("# Rules\n@claude_md_imports/extra.md\nSee @skills/uv.\n")
-    (home / "opencode.json").write_text(json.dumps({"model": "test/model"}))
+    (home / "opencode").mkdir(parents=True)
+    (home / "opencode" / "opencode.json").write_text(json.dumps({"model": "test/model"}))
+    (home / "opencode" / "tui.json").write_text(json.dumps({"theme": "tokyonight"}))
     (home / "agents").mkdir(parents=True)
     (home / "agents" / "reviewer.md").write_text("---\nname: reviewer\ndescription: r\ntools: Read\n---\nBody.\n")
     (home / "commands").mkdir(parents=True)
@@ -34,6 +36,8 @@ def test_run_all_creates_everything(tmp_path: pathlib.Path):
 
     assert result.exit_code == 0
     assert (opencode / "opencode.json").is_file()
+    assert (opencode / "tui.json").is_file()
+    assert json.loads((opencode / "tui.json").read_text())["theme"] == "tokyonight"
     assert (opencode / "AGENTS.md").is_file()
     assert (opencode / "AGENTS.md").read_text().count("Extra rules.") == 1
     assert (opencode / "agents" / "reviewer.md").is_file()

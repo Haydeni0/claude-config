@@ -33,6 +33,11 @@ settings.local.json
 !sync-opencode/*/
 !sync-opencode/**
 
+# Track opencode base config
+!opencode/
+!opencode/*/
+!opencode/**
+
 # Track custom plugins and hooks
 !custom/
 !custom/*/
