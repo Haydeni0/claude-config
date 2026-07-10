@@ -1,5 +1,7 @@
 {
   "permission": {
+    "doom_loop": "allow",
+    "external_directory": "allow",
     "bash": {
       "*": "allow",
       "sudo *": "deny",
