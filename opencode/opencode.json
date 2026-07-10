@@ -1,0 +1,18 @@
+{
+  "permission": {
+    "bash": {
+      "*": "allow",
+      "sudo *": "deny",
+      "sudo": "deny",
+      "rm -rf /*": "deny",
+      "rm -rf /": "deny",
+      "dd *": "deny",
+      "mkfs *": "deny",
+      "shred *": "deny",
+      "chmod -R 777 *": "deny",
+      "chmod 777 *": "deny",
+      "git push --force *": "deny",
+      "git push -f *": "deny"
+    }
+  }
+}

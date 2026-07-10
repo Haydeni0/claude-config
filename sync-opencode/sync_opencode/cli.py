@@ -31,7 +31,7 @@ def run_step(name: str, paths: Paths, force: bool, dry_run: bool) -> list[Outcom
     if name == "tui":
         return [sync_tui(paths.opencode_dir / "tui.json", paths.claude_dir / "opencode" / "tui.json", force, dry_run)]
     if name == "agents-md":
-        return [sync_agents_md(paths.opencode_dir / "AGENTS.md", paths.claude_dir / "CLAUDE.md", force, dry_run)]
+        return [sync_agents_md(paths.opencode_dir / "AGENTS.md", paths.claude_dir / "CLAUDE.md", force, dry_run, rules_path=paths.claude_dir / "opencode" / "rules.md")]
     if name == "agents":
         return sync_agents_dir(paths.opencode_dir / "agents", paths.claude_dir / "agents", force, dry_run)
     if name == "commands":

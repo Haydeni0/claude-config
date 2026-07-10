@@ -28,14 +28,22 @@ def _expand_imports(markdown: str, base_dir: Path, seen: set[Path]) -> str:
     return IMPORT_LINE.sub(replace, markdown)
 
 
-def build_agents_md(claude_md: Path) -> str:
+def build_agents_md(claude_md: Path, rules_path: Path | None = None) -> str:
     base_dir = claude_md.parent
     markdown = claude_md.read_text()
     markdown = _rewrite_skills_refs(markdown)
     markdown = _expand_imports(markdown, base_dir, set())
+    if rules_path is not None and rules_path.is_file():
+        markdown = markdown.rstrip() + "\n\n" + rules_path.read_text()
     return markdown
 
 
-def sync_agents_md(target: Path, claude_md: Path, force: bool = False, dry_run: bool = False) -> Outcome:
-    content = build_agents_md(claude_md)
+def sync_agents_md(
+    target: Path,
+    claude_md: Path,
+    force: bool = False,
+    dry_run: bool = False,
+    rules_path: Path | None = None,
+) -> Outcome:
+    content = build_agents_md(claude_md, rules_path=rules_path)
     return sync_text(target, content, force=force, dry_run=dry_run)

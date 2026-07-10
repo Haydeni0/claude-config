@@ -8,6 +8,7 @@ Bridges `~/.claude` config into `~/.config/opencode` so both Claude Code and ope
 |---|---|---|
 | `opencode/opencode.json` (base config) | `opencode.json` | passthrough, adds `$schema` |
 | `opencode/tui.json` (TUI config) | `tui.json` | passthrough, adds `$schema` |
+| `opencode/rules.md` (opencode-only rules) | appended to `AGENTS.md` | safety rules appended after CLAUDE.md content |
 | `CLAUDE.md` + `@` imports | `AGENTS.md` | `@path` imports inlined recursively, `@skills/<n>` rewritten to `the \`<n>\` skill` |
 | `agents/*.md` | `agents/*.md` | frontmatter transform (see below) |
 | `commands/` | `commands` | relative symlink |
