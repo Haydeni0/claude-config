@@ -100,7 +100,7 @@
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "sonnet",
+  "model": "sonnet[1m]",
   "hooks": {
     "SessionStart": [
       {
