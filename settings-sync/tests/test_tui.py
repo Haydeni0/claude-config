@@ -3,8 +3,8 @@ import pathlib
 
 import pytest
 
-from sync_opencode.config import sync_tui
-from sync_opencode.sync import Status
+from settings_sync.config import sync_tui
+from settings_sync.sync import Status
 
 TUI_SCHEMA = "https://opencode.ai/tui.json"
 

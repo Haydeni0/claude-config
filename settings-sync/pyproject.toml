@@ -1,7 +1,7 @@
 [project]
-name = "sync-opencode"
+name = "settings-sync"
 version = "0.1.0"
-description = "Bridge ~/.claude config to ~/.config/opencode. Single source of truth lives in ~/.claude."
+description = "Sync ~/.claude config into ~/.config/opencode and ~/.pi/agent. Single source of truth lives in ~/.claude."
 requires-python = ">=3.11"
 dependencies = [
     "pyyaml>=6.0",
@@ -9,7 +9,7 @@ dependencies = [
 ]
 
 [project.scripts]
-sync-opencode = "sync_opencode.cli:main"
+settings-sync = "settings_sync.cli:main"
 
 [dependency-groups]
 dev = [
@@ -18,7 +18,7 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["sync_opencode"]
+packages = ["settings_sync"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

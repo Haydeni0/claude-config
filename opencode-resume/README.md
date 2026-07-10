@@ -2,7 +2,7 @@
 
 Resume an opencode conversation inside the current Claude Code session. Reads an opencode session from its SQLite DB, converts it into a markdown transcript, and ingests it as context so the conversation continues in Claude Code.
 
-Companion to [sync-opencode](../sync-opencode), which bridges *config* (`CLAUDE.md`, agents, skills). This tool bridges *conversations*.
+Companion to [settings-sync](../settings-sync), which bridges *config* (`CLAUDE.md`, agents, skills) into opencode and pi. This tool bridges *conversations*.
 
 ## How it works
 

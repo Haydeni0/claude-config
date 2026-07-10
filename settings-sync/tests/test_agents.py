@@ -1,7 +1,7 @@
 import pytest
 
-from sync_opencode.agents import transform_agent
-from sync_opencode.frontmatter import parse
+from settings_sync.agents import transform_agent
+from settings_sync.frontmatter import parse
 
 CODE_REVIEWER = """---
 name: code-reviewer

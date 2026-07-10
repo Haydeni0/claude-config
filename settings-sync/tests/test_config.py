@@ -3,8 +3,8 @@ import pathlib
 
 import pytest
 
-from sync_opencode.config import sync_config
-from sync_opencode.sync import Status
+from settings_sync.config import sync_config
+from settings_sync.sync import Status
 
 
 def test_creates_config_from_base(tmp_path: pathlib.Path):

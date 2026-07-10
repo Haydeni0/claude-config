@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from sync_opencode.frontmatter import parse
-from sync_opencode.sync import Outcome, Status, sync_text
+from settings_sync.frontmatter import parse
+from settings_sync.sync import Outcome, Status, sync_text
 
 
 def _build_skill_stub(skill_md: Path) -> str | None:

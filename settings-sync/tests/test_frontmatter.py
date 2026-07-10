@@ -2,7 +2,7 @@ import pathlib
 
 import pytest
 
-from sync_opencode.frontmatter import dump, parse
+from settings_sync.frontmatter import dump, parse
 
 
 def test_parse_extracts_frontmatter_and_body():

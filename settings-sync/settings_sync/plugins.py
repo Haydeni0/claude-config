@@ -3,7 +3,7 @@
 import re
 from pathlib import Path
 
-from sync_opencode.sync import Outcome, Status, sync_symlink
+from settings_sync.sync import Outcome, Status, sync_symlink
 
 _SUPERPOWERS_ROOT = Path("claude-plugins-official") / "superpowers"
 _VERSION_RE = re.compile(r"^\d+\.\d+\.\d+$")

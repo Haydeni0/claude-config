@@ -3,8 +3,8 @@ import pathlib
 
 import pytest
 
-from sync_opencode.plugins import resolve_superpowers_js, sync_superpowers
-from sync_opencode.sync import Status
+from settings_sync.plugins import resolve_superpowers_js, sync_superpowers
+from settings_sync.sync import Status
 
 
 def _make_version(cache_root: pathlib.Path, version: str) -> pathlib.Path:

@@ -1,6 +1,6 @@
 # claude-config
 
-Backup of `~/.claude` config for [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
+Backup of `~/.claude` config — the single source of truth for [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [opencode](https://opencode.ai), and [pi](https://pi.dev).
 
 ## What's tracked
 
@@ -13,13 +13,14 @@ Backup of `~/.claude` config for [Claude Code](https://docs.anthropic.com/en/doc
 - `custom/` — hooks and plugins (includes [caveman](https://github.com/JuliusBrussee/caveman) submodule)
 - `hooks/` + `RTK.md` — RTK token-rewrite hook
 - `statusline-command.sh` — CLI statusline
-- `opencode/` — base opencode config (`opencode.json`, `tui.json`), synced by sync-opencode
-- `sync-opencode/` — bridges this config to [opencode](https://opencode.ai); see [sync-opencode/README.md](sync-opencode/README.md)
+- `opencode/` — base opencode config (`opencode.json`, `tui.json`), synced by settings-sync
+- `settings-sync/` — syncs this config into [opencode](https://opencode.ai) and [pi](https://pi.dev); see [settings-sync/README.md](settings-sync/README.md)
+- `pi/` — base pi config (pointer template), wired by `settings-sync pi`; see [pi/README.md](pi/README.md)
 
 ## Typical workflows
 
 > Personal notes. One conversation unless context stale or switching repos.
-> 
+>
 > Single living spec; after Interfaces and Tests grills: `Fold our decisions into the spec. Also, review the spec for consistency after.`
 
 ### Feature pipeline
@@ -31,6 +32,11 @@ Backup of `~/.claude` config for [Claude Code](https://docs.anthropic.com/en/doc
 - **Implement** — `Implement per spec. /tdd` — exit: `tdd_scaffolding/` deleted; behavioral tests pass per `pytest-guidelines`
 
 ## Install (new machine)
+
+`~/.claude` is the single source of truth — Claude Code, opencode, and pi all read from it.
+Get the repo, then wire up whichever tools you use.
+
+### 1. Get the repo
 
 ```bash
 # If ~/.claude doesn't exist yet
@@ -44,6 +50,25 @@ git fetch origin
 git checkout -f main
 git submodule update --init --recursive
 ```
+
+### 2. Wire up your tools
+
+**Claude Code** reads `~/.claude` directly — nothing to run.
+
+**opencode** and **pi** are both synced by one tool — `settings-sync` (needs [uv](https://docs.astral.sh/uv/)):
+
+```bash
+# install opencode: https://opencode.ai  •  install pi: https://pi.dev  (e.g. curl -fsSL https://pi.dev/install.sh | sh)
+uv tool install ~/.claude/settings-sync          # install once; puts `settings-sync` on PATH
+settings-sync                                     # sync everything (opencode + pi)
+# granular:   settings-sync opencode    /    settings-sync pi
+# drift check (read-only):   settings-sync --check
+```
+
+- **opencode** — derives config into `~/.config/opencode`; re-run `settings-sync` after every `~/.claude` edit.
+- **pi** — writes pointers + inlined context into `~/.pi/agent`; skills/commands are read directly (just `/reload` in pi after edits), only the context file is derived.
+
+See [settings-sync/README.md](settings-sync/README.md) and [pi/README.md](pi/README.md).
 
 ## Update
 

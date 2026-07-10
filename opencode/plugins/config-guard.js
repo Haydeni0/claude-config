@@ -17,7 +17,7 @@ export const ConfigGuard = async () => {
         throw new Error(
           `BLOCKED: ${resolved} is a derived target synced from ~/.claude/. ` +
           `Edit the ~/.claude/ source instead, then run ` +
-          `~/.claude/sync-opencode/.venv/bin/sync-opencode <step> --force. ` +
+          `settings-sync opencode <step> --force. ` +
           `See AGENTS.md config management rules.`
         )
       }

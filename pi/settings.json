@@ -1,0 +1,6 @@
+{
+  "skills": ["~/.claude/skills"],
+  "prompts": ["~/.claude/commands"],
+  "extensions": ["~/.claude/pi/extensions"],
+  "themes": ["~/.claude/pi/themes"]
+}

@@ -3,8 +3,8 @@
 import re
 from pathlib import Path
 
-from sync_opencode.frontmatter import parse
-from sync_opencode.sync import Outcome, Status
+from settings_sync.frontmatter import parse
+from settings_sync.sync import Outcome, Status
 
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 

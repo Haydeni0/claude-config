@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from sync_opencode.frontmatter import dump, parse
-from sync_opencode.sync import Outcome, Status, sync_text
+from settings_sync.frontmatter import dump, parse
+from settings_sync.sync import Outcome, Status, sync_text
 
 CLAUDE_TO_OPENCODE_TOOLS: dict[str, str] = {
     "Read": "read",

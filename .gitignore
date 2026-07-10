@@ -28,10 +28,10 @@ settings.local.json
 !claude_md_imports/*/
 !claude_md_imports/**
 
-# Track sync-opencode
-!sync-opencode/
-!sync-opencode/*/
-!sync-opencode/**
+# Track settings-sync (opencode + pi sync tool)
+!settings-sync/
+!settings-sync/*/
+!settings-sync/**
 
 # Track opencode-resume
 !opencode-resume/
@@ -56,3 +56,7 @@ settings.local.json
 !hooks/
 !hooks/**
 !RTK.md
+
+# Track pi config (shared with pi via settings-sync pi)
+!pi/
+!pi/**

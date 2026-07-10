@@ -1,0 +1,2 @@
+# pi extensions live here (TypeScript). Drop a .ts file with a default export;
+# see https://pi.dev docs/extensions.md. Tracked by git so they sync across machines.

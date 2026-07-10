@@ -4,7 +4,7 @@ import json
 import re
 from pathlib import Path
 
-from sync_opencode.sync import Outcome, Status, sync_text
+from settings_sync.sync import Outcome, Status, sync_text
 
 OPENCODE_SCHEMA = "https://opencode.ai/config.json"
 TUI_SCHEMA = "https://opencode.ai/tui.json"

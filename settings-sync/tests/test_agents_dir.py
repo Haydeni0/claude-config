@@ -2,9 +2,9 @@ import pathlib
 
 import pytest
 
-from sync_opencode.agents import sync_agents_dir
-from sync_opencode.frontmatter import parse
-from sync_opencode.sync import Status
+from settings_sync.agents import sync_agents_dir
+from settings_sync.frontmatter import parse
+from settings_sync.sync import Status
 
 AGENT_A = """---
 name: reviewer

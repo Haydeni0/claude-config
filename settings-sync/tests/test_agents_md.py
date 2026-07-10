@@ -2,7 +2,7 @@ import pathlib
 
 import pytest
 
-from sync_opencode.agents_md import build_agents_md
+from settings_sync.agents_md import build_agents_md
 
 
 def test_skills_ref_rewritten_to_plain_text(tmp_path: pathlib.Path):
@@ -61,10 +61,10 @@ def test_sync_agents_md_writes_expanded_content(tmp_path: pathlib.Path):
     (tmp_path / "claude" / "imports" / "foo.md").write_text("Foo body.\n")
     target = tmp_path / "config" / "opencode" / "AGENTS.md"
 
-    from sync_opencode.agents_md import sync_agents_md
+    from settings_sync.agents_md import sync_agents_md
     outcome = sync_agents_md(target, claude)
 
-    from sync_opencode.sync import Status
+    from settings_sync.sync import Status
     assert outcome.status == Status.CREATED
     assert "Foo body." in target.read_text()
     assert "the `uv` skill" in target.read_text()
@@ -78,8 +78,8 @@ def test_sync_agents_md_skips_diverging_without_force(tmp_path: pathlib.Path):
     target.parent.mkdir(parents=True)
     target.write_text("hand-edited\n")
 
-    from sync_opencode.agents_md import sync_agents_md
-    from sync_opencode.sync import Status
+    from settings_sync.agents_md import sync_agents_md
+    from settings_sync.sync import Status
     outcome = sync_agents_md(target, claude)
 
     assert outcome.status == Status.SKIPPED

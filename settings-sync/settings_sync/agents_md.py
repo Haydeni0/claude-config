@@ -3,7 +3,7 @@
 import re
 from pathlib import Path
 
-from sync_opencode.sync import Outcome, sync_text
+from settings_sync.sync import Outcome, sync_text
 
 SKILLS_REF = re.compile(r"@skills/([a-zA-Z0-9_-]+)")
 IMPORT_LINE = re.compile(r"^@(\S+\.md)\s*$", re.MULTILINE)

@@ -2,8 +2,8 @@ import pathlib
 
 import pytest
 
-from sync_opencode.skills import validate_skills
-from sync_opencode.sync import Status
+from settings_sync.skills import validate_skills
+from settings_sync.sync import Status
 
 
 def _make_skill(

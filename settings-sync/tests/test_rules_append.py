@@ -2,8 +2,8 @@ import pathlib
 
 import pytest
 
-from sync_opencode.agents_md import sync_agents_md
-from sync_opencode.sync import Status
+from settings_sync.agents_md import sync_agents_md
+from settings_sync.sync import Status
 
 
 def test_sync_appends_rules_md_when_present(tmp_path: pathlib.Path):
