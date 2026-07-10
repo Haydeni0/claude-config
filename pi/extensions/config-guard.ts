@@ -12,9 +12,9 @@
  *     explicitly. Deduped when both resolve to the same path (plain pi).
  *
  * bash guard is substring + write-signal, not a shell parser:
- *  - ponytail: a read bundled with a write-word/redirect into the dir is blocked
- *    and the model retries split. Fails safe. Add a target-resolving tokenizer
- *    if read-with-redirect false positives bite.
+ *  - redirects are target-aware: a read of the dir with stderr to /dev/null (or
+ *    any redirect whose resolved target isn't the dir) is allowed; only a redirect
+ *    whose target is the dir blocks. Relative targets resolve against cwd.
  *  - ponytail: first-word dispatch misses find -exec / xargs / $() / >(sub).
  *    Add if the model uses those to mutate the dir.
  * Reads (cat/ls/grep/diff/wc/sed-without-i) stay allowed.
@@ -30,9 +30,14 @@ import os from "node:os";
 
 const WRITE_OPS = /\b(tee|sed|dd|cp|install|rsync|mv|rm|rmdir|shred|unlink)\b/;
 const SED_INPLACE = /(^|\s)-i\w*\b|--in-place\b/;
-// redirect op at a token boundary (start/space), not fd-to-fd (2>&1). Applied after
-// stripping string literals and [[ ]]/(( )) so prose ">" and test ">" don't trip.
-const REDIR = /(?:^|\s)(?:&>>?|>>?>|\d*>)(?!&\d)|>>?(?=\|)/;
+// write-redirect operator capturing its target file token (excludes fd-to-fd like
+// 2>&1 and input redirects <). Applied after stripContexts + ~/$HOME expand, so
+// prose ">" is already gone. ponytail: target-aware - a read of the dir with stderr
+// to /dev/null (or any redirect whose target isn't the dir) is allowed; only a
+// redirect whose resolved target is the dir blocks. Relative targets resolve
+// against process.cwd(); protected dirs are absolute, so a bareword target only
+// hits when cwd is in the dir (rare) - strictly weaker than the old any-redirect rule.
+const WRITE_REDIR = /(?:^|\s)(?:&>>?|\d*>>?\|?)(?!&\d)\s*(\S+)/g;
 
 // Strip quoted strings and [[ ]]/(( )) contexts so a ">" inside prose ("->",
 // "=>", "$a > $b") doesn't look like a redirect. ponytail: naive — escaped
@@ -51,7 +56,14 @@ function bashWritesTo(command: string, dir: string, home: string): boolean {
   const dirRe = new RegExp(dir.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?:[/\\\\]|$)");
   if (!dirRe.test(c)) return false;
   for (const seg of c.split(/&&|\|\||;|(?<!>)\|(?![&|])/)) {
-    if (REDIR.test(seg)) return true;
+    // a redirect only counts if its resolved target is the dir (not /dev/null etc.)
+    WRITE_REDIR.lastIndex = 0;
+    let m = WRITE_REDIR.exec(seg);
+    while (m !== null) {
+      const target = path.resolve(m[1]);
+      if (target === dir || target.startsWith(dir + path.sep)) return true;
+      m = WRITE_REDIR.exec(seg);
+    }
     const w = seg.trim().replace(/^sudo\s+/, "").replace(/^(?:\w+=\S+\s+)+/, "").match(/^(\w[\w-]*)/);
     if (w && WRITE_OPS.test(w[1])) {
       if (w[1] === "sed" && !SED_INPLACE.test(seg)) continue; // sed without -i reads
