@@ -26,6 +26,8 @@ Apply when writing, reviewing or editing code.
   i += 1  # skip the header row; the export always has one
   ```
 
+- **No lineage or migration history in docstrings.** "Moved from X", "Rehomed from Y", "Previously in Z" describe git history, not behavior. A new reader can't act on it. Put it in the commit message or PR body. Exception: a live deprecation notice ("old import still works but is deprecated") is actionable - remove it once the old path is gone.
+
 - **Flatten with guard clauses; don't nest the happy path.** Early return/raise on preconditions, then the main logic sits unindented.
 
 - **A boolean/flag parameter means the function does two things - prefer named alternatives.** Two functions, or an enum, over a bare boolean - the call site `render(True)` tells the reader nothing.

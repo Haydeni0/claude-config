@@ -27,3 +27,8 @@ These rules apply to all opencode sessions. They are opencode-specific additions
 - Never background daemons or services without asking.
 - Never start interactive shell sessions that bypass approval.
 - When in doubt about whether an action is safe, stop and ask.
+
+### Config management
+
+- Never edit `~/.config/opencode/` directly. Edit `~/.claude/` instead.
+- Sync changes with `~/.claude/sync-opencode/.venv/bin/sync-opencode <step> --force` (e.g. `agents-md`).
