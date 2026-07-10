@@ -30,5 +30,15 @@ These rules apply to all opencode sessions. They are opencode-specific additions
 
 ### Config management
 
-- Never edit `~/.config/opencode/` directly. Edit `~/.claude/` instead.
-- Sync changes with `~/.claude/sync-opencode/.venv/bin/sync-opencode <step> --force` (e.g. `agents-md`).
+`~/.claude/` is source of truth. `~/.config/opencode/` is derived by sync-opencode. Never edit the derived target.
+
+| Do | Don't |
+|---|---|
+| Edit `~/.claude/opencode/opencode.json` | Edit `~/.config/opencode/opencode.json` |
+| Edit `~/.claude/opencode/tui.json` | Edit `~/.config/opencode/tui.json` |
+| Edit `~/.claude/CLAUDE.md` | Edit `~/.config/opencode/AGENTS.md` |
+| Run `sync-opencode <step> --force` after changes | Assume changes propagate without sync |
+
+**Red flags - stop:**
+- About to write/edit a file under `~/.config/opencode/` - STOP. Edit `~/.claude/` source, then sync.
+- `~/.config/opencode/` file doesn't match `~/.claude/` source - run `sync-opencode --check` to find drift.
