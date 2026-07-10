@@ -28,6 +28,11 @@ settings.local.json
 !claude_md_imports/*/
 !claude_md_imports/**
 
+# Track sync-opencode
+!sync-opencode/
+!sync-opencode/*/
+!sync-opencode/**
+
 # Track custom plugins and hooks
 !custom/
 !custom/*/

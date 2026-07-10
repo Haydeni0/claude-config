@@ -13,6 +13,7 @@ Backup of `~/.claude` config for [Claude Code](https://docs.anthropic.com/en/doc
 - `custom/` — hooks and plugins (includes [caveman](https://github.com/JuliusBrussee/caveman) submodule)
 - `hooks/` + `RTK.md` — RTK token-rewrite hook
 - `statusline-command.sh` — CLI statusline
+- `sync-opencode/` — bridges this config to [opencode](https://opencode.ai); see [sync-opencode/README.md](sync-opencode/README.md)
 
 ## Typical workflows
 

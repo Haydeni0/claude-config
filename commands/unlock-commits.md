@@ -1,11 +1,11 @@
 ---
-name: commit-authorised
+name: unlock-commits
 description: Grants session-wide git commit authorization to Claude and all subagents until the user types the literal sentinel COMMIT_UNAUTHORISED. Manual command only, run by the user.
 ---
 
-# commit-authorised
+# unlock-commits
 
-Grants a session-scoped override of CLAUDE.md's per-action commit sentinel rule. Manual-invoke only - never infer this from conversation, only from the literal `/commit-authorised` command.
+Grants a session-scoped override of CLAUDE.md's per-action commit sentinel rule. Manual-invoke only - never infer this from conversation, only from the literal `/unlock-commits` command.
 
 ## On invocation
 
