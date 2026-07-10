@@ -26,6 +26,7 @@ Hooks (`hooks/`) are not bridged — opencode's plugin hook model differs. Recre
 | Source in `~/.claude` | Target in `~/.pi/agent` | Mechanism |
 |---|---|---|
 | `pi/settings.json` (pointer template) | `settings.json` | **wholesale copy** (template is SOT; pi's own keys are disposable) |
+| `pi/keybindings.json` (optional) | `keybindings.json` | **wholesale copy** (SOT; pi falls back to defaults if absent) |
 | `CLAUDE.md` + `@` imports | `CLAUDE.md` | inlined (`@path` imports expanded, `@skills/<n>` rewritten) — pi can't expand `@` imports |
 | `skills/` | (native) | pi reads `~/.claude/skills` directly (via pointers); tool validates only |
 | `commands/` | (native) | pi reads `~/.claude/commands` directly (via pointers) |
@@ -78,7 +79,7 @@ No persistent install, no shim on PATH — `git pull` and you're on the latest v
 - No files are deleted without `--force`.
 - **Exception — pi config:** `settings.json` is always overwritten (wholesale copy; the template is SOT). `--force` is not needed for it.
 - opencode manages only: `opencode.json`, `tui.json`, `AGENTS.md`, `agents/`, `commands`, `plugins/superpowers.js`. Everything else in `~/.config/opencode` is left untouched.
-- pi manages only: `settings.json`, `CLAUDE.md`. Everything else in `~/.pi/agent` (auth, sessions, bin, models.json) is left untouched.
+- pi manages only: `settings.json`, `keybindings.json`, `CLAUDE.md`. Everything else in `~/.pi/agent` (auth, sessions, bin, models.json) is left untouched.
 
 ## Agent frontmatter transform (opencode only)
 

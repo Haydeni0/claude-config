@@ -32,3 +32,17 @@ def sync_pi_context(target: Path, claude_md: Path, force: bool = False, dry_run:
         return Outcome(target, Status.NO_SOURCE, f"CLAUDE.md not found: {claude_md}")
     content = build_agents_md(claude_md, rules_path=None)
     return sync_text(target, content, force=force, dry_run=dry_run)
+
+
+def sync_pi_keybindings(target: Path, source: Path, dry_run: bool = False) -> Outcome:
+    """Wholesale-copy ~/.claude/pi/keybindings.json into <agent>/keybindings.json.
+
+    Same model as sync_pi_config: the source file is the single source of truth
+    and the derived copy is fully owned by it, so a diverging target is always
+    overwritten (no --force needed). Optional — if the source is absent, no
+    keybindings.json is written and sync succeeds (pi falls back to defaults).
+    """
+    if not source.is_file():
+        return Outcome(target, Status.NO_SOURCE, f"keybindings source not found: {source}")
+    content = source.read_text()
+    return sync_text(target, content, force=True, dry_run=dry_run)

@@ -25,6 +25,7 @@ and an inlined `CLAUDE.md` into `~/.pi/agent/CLAUDE.md`.
 
 ~/.pi/agent/                       <-- machine-local (NOT in the repo)
 ├── settings.json                   wholesale copy of pi/settings.json (pointers only)
+├── keybindings.json                wholesale copy of pi/keybindings.json (optional)
 ├── CLAUDE.md                       generated: inlined CLAUDE.md (@imports expanded)
 ├── auth.json                       credentials (per machine)
 ├── sessions/                       session history (per machine)
@@ -81,6 +82,7 @@ pi            # then /login  (or: export ANTHROPIC_API_KEY=... etc.)
 | Add an extension | `~/.claude/pi/extensions/<name>.ts` | as above |
 | Add a theme | `~/.claude/pi/themes/<name>.json` | as above |
 | **Change pointers** | `~/.claude/pi/settings.json` | commit → `git pull` → `sync pi config` → `/reload` |
+| **Change keybindings** | `~/.claude/pi/keybindings.json` | commit → `git pull` → `sync pi keybindings` → `/reload` |
 | **Change global context** | `~/.claude/CLAUDE.md` or its `@` imports | commit → `git pull` → `sync pi context` (or `sync pi`) |
 
 Skill discovery is **recursive** over directories containing `SKILL.md`, so dropping a new
@@ -134,6 +136,7 @@ Common flags (apply to `sync` and any subcommand, before the group name):
 ## Files in this directory
 
 - `settings.json` — pointer template (source of truth for resource locations)
+- `keybindings.json` — pi keybindings (source of truth; wholesale-copied to ~/.pi/agent)
 - `extensions/`   — pi extensions (TypeScript)
 - `themes/`       — pi themes (JSON)
 - `README.md`     — this file

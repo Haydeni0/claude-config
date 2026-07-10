@@ -1,0 +1,4 @@
+{
+  "app.tree.foldOrUp": ["alt+left"],
+  "app.tree.unfoldOrDown": ["alt+right"]
+}

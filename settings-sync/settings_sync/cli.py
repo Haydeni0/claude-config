@@ -16,7 +16,7 @@ from settings_sync.agents import sync_agents_dir
 from settings_sync.agents_md import sync_agents_md
 from settings_sync.commands import sync_commands
 from settings_sync.config import sync_config, sync_tui
-from settings_sync.pi import sync_pi_config, sync_pi_context
+from settings_sync.pi import sync_pi_config, sync_pi_context, sync_pi_keybindings
 from settings_sync.plugins import sync_superpowers
 from settings_sync.skills import validate_skills
 from settings_sync.sync import Outcome, Status
@@ -26,7 +26,7 @@ opencode_app = typer.Typer(add_completion=False, no_args_is_help=False, help="Sy
 pi_app = typer.Typer(add_completion=False, no_args_is_help=False, help="Sync pi config.")
 
 OPENCODE_STEPS = ("config", "tui", "agents-md", "agents", "commands", "plugins")
-PI_STEPS = ("config", "context")
+PI_STEPS = ("config", "context", "keybindings")
 
 
 @dataclass(slots=True, frozen=True)
@@ -66,6 +66,8 @@ def run_pi_step(name: str, paths: Paths, force: bool, dry_run: bool) -> list[Out
         return [sync_pi_config(paths.pi_dir / "settings.json", paths.claude_dir / "pi" / "settings.json", dry_run)]
     if name == "context":
         return [sync_pi_context(paths.pi_dir / "CLAUDE.md", paths.claude_dir / "CLAUDE.md", force, dry_run)]
+    if name == "keybindings":
+        return [sync_pi_keybindings(paths.pi_dir / "keybindings.json", paths.claude_dir / "pi" / "keybindings.json", dry_run)]
     raise ValueError(f"unknown pi step: {name}")
 
 
@@ -248,6 +250,11 @@ def config(ctx: typer.Context) -> None:
 @pi_app.command()
 def context(ctx: typer.Context) -> None:
     raise typer.Exit(_run_steps(ctx, "pi", ("context",)))
+
+
+@pi_app.command()
+def keybindings(ctx: typer.Context) -> None:
+    raise typer.Exit(_run_steps(ctx, "pi", ("keybindings",)))
 
 
 @pi_app.command()

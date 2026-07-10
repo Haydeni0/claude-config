@@ -5,7 +5,7 @@ import pytest
 from typer.testing import CliRunner
 
 from settings_sync.cli import app
-from settings_sync.pi import sync_pi_config, sync_pi_context
+from settings_sync.pi import sync_pi_config, sync_pi_context, sync_pi_keybindings
 from settings_sync.sync import Status
 
 
@@ -16,6 +16,15 @@ def pi_template(tmp_path: pathlib.Path) -> pathlib.Path:
     template.parent.mkdir(parents=True)
     template.write_text(json.dumps({"skills": ["~/.claude/skills"], "prompts": ["~/.claude/commands"]}))
     return template
+
+
+@pytest.fixture
+def pi_keybindings(tmp_path: pathlib.Path) -> pathlib.Path:
+    """A keybindings source at <claude>/pi/keybindings.json."""
+    source = tmp_path / "claude" / "pi" / "keybindings.json"
+    source.parent.mkdir(parents=True)
+    source.write_text(json.dumps({"app.tree.foldOrUp": ["alt+left"], "app.tree.unfoldOrDown": ["alt+right"]}))
+    return source
 
 
 @pytest.fixture
@@ -34,6 +43,7 @@ def pi_home(tmp_path: pathlib.Path) -> pathlib.Path:
     home = tmp_path / "claude"
     (home / "pi").mkdir(parents=True)
     (home / "pi" / "settings.json").write_text(json.dumps({"skills": ["~/.claude/skills"]}))
+    (home / "pi" / "keybindings.json").write_text(json.dumps({"app.tree.foldOrUp": ["alt+left"], "app.tree.unfoldOrDown": ["alt+right"]}))
     (home / "claude_md_imports").mkdir(parents=True)
     (home / "claude_md_imports" / "extra.md").write_text("Extra rules.\n")
     (home / "CLAUDE.md").write_text("# Rules\n@claude_md_imports/extra.md\nSee @skills/uv.\n")
@@ -106,6 +116,58 @@ def test_pi_config_dry_run_reports_would_replace_when_diverging(tmp_path: pathli
 
 def test_pi_config_no_source_when_template_missing(tmp_path: pathlib.Path):
     outcome = sync_pi_config(tmp_path / "agent" / "settings.json", tmp_path / "missing" / "settings.json")
+
+    assert outcome.status == Status.NO_SOURCE
+
+
+# ---- sync_pi_keybindings (wholesale copy; source is single source of truth) ----
+
+
+def test_pi_keybindings_creates_from_source(tmp_path: pathlib.Path, pi_keybindings: pathlib.Path):
+    target = tmp_path / "agent" / "keybindings.json"
+
+    outcome = sync_pi_keybindings(target, pi_keybindings)
+
+    assert outcome.status == Status.CREATED
+    assert json.loads(target.read_text())["app.tree.foldOrUp"] == ["alt+left"]
+
+
+def test_pi_keybindings_wholesale_overwrites_diverging_without_force(tmp_path: pathlib.Path, pi_keybindings: pathlib.Path):
+    """keybindings.json is fully owned by the source; a hand-edited diverging
+    copy is always overwritten — no --force needed (same as settings.json)."""
+    target = tmp_path / "agent" / "keybindings.json"
+    target.parent.mkdir(parents=True)
+    target.write_text(json.dumps({"hand": "edited"}))
+
+    outcome = sync_pi_keybindings(target, pi_keybindings)
+
+    assert outcome.status == Status.REPLACED
+    assert json.loads(target.read_text()) == {"app.tree.foldOrUp": ["alt+left"], "app.tree.unfoldOrDown": ["alt+right"]}
+
+
+def test_pi_keybindings_unchanged_when_identical(tmp_path: pathlib.Path, pi_keybindings: pathlib.Path):
+    target = tmp_path / "agent" / "keybindings.json"
+    target.parent.mkdir(parents=True)
+    target.write_text(pi_keybindings.read_text())
+
+    outcome = sync_pi_keybindings(target, pi_keybindings)
+
+    assert outcome.status == Status.UNCHANGED
+
+
+@pytest.mark.parametrize("dry_status", [(True, Status.WOULD_CREATE), (False, Status.CREATED)])
+def test_pi_keybindings_dry_run_creates_nothing(tmp_path: pathlib.Path, pi_keybindings: pathlib.Path, dry_status: tuple[bool, Status]):
+    dry_run, expected = dry_status
+    target = tmp_path / "agent" / "keybindings.json"
+
+    outcome = sync_pi_keybindings(target, pi_keybindings, dry_run=dry_run)
+
+    assert outcome.status == expected
+    assert (not target.exists()) if dry_run else target.exists()
+
+
+def test_pi_keybindings_no_source_when_missing(tmp_path: pathlib.Path):
+    outcome = sync_pi_keybindings(tmp_path / "agent" / "keybindings.json", tmp_path / "missing" / "keybindings.json")
 
     assert outcome.status == Status.NO_SOURCE
 
@@ -206,3 +268,22 @@ def test_cli_pi_config_check_detects_drift(tmp_path: pathlib.Path, pi_home: path
 
     assert result.exit_code != 0
     assert json.loads((pi_dir / "settings.json").read_text()) == {"hand": "edited"}
+
+
+def test_cli_pi_keybindings_creates(tmp_path: pathlib.Path, pi_home: pathlib.Path):
+    pi_dir = tmp_path / "pi-agent"
+
+    result = runner.invoke(app, ["--claude-dir", str(pi_home), "--pi-dir", str(pi_dir), "pi", "keybindings"])
+
+    assert result.exit_code == 0
+    assert json.loads((pi_dir / "keybindings.json").read_text())["app.tree.foldOrUp"] == ["alt+left"]
+
+
+def test_cli_pi_bare_writes_keybindings(tmp_path: pathlib.Path, pi_home: pathlib.Path):
+    pi_dir = tmp_path / "pi-agent"
+
+    result = runner.invoke(app, ["--claude-dir", str(pi_home), "--pi-dir", str(pi_dir), "pi"])
+
+    assert result.exit_code == 0
+    assert (pi_dir / "keybindings.json").is_file()
+    assert json.loads((pi_dir / "keybindings.json").read_text())["app.tree.unfoldOrDown"] == ["alt+right"]
