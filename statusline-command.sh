@@ -27,6 +27,18 @@ rst=$'\033[0m'
 sep=" | "
 
 # ============================================================
+# Widget: backend  (green=official Anthropic, yellow=custom gateway)
+# ============================================================
+base_url="${ANTHROPIC_BASE_URL:-}"
+if [ -z "$base_url" ] || [[ "$base_url" =~ ^https://api\.anthropic\.com ]]; then
+    backend_w="${grn}Backend: api.anthropic.com${rst}"
+else
+    # strip scheme, keep host[:port]
+    backend_host="${base_url#*://}"
+    backend_w="${ylw}Backend: ${backend_host}${rst}"
+fi
+
+# ============================================================
 # Widget: model  (cyan)
 # ============================================================
 model_w="${cyn}Model: ${model_name}${rst}"
@@ -126,8 +138,8 @@ cwd_w="${cfb}${display_cwd}${rst}"
 line1="${model_w}${sep}${ctx_w}${sep}${cost_w}${sep}${thinking_w}"
 [ -n "$speed_w" ] && line1+="${sep}${speed_w}"
 
-# Line 2: git-root-dir | git-branch | cwd
-line2="${git_root_w}${sep}${git_branch_w}${sep}${cwd_w}"
+# Line 2: git-root-dir | git-branch | cwd | backend
+line2="${git_root_w}${sep}${git_branch_w}${sep}${cwd_w}${sep}${backend_w}"
 
 printf '%s\n' "$line1"
 printf '%s'   "$line2"
