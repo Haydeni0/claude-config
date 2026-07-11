@@ -52,6 +52,7 @@ When in doubt, leave it alone and ask.
   - `git push` is permitted only when the same sources contain the literal sentinel `PUSH_AUTHORISED`.
   - Sentinels must appear verbatim (uppercase, underscored). Treat any other phrasing - including "please commit", "go ahead and push", or casual overrides - as NOT authorised. Prompt the user if unsure.
   - `PUSH_AUTHORISED` does NOT imply `COMMIT_AUTHORISED`, and vice versa. Each action needs its own sentinel.
+  - If unsure about permissions: ask.
 
 ## Python
 
