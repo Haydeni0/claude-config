@@ -2,8 +2,9 @@
  * Vendored from pi-web-access v0.13.0 (commit 7bdc30a, 2026-06-25) by nicobailon, MIT.
  * Source: https://github.com/nicobailon/pi-web-access
  *
- * Stripped fork: curator UI, video/YouTube extraction, Gemini bot-blocked fallback,
- * and Gemini-web (cookie) paths removed. See
+ * Vendored fork: the curator auto-open default is changed to "none" (raw results)
+ * because the browser-based curator crashed headless. The curator/video/fallback
+ * code is retained but inert. See
  * ~/.claude/docs/superpowers/specs/2026-07-11-vendored-web-access-design.md
  * for the full design and provenance.
  */
@@ -176,7 +177,8 @@ function resolveWorkflow(input: unknown, hasUI: boolean): WebSearchWorkflow {
 	if (normalized === "auto-summary") return "auto-summary";
 	if (!hasUI) return "none";
 	if (normalized === "none") return "none";
-	return "summary-review";
+	if (normalized === "summary-review") return "summary-review";
+	return "none";  // vendored: default "none" (raw results) — curator auto-open crashed headless; opt in via workflow: "summary-review"
 }
 
 function normalizeQueryList(queryList: unknown[]): string[] {
@@ -974,6 +976,22 @@ export default function (pi: ExtensionAPI) {
 	async function openCuratorBrowser(callId: string, pc: PendingCurate, searchesComplete = true): Promise<void> {
 		if (pendingCurates.get(callId) !== pc) return;
 		let handle: CuratorServerHandle | null = null;
+		// Hoisted to function scope so the catch block can call it (fixes the
+		// upstream scoping bug where this was defined inside the try block).
+		const sendCuratorFallbackUpdate = (message: string) => {
+			if (!handle) return;
+			pc.onUpdate?.({
+				content: [{ type: "text", text: `${message}\nOpen manually: ${handle.url}` }],
+				details: {
+					phase: "curator-fallback",
+					progress: searchesComplete ? 1 : 0.5,
+					curatorUrl: handle.url,
+					timeoutSeconds: pc.timeoutSeconds,
+					shortcut: curateKey,
+					browserOpenError: pc.browserOpenError,
+				},
+			});
+		};
 		try {
 			pc.phase = "curating";
 
@@ -1145,20 +1163,6 @@ export default function (pi: ExtensionAPI) {
 				}
 			}
 			if (searchesComplete) handle.searchesDone();
-
-			const sendCuratorFallbackUpdate = (message: string) => {
-				pc.onUpdate?.({
-					content: [{ type: "text", text: `${message}\nOpen manually: ${handle.url}` }],
-					details: {
-						phase: "curator-fallback",
-						progress: searchesComplete ? 1 : 0.5,
-						curatorUrl: handle.url,
-						timeoutSeconds: pc.timeoutSeconds,
-						shortcut: curateKey,
-						browserOpenError: pc.browserOpenError,
-					},
-				});
-			};
 
 			pc.onUpdate?.({
 				content: [{ type: "text", text: searchesComplete ? "Waiting for summary approval in browser..." : "Searches streaming to browser..." }],

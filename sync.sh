@@ -141,4 +141,18 @@ else
   log "claude/opencode not on PATH; skipping evo host installs"
 fi
 
+# --- 5. vendored web-access extension deps ---
+# The extension at pi/extensions/web-access/ is a vendored, stripped fork of
+# pi-web-access v0.13.0. Its npm deps (readability, linkedom, p-limit, turndown,
+# unpdf) install into a colocated node_modules/ that pi's extension loader resolves.
+wa_dir="$CLAUDE_DIR/pi/extensions/web-access"
+if [ -f "$wa_dir/package.json" ]; then
+  if [ ! -d "$wa_dir/node_modules" ]; then
+    log "npm install (web-access deps)..."
+    (cd "$wa_dir" && npm install) || warn "npm install (web-access) failed"
+  else
+    log "web-access: node_modules present, skipping"
+  fi
+fi
+
 exit "$exit_code"
