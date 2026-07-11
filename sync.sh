@@ -56,31 +56,47 @@ fi
 # agent settings.json above. Materialize any not yet fetched. The declaration
 # can't itself be the "installed?" check (sync just made settings.json match the
 # template, and `pi list` reads that declaration, not the filesystem), so probe
-# the actual install location: ~/.pi/agent/npm/node_modules/<name>. PI_CODING_AGENT_DIR
-# is unset above, so this resolves pi's default home regardless of launch shell.
+# the actual install location. PI_CODING_AGENT_DIR is unset above, so these
+# resolve pi's default home (~/.pi/agent) regardless of launch shell.
+#   npm:<name>[@version]   -> ~/.pi/agent/npm/node_modules/<name>
+#   git:<host>/<path>       -> ~/.pi/agent/git/<host>/<path>
 if command -v pi >/dev/null 2>&1; then
   tmpl="$CLAUDE_DIR/pi/settings.json"
   npm_root="$HOME/.pi/agent/npm/node_modules"
+  git_root="$HOME/.pi/agent/git"
   if [ -f "$tmpl" ] && command -v jq >/dev/null 2>&1; then
     while IFS= read -r spec; do
       [ -z "$spec" ] && continue
       case "$spec" in
-        npm:*) ;;
-        *) log "pi install $spec"; pi install "$spec" || warn "pi install $spec failed"; continue ;;
+        npm:*)
+          pkg="${spec#npm:}"
+          if [[ "$pkg" == @* ]]; then
+            scope="${pkg%%/*}"; rest="${pkg#*/}"; short="${rest%%@*}"; name="${scope}/${short}"
+          else
+            name="${pkg%%@*}"
+          fi
+          if [ -d "$npm_root/$name" ]; then
+            log "pi: $name present, skipping"
+          else
+            log "pi install $spec"
+            pi install "$spec" || warn "pi install $spec failed"
+          fi
+          ;;
+        git:*)
+          # git:<host>/<path> -> ~/.pi/agent/git/<host>/<path>
+          gpath="${spec#git:}"
+          if [ -d "$git_root/$gpath" ]; then
+            log "pi: $gpath present, skipping"
+          else
+            log "pi install $spec"
+            pi install "$spec" || warn "pi install $spec failed"
+          fi
+          ;;
+        *)
+          log "pi install $spec"
+          pi install "$spec" || warn "pi install $spec failed"
+          ;;
       esac
-      # spec -> npm package name (strip npm: prefix and any @version suffix)
-      pkg="${spec#npm:}"
-      if [[ "$pkg" == @* ]]; then
-        scope="${pkg%%/*}"; rest="${pkg#*/}"; short="${rest%%@*}"; name="${scope}/${short}"
-      else
-        name="${pkg%%@*}"
-      fi
-      if [ -d "$npm_root/$name" ]; then
-        log "pi: $name present, skipping"
-      else
-        log "pi install $spec"
-        pi install "$spec" || warn "pi install $spec failed"
-      fi
     done < <(jq -r '.packages[]? // empty' "$tmpl")
   elif ! command -v jq >/dev/null 2>&1; then
     warn "jq not found; cannot read packages[] from $tmpl — skipping pi packages"

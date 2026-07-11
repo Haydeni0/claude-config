@@ -7,7 +7,7 @@ description: Use when user asks what tests are missing, what coverage is lacking
 
 Find missing tests for current branch/PR changes and propose numbered test additions. Review-only: do not edit files in this skill.
 
-Use shared workflow from `../test-pr-core.md`, then apply this gap-specific rubric.
+Use shared workflow from `../test-pr-core/reference.md`, then apply this gap-specific rubric.
 
 ## Scope
 
