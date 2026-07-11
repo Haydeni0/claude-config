@@ -1,0 +1,14 @@
+{
+  "name": "web-access",
+  "version": "0.13.0",
+  "private": true,
+  "description": "Vendored, stripped pi-web-access: web_search + fetch_content (web/PDF/GitHub) + get_search_content. Source: github.com/nicobailon/pi-web-access v0.13.0 (7bdc30a).",
+  "dependencies": {
+    "@mozilla/readability": "^0.6.0",
+    "linkedom": "^0.16.0",
+    "p-limit": "^6.1.0",
+    "turndown": "^7.2.0",
+    "unpdf": "^1.6.2"
+  },
+  "license": "MIT"
+}
