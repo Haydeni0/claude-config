@@ -135,6 +135,15 @@
         "hooks": [
           {
             "type": "command",
+            "command": "jq -r '.tool_input.command' | grep -qE '(^|[[:space:];&|(])sudo([[:space:]]|$)' && printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"sudo commands require approval\"}}' || true"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
             "command": "bash ~/.claude/custom/hooks/rtk-wrapper.sh"
           }
         ]
