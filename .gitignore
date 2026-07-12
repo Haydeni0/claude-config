@@ -48,6 +48,11 @@ settings.local.json
 !custom/*/
 !custom/**
 
+# Re-ignore Python bytecode caches (override the custom/skills whitelists
+# above; __pycache__ would otherwise be tracked via !custom/** / !skills/**).
+__pycache__/
+**/__pycache__/
+
 # Track some special commands
 # From https://raba.pl/resources/claude-statusline
 !statusline-command.sh
