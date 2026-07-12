@@ -187,7 +187,8 @@
   "enabledPlugins": {
     "pyright-lsp@claude-plugins-official": false,
     "superpowers@claude-plugins-official": true,
-    "evo@evo-hq-evo": true
+    "evo@evo-hq-evo": true,
+    "slack@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "evo-hq-evo": {
@@ -200,8 +201,8 @@
   "effortLevel": "medium",
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true,
-  "skipWorkflowUsageWarning": true
+  "skipAutoPermissionPrompt": true
 }
