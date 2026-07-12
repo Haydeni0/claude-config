@@ -95,7 +95,18 @@
       "Bash(bash ~/.claude/skills/copy-claude-md/sync.sh*)",
       "Bash(rtk *)"
     ],
-    "deny": [],
+    "deny": [
+      "Bash(aws s3 rm*)",
+      "Bash(aws s3 rb*)",
+      "Bash(aws s3api delete-*)",
+      "Bash(rm */mnt/data*)",
+      "Bash(rm -rf /mnt/data*)",
+      "Bash(rm -r /mnt/data*)",
+      "Bash(rm -f /mnt/data*)",
+      "Bash(rmdir /mnt/data*)",
+      "Bash(shred /mnt/data*)",
+      "Bash(find /mnt/data*)"
+    ],
     "ask": [],
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
@@ -135,7 +146,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.command' | grep -qE '(^|[[:space:];&|(])sudo([[:space:]]|$)' && printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"sudo commands require approval\"}}' || true"
+            "command": "jq -r '.tool_input.command' | grep -qE '(^|[[:space:];&|(])sudo([[:space:]]|$)' && printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"sudo commands are blocked\"}}' || true"
           }
         ]
       },
@@ -145,6 +156,15 @@
           {
             "type": "command",
             "command": "bash ~/.claude/custom/hooks/rtk-wrapper.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/custom/hooks/check-delete-safety.sh"
           }
         ]
       }
@@ -182,5 +202,6 @@
   "skipDangerousModePermissionPrompt": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "skipWorkflowUsageWarning": true
 }
