@@ -26,7 +26,7 @@ Apply when writing, reviewing or editing code.
   i += 1  # skip the header row; the export always has one
   ```
 
-- **No lineage or migration history in docstrings.** "Moved from X", "Rehomed from Y", "Previously in Z" describe git history, not behavior. A new reader can't act on it. Put it in the commit message or PR body. Exception: a live deprecation notice ("old import still works but is deprecated") is actionable - remove it once the old path is gone.
+- **No lineage or incident history in docstrings or comments.** "Moved from X", "Rehomed from Y", "Previously in Z" describe git history, not behavior. "See incident #123", "we used to do X but crashed so switched to Y", "fixed bug N", past decision rationale (KV-pool math, crash root-causes, perf-incident refs) describe *why a past decision was made* - equally unreadable by a new reader, and they rot fast (the crash is gone, the flag is renamed, the number drifts). Both go in the commit message or PR body, not the code. A comment should explain a *current* constraint a reader must respect to work with the code safely, not how the code got here. Exception: a live deprecation notice ("old import still works but is deprecated") is actionable - remove it once the old path is gone.
 
 - **Flatten with guard clauses; don't nest the happy path.** Early return/raise on preconditions, then the main logic sits unindented.
 
