@@ -85,6 +85,8 @@ Apply when writing, reviewing or editing code.
 
 - **Use a structured model (dataclass / pydantic) over `dict` or `Any` for data with a known shape.** `dict[str, Any]` defeats type checking and lets schema violations slip to runtime.
 
+- **Keep types sound - don't suppress.** Avoid `# type: ignore` and `Any`; fix the type or signature instead. If truly unavoidable, scope the ignore to a code (`# type: ignore[code]`) and say why. Prefer narrowing (`isinstance`, overloads, `TypeGuard`) over widening to `Any`.
+
 - **Default new dataclasses to `@dataclass(slots=True)`; add `frozen=True` for value objects** (immutable, hashable, usable as a dict key).
 
 - **Use `StrEnum` (3.11+) for string-valued enums.** Members are strings directly - no `.value` unwrapping at every call site.

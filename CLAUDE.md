@@ -30,7 +30,6 @@
 |---|---|
 | "Cleaner to reformat the whole file" | Hides the real diff from review |
 | "I'll rename to `_foo` - better encapsulation" | Rename only when asked or required |
-| "`# type: ignore` is faster" | Fix the type, docstring, or call; or ask |
 | "This comment is stale anyway" | Update it if wrong; don't delete unprompted |
 
 ### Red flags - stop
