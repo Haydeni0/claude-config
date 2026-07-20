@@ -93,7 +93,8 @@
       "mcp__claude_ai_Notion__notion-query-data-sources",
       "mcp__claude_ai_Notion__notion-query-meeting-notes",
       "Bash(bash ~/.claude/skills/copy-claude-md/sync.sh*)",
-      "Bash(rtk *)"
+      "Bash(rtk *)",
+      "Bash(evo *)"
     ],
     "deny": [
       "Bash(aws s3 rm*)",
