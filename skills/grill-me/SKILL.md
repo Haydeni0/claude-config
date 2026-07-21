@@ -7,11 +7,11 @@ metadata:
 
 Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
 
-Ask one question at a time, waiting for feedback before continuing.
+Each turn is exactly one Q[N] block, in the format below. Ask it, then stop and wait for the answer before forming the next question.
 
 ## Question format
 
-Every question must follow this structure:
+A Q[N] block has these parts, in order:
 
 **Q[N]:** prefix each question with its sequential number (Q1, Q2, Q3, ...).
 
