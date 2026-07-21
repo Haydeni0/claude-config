@@ -24,7 +24,7 @@ Tasks come from **conversation context** — the user says "look at the PR comme
 ## Checklist
 
 1. **Collect tasks** from context — capture each verbatim
-2. **Triage** — read referenced code to group intelligently (don't ask what you can find), propose an order, write the state file
+2. **Triage** — read referenced sources to get context for and understand each task in detail (don't ask what you can find), group tasks intelligently, propose an order, write the state file
 3. **Confirm** — present groups + proposed order, ask *"Does this grouping and order look right before we start?"* Do not ask what to start on until the user confirms.
 4. **Work each group** (loop below)
 5. **Wrap up** — confirm all groups done, all resolutions drafted in the file
