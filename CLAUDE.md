@@ -60,3 +60,15 @@ When in doubt, leave it alone and ask.
 ## Environment
 
 - For `zsh: command not found` errors, check `$PATH` and `~/.zshenv`.
+
+## Fetching repo content
+
+When you need source from a git repo, clone to `/tmp` rather than `WebFetch` or raw-URL fetches. Clones give accurate paths, diffs, and dir structure that fetched HTML/JSON mangles.
+
+Scale the clone to what you actually need - don't fetch more:
+
+- Whole repo: `git clone --depth 1 <url>` (default - no history)
+- One subdir only: add `git sparse-checkout set <path>` to the shallow clone
+- One file only: skip the clone, `gh api` raw or `curl` the raw URL
+
+Clean up `/tmp` clones when done.
