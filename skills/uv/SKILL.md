@@ -35,4 +35,5 @@ uv run <tool>
 - NEVER use `python -m pip`
 - NEVER use `python -m pytest` or `python -m pip`
 - NEVER activate the venv with `source` - use `uv run`
+- NEVER patch the venv - do not edit, create, or delete files under `.venv/`. Manage packages via `uv add` / `uv pip install` only
 - Package source code lives at `./.venv/lib/<python_version>/site-packages/`
