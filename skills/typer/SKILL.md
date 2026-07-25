@@ -1,17 +1,32 @@
 ---
 name: typer
-description: Use when building Python CLI tools, writing scripts that accept arguments, or any time argparse would otherwise be used. Enforces typer as the only CLI argument library.
+description: Use when writing or editing any Python script that accepts command-line arguments - including standalone scripts, demos, benchmarks, experiments, profiling harnesses, and throwaway one-offs. Triggers on argparse, optparse, sys.argv, or any argv parsing in a Python file.
 ---
 
 # Typer for Python CLIs
 
-Always use `typer` for Python CLI tools. Never use `argparse`, `optparse`, or raw `sys.argv` parsing.
+Use `typer` for any Python script that parses argv. Never `argparse`, `optparse`, or raw `sys.argv`.
 
-## Why
+This applies to **all** scripts with argv parsing - not just production CLI tools. "Standalone", "demo", "throwaway", "experiment", "benchmark", and "minimal-deps" scripts are not exceptions. If a script reads flags or args, use typer. The "stdlib only / no deps" rationale does not override this - typer is already a project dependency.
 
-- Type hints define the interface — no manual `add_argument` boilerplate
-- Automatic `--help`, type validation, and error messages
-- Cleaner, more readable code
+## Red Flags - STOP and use typer
+
+You are about to violate this rule if you reach for any of these:
+- Writing `import argparse` in a script that takes flags
+- Reaching for `argparse` because the script is "throwaway", "standalone", "a quick demo", "an experiment", or "minimal"
+- Using `sys.argv` parsing because "it's too small to need a CLI library"
+- Adding `add_argument` calls
+
+**All of these mean: stop, use typer.**
+
+## Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "It's a throwaway/demo/experiment script" | Demos need arg parsing too. typer is the same effort as argparse. |
+| "It's standalone, argparse is stdlib" | typer is already a project dependency. stdlib-only is not a constraint. |
+| "It's too small to need a CLI library" | typer scales down - a 5-flag script is 5 typed params, less code than argparse. |
+| "production tools use typer, this doesn't" | The throwaway/production split is the trap. If it parses argv, use typer. |
 
 ## Basic Pattern
 
@@ -33,7 +48,7 @@ if __name__ == "__main__":
     app()
 ```
 
-## Common Patterns
+## Quick Reference
 
 | Need | Typer syntax |
 |------|-------------|
@@ -42,41 +57,32 @@ if __name__ == "__main__":
 | Flag | `verbose: bool = False` |
 | Explicit option | `name: str = typer.Option(...)` |
 | Explicit argument | `path: str = typer.Argument(...)` |
+| Fixed string choices (no class) | `quad: Literal["a", "b", "c"] = "a"` |
 | Enum choices | `mode: MyEnum = MyEnum.fast` |
-| File path | `path: Path = typer.Argument(...)` |
+| Path | `out: Path = typer.Option(Path("."))` |
 | Multiple subcommands | `app.command()` on multiple functions |
 
-## Installation
+Type options at the boundary - see `programming-principles.md` ("Don't pass around strings for things that have a richer type").
 
-```bash
-uv add typer
-# or for scripts:
-uv pip install typer
-```
+## Argument Help
 
-## Argument Descriptions
-
-Use `typer.Option` / `typer.Argument` with `help=` for any non-obvious parameter:
+Add `help=` to every `typer.Option` / `typer.Argument`, and use `...` to mark a required param:
 
 ```python
 @app.command()
 def main(
     input_file: Path = typer.Argument(..., help="Path to input CSV"),
-    output_dir: Path = typer.Option(Path("."), help="Directory to write results"),
     workers: int = typer.Option(4, help="Number of parallel workers"),
-    dry_run: bool = typer.Option(False, help="Print actions without executing"),
 ):
     ...
 ```
 
-- Always add `help=` to `Option` and non-obvious `Argument` params
-- Use `...` as the default to mark a parameter as required
-- Keep help strings brief - one clause, no full stops
+Keep help strings brief - one clause, no full stops.
 
 ## Rules
 
 - NEVER use `argparse`
 - NEVER use `sys.argv` for argument parsing
 - NEVER use `click` directly (typer wraps it)
-- Use type hints — they ARE the argument definitions
+- Use type hints - they ARE the argument definitions
 - Use `typer.echo()` instead of `print()` for CLI output
