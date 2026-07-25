@@ -1,6 +1,6 @@
 # claude-config
 
-Backup of `~/.claude` config — the single source of truth for [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [opencode](https://opencode.ai), and [pi](https://pi.dev).
+Backup of `~/.claude` config — the single source of truth for [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [opencode](https://opencode.ai), [pi](https://pi.dev), and [goose](https://goose.dev).
 
 ## What's tracked
 
@@ -14,8 +14,9 @@ Backup of `~/.claude` config — the single source of truth for [Claude Code](ht
 - `hooks/` + `RTK.md` — RTK token-rewrite hook
 - `statusline-command.sh` — CLI statusline
 - `opencode/` — base opencode config (`opencode.json`, `tui.json`), synced by settings-sync
-- `settings-sync/` — syncs this config into [opencode](https://opencode.ai) and [pi](https://pi.dev); see [settings-sync/README.md](settings-sync/README.md)
+- `settings-sync/` — syncs this config into [opencode](https://opencode.ai), [pi](https://pi.dev), and [goose](https://goose.dev); see [settings-sync/README.md](settings-sync/README.md)
 - `pi/` — base pi config (pointer template + pinned `packages[]`), wired by `sync`; see [pi/README.md](pi/README.md)
+- `goose/` — base goose config (`config.yaml`, `custom_providers/`), synced by settings-sync; see [goose/README.md](goose/README.md)
 - `sync.sh` — one-command machine setup: runs settings-sync + installs the machine-local tools the repo declares ([evo](https://github.com/evo-hq/evo) for claude-code/opencode, pi packages incl. [pi-web-access](https://github.com/nicobailon/pi-web-access))
 
 ## Typical workflows
@@ -34,7 +35,7 @@ Backup of `~/.claude` config — the single source of truth for [Claude Code](ht
 
 ## Install (new machine)
 
-`~/.claude` is the single source of truth — Claude Code, opencode, and pi all read from it.
+`~/.claude` is the single source of truth — Claude Code, opencode, pi, and goose all read from it.
 Get the repo, then wire up whichever tools you use.
 
 ### 1. Get the repo
@@ -56,13 +57,14 @@ git submodule update --init --recursive
 
 **Claude Code** reads `~/.claude` directly — nothing to run.
 
-**opencode** and **pi** are both synced by `settings-sync`, and the machine-local tools the repo declares (evo, pi packages) are installed by `sync.sh`. Both need [uv](https://docs.astral.sh/uv/).
+**opencode**, **pi**, and **goose** are all synced by `settings-sync`, and the machine-local tools the repo declares (evo, pi packages) are installed by `sync.sh`. All need [uv](https://docs.astral.sh/uv/).
 
 ```bash
-# install opencode: https://opencode.ai  •  install pi: https://pi.dev  (e.g. curl -fsSL https://pi.dev/install.sh | sh)
+# install opencode: https://opencode.ai  •  install pi: https://pi.dev  •  install goose: https://goose.dev
 bash ~/.claude/sync.sh                                    # one command: settings-sync + install evo + pi packages
 uv run --directory ~/.claude/settings-sync sync opencode # granular: opencode config only (no installs)
 uv run --directory ~/.claude/settings-sync sync pi       # granular: pi config only (no installs)
+uv run --directory ~/.claude/settings-sync sync goose     # granular: goose config only (no installs)
 uv run --directory ~/.claude/settings-sync sync --check  # drift check (read-only)
 # tip: alias ssync='uv run --directory ~/.claude/settings-sync sync' for brevity
 ```
@@ -70,8 +72,9 @@ uv run --directory ~/.claude/settings-sync sync --check  # drift check (read-onl
 - **sync.sh** — runs settings-sync, then materializes machine-local installs: `pi install` for each entry in `pi/settings.json#packages[]` (evo + pi-subagents + pi-web-access), and `evo install` for claude-code/opencode (skipped if that host isn't on PATH). Idempotent; re-run after `git pull` or any `~/.claude` edit.
 - **opencode** — derives config into `~/.config/opencode`; re-run `sync.sh` (or `sync`) after every `~/.claude` edit.
 - **pi** — writes pointers + inlined context + `packages[]` into `~/.pi/agent`; skills/commands are read directly (just `/reload` in pi after edits), only the context file is derived.
+- **goose** — derives config into `~/.config/goose`; skills/agents are read directly from `~/.claude` (native compat), only `.goosehints`/`config.yaml`/`custom_providers/` are derived. Re-run `sync.sh` (or `sync`) after every `~/.claude` edit.
 
-See [settings-sync/README.md](settings-sync/README.md) and [pi/README.md](pi/README.md).
+See [settings-sync/README.md](settings-sync/README.md), [pi/README.md](pi/README.md), and [goose/README.md](goose/README.md).
 
 ## Update
 

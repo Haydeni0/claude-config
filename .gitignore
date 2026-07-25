@@ -68,3 +68,5 @@ __pycache__/
 # Track pi config (shared with pi via sync pi)
 !pi/
 !pi/**
+!goose/
+!goose/**

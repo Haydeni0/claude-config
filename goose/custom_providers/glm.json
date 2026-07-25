@@ -1,0 +1,14 @@
+{
+  "name": "glm",
+  "engine": "openai",
+  "display_name": "GLM-5.2 (gateway)",
+  "description": "Internally-hosted GLM-5.2 via LiteLLM gateway",
+  "api_key_env": "GLM_GATEWAY_API_KEY",
+  "base_url": "http://slurm-b200-201-195:4000/v1",
+  "models": [
+    {"name": "glm-5.2", "context_limit": 400000}
+  ],
+  "supports_streaming": true,
+  "requires_auth": true,
+  "dynamic_models": false
+}

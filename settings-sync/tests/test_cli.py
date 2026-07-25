@@ -23,6 +23,10 @@ def _make_claude_home(tmp_path: pathlib.Path) -> pathlib.Path:
     (home / "skills" / "uv" / "SKILL.md").write_text("---\nname: uv\ndescription: d\n---\nBody.\n")
     (home / "pi").mkdir(parents=True)
     (home / "pi" / "settings.json").write_text(json.dumps({"skills": ["~/.claude/skills"], "prompts": ["~/.claude/commands"]}))
+    (home / "goose").mkdir(parents=True)
+    (home / "goose" / "config.yaml").write_text("GOOSE_TELEMETRY_ENABLED: false\n")
+    (home / "goose" / "custom_providers").mkdir(parents=True)
+    (home / "goose" / "custom_providers" / "test.json").write_text(json.dumps({"name": "test"}))
     return home
 
 
@@ -33,8 +37,9 @@ def test_all_creates_everything(tmp_path: pathlib.Path):
     claude = _make_claude_home(tmp_path)
     opencode = tmp_path / "config" / "opencode"
     pi_dir = tmp_path / "pi-agent"
+    goose_dir = tmp_path / "goose-config"
 
-    result = runner.invoke(app, ["--claude-dir", str(claude), "--opencode-dir", str(opencode), "--pi-dir", str(pi_dir)])
+    result = runner.invoke(app, ["--claude-dir", str(claude), "--opencode-dir", str(opencode), "--pi-dir", str(pi_dir), "--goose-dir", str(goose_dir)])
 
     assert result.exit_code == 0
     assert (opencode / "opencode.json").is_file()
@@ -47,16 +52,20 @@ def test_all_creates_everything(tmp_path: pathlib.Path):
     assert (opencode / "commands" / "uv.md").is_file()
     assert json.loads((pi_dir / "settings.json").read_text())["skills"] == ["~/.claude/skills"]
     assert "the `uv` skill" in (pi_dir / "CLAUDE.md").read_text()
+    assert (goose_dir / ".goosehints").is_file()
+    assert (goose_dir / "config.yaml").is_file()
+    assert (goose_dir / "custom_providers" / "test.json").is_file()
 
 
 def test_all_exits_nonzero_on_conflict(tmp_path: pathlib.Path):
     claude = _make_claude_home(tmp_path)
     opencode = tmp_path / "config" / "opencode"
     pi_dir = tmp_path / "pi-agent"
+    goose_dir = tmp_path / "goose-config"
     opencode.mkdir(parents=True)
     (opencode / "opencode.json").write_text(json.dumps({"hand": "edited"}))
 
-    result = runner.invoke(app, ["--claude-dir", str(claude), "--opencode-dir", str(opencode), "--pi-dir", str(pi_dir)])
+    result = runner.invoke(app, ["--claude-dir", str(claude), "--opencode-dir", str(opencode), "--pi-dir", str(pi_dir), "--goose-dir", str(goose_dir)])
 
     assert result.exit_code == 1
 
@@ -65,10 +74,11 @@ def test_force_resolves_conflicts(tmp_path: pathlib.Path):
     claude = _make_claude_home(tmp_path)
     opencode = tmp_path / "config" / "opencode"
     pi_dir = tmp_path / "pi-agent"
+    goose_dir = tmp_path / "goose-config"
     opencode.mkdir(parents=True)
     (opencode / "opencode.json").write_text(json.dumps({"hand": "edited"}))
 
-    result = runner.invoke(app, ["--force", "--claude-dir", str(claude), "--opencode-dir", str(opencode), "--pi-dir", str(pi_dir)])
+    result = runner.invoke(app, ["--force", "--claude-dir", str(claude), "--opencode-dir", str(opencode), "--pi-dir", str(pi_dir), "--goose-dir", str(goose_dir)])
 
     assert result.exit_code == 0
     assert json.loads((opencode / "opencode.json").read_text())["model"] == "test/model"
@@ -78,8 +88,9 @@ def test_check_exits_nonzero_on_drift_without_writing(tmp_path: pathlib.Path):
     claude = _make_claude_home(tmp_path)
     opencode = tmp_path / "config" / "opencode"
     pi_dir = tmp_path / "pi-agent"
+    goose_dir = tmp_path / "goose-config"
 
-    result = runner.invoke(app, ["--check", "--claude-dir", str(claude), "--opencode-dir", str(opencode), "--pi-dir", str(pi_dir)])
+    result = runner.invoke(app, ["--check", "--claude-dir", str(claude), "--opencode-dir", str(opencode), "--pi-dir", str(pi_dir), "--goose-dir", str(goose_dir)])
 
     assert result.exit_code == 1
     assert not (opencode / "opencode.json").exists()
@@ -89,13 +100,15 @@ def test_dry_run_creates_nothing(tmp_path: pathlib.Path):
     claude = _make_claude_home(tmp_path)
     opencode = tmp_path / "config" / "opencode"
     pi_dir = tmp_path / "pi-agent"
+    goose_dir = tmp_path / "goose-config"
 
-    result = runner.invoke(app, ["--dry-run", "--claude-dir", str(claude), "--opencode-dir", str(opencode), "--pi-dir", str(pi_dir)])
+    result = runner.invoke(app, ["--dry-run", "--claude-dir", str(claude), "--opencode-dir", str(opencode), "--pi-dir", str(pi_dir), "--goose-dir", str(goose_dir)])
 
     assert result.exit_code == 1
     assert not (opencode / "opencode.json").exists()
     assert not (opencode / "AGENTS.md").exists()
     assert not (pi_dir / "settings.json").exists()
+    assert not (goose_dir / ".goosehints").exists()
 
 
 def test_opencode_agents_only(tmp_path: pathlib.Path):
