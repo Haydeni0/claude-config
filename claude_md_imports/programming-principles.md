@@ -83,6 +83,8 @@ Apply when writing, reviewing or editing code.
 
 - **Use `pathlib.Path` over `os.path`** for all filesystem work - composable with `/`, cross-platform, covers what `os`/`os.path`/`shutil` did separately.
 
+- **Don't pass around strings for things that have a richer type.** Validate at the boundary and carry the typed value through: `Path` not `str` for filesystem paths, `int`/`float` not `str` for numbers, `Literal[...]` or an `Enum` not `str` for a value from a fixed set. A `str` parameter that's really one of N choices, or a path, or a number, forces every caller to parse and re-validate; a typed parameter makes invalid states unrepresentable. Applies to CLI args (typer types them at the boundary), function signatures, dataclass fields, config loaders - anywhere data crosses a boundary.
+
 - **Use a structured model (dataclass / pydantic) over `dict` or `Any` for data with a known shape.** `dict[str, Any]` defeats type checking and lets schema violations slip to runtime.
 
 - **Keep types sound - don't suppress.** Avoid `# type: ignore` and `Any`; fix the type or signature instead. If truly unavoidable, scope the ignore to a code (`# type: ignore[code]`) and say why. Prefer narrowing (`isinstance`, overloads, `TypeGuard`) over widening to `Any`.
