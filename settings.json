@@ -82,7 +82,6 @@
       "Bash(export PATH=*)",
       "Read(~/**)",
       "Grep(~/**)",
-      "Glob(~/**)",
       "WebFetch(domain:lightning.ai)",
       "WebFetch(domain:arxiv.org)",
       "mcp__claude_ai_Notion__notion-search",
