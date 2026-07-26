@@ -53,10 +53,10 @@ Cap at 50 files. If the target exceeds this, review the largest/most-imported fi
 
 Build the import graph:
 - Detect the primary language from file extensions.
-- If `uvx` is available, try `uvx --from pydeps pydeps --show-cycles <target>` for Python.
-- If `npx` is available, try `npx madge --circular <target>` for JS/TS.
-- For other languages or when tools are unavailable, fall back to a language-agnostic grep: `rg '^(import |from \S+ import |#include |using |require\()' <target>` and parse the matches into a graph.
-- The graph is approximate. The cross-file lens reads actual code for semantic judgment on top of it.
+- Primary method (language-agnostic, portable): `rg '^(import |from \S+ import |#include |using |require\()' <target>`. This produces raw import lines with file paths - the format the cross-file lens reads directly. For an N-file module this is ~N*10 lines, smaller and more directly useful than a full graph JSON.
+- Supplement for cycle detection (optional, when `uvx` is available, Python only): `uvx --from pydeps pydeps --no-output --show-cycles <target>`. The `--no-output` flag skips SVG rendering (which requires graphviz `dot`); cycle detection works without it. Use `--show-cycles` only (not `--show-deps` - the full dep JSON bloats context with fields the lens doesn't need).
+- Supplement for JS/TS (optional, when `npx` is available): `npx madge --circular <target>` for explicit cycle detection.
+- The graph from grep is approximate. The cross-file lens reads actual code for semantic judgment on top of it.
 
 Gather CLAUDE.md: root `CLAUDE.md` plus any `CLAUDE.md` in the target directory. Cap at 500 lines total (truncate with a `...(truncated)...` marker) so a giant `CLAUDE.md` doesn't blow the reviewers' context.
 
