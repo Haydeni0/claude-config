@@ -7,7 +7,6 @@ Backup of `~/.claude` config — the single source of truth for [Claude Code](ht
 - `CLAUDE.md` — global memory/instructions
 - `settings.json` — permissions and plugin config
 - `skills/` — custom skills (some symlink into `custom/plugins/caveman`)
-- `agents/` — custom subagents (`code-reviewer`, `meta-reviewer`)
 - `commands/` — custom slash commands
 - `custom/` — hooks and plugins (includes [caveman](https://github.com/JuliusBrussee/caveman) submodule)
 - `hooks/` + `RTK.md` — RTK token-rewrite hook
