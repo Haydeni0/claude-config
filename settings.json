@@ -12,6 +12,7 @@
       "Bash(git fetch*)",
       "Bash(git merge-base*)",
       "Bash(git add*)",
+      "Bash(git commit*)",
       "Bash(git -C * fetch*)",
       "Bash(git -C * merge-base*)",
       "Bash(git -C * add*)",
