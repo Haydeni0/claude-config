@@ -3,7 +3,7 @@
 import re
 from pathlib import Path
 
-from settings_sync.sync import Outcome, sync_text
+from settings_sync.sync import Outcome, Status, sync_text
 
 SKILLS_REF = re.compile(r"@skills/([a-zA-Z0-9_-]+)")
 
@@ -27,5 +27,7 @@ def sync_agents_md(
     dry_run: bool = False,
     rules_path: Path | None = None,
 ) -> Outcome:
+    if not claude_md.is_file():
+        return Outcome(target, Status.NO_SOURCE, f"CLAUDE.md not found: {claude_md}")
     content = build_agents_md(claude_md, rules_path=rules_path)
     return sync_text(target, content, force=force, dry_run=dry_run)

@@ -132,6 +132,15 @@ def exit_code(sync_outcomes: list[Outcome]) -> int:
     return 1 if any(o.status in _FAILURE_STATES for o in sync_outcomes) else 0
 
 
+def _run_skills(ctx: typer.Context) -> int:
+    """Run validate_skills and report. One exit-code policy for all skills invocations."""
+    paths = _ctx_paths(ctx)
+    _, _, _, verbose = _ctx_flags(ctx)
+    outcomes = validate_skills(paths.claude_dir / "skills")
+    report([], outcomes, verbose=True)
+    return 1 if any(o.status == Status.WARNED for o in outcomes) else 0
+
+
 def _format_diff(outcome: Outcome) -> str:
     if outcome.old_content is None or outcome.new_content is None:
         return ""
@@ -174,7 +183,7 @@ def _run_steps(ctx: typer.Context, tool: str, steps: tuple[str, ...]) -> int:
     runner = {"opencode": run_opencode, "pi": run_pi, "goose": run_goose}[tool]
     sync_outcomes, skills_outcomes = runner(paths, force, effective_dry, steps)
     report(sync_outcomes, skills_outcomes, verbose)
-    return exit_code(sync_outcomes)
+    return exit_code(sync_outcomes) or (1 if any(o.status == Status.WARNED for o in skills_outcomes) else 0)
 
 
 def _run_all(ctx: typer.Context) -> int:
@@ -183,7 +192,7 @@ def _run_all(ctx: typer.Context) -> int:
     effective_dry = dry_run or check
     sync_outcomes, skills_outcomes = run_all_tools(paths, force, effective_dry)
     report(sync_outcomes, skills_outcomes, verbose)
-    return exit_code(sync_outcomes)
+    return exit_code(sync_outcomes) or (1 if any(o.status == Status.WARNED for o in skills_outcomes) else 0)
 
 
 @app.callback(invoke_without_command=True)
@@ -254,11 +263,7 @@ def plugins(ctx: typer.Context) -> None:
 
 @opencode_app.command()
 def skills(ctx: typer.Context) -> None:
-    paths = _ctx_paths(ctx)
-    _, _, _, verbose = _ctx_flags(ctx)
-    outcomes = validate_skills(paths.claude_dir / "skills")
-    report([], outcomes, verbose=True)
-    raise typer.Exit(1 if any(o.status == Status.WARNED for o in outcomes) else 0)
+    raise typer.Exit(_run_skills(ctx))
 
 
 # ---- pi group ----
@@ -288,11 +293,7 @@ def keybindings(ctx: typer.Context) -> None:
 
 @pi_app.command()
 def skills(ctx: typer.Context) -> None:
-    paths = _ctx_paths(ctx)
-    _, _, _, verbose = _ctx_flags(ctx)
-    outcomes = validate_skills(paths.claude_dir / "skills")
-    report([], outcomes, verbose=True)
-    raise typer.Exit(1 if any(o.status == Status.WARNED for o in outcomes) else 0)
+    raise typer.Exit(_run_skills(ctx))
 
 
 # ---- goose group ----
@@ -322,11 +323,7 @@ def providers(ctx: typer.Context) -> None:
 
 @goose_app.command()
 def skills(ctx: typer.Context) -> None:
-    paths = _ctx_paths(ctx)
-    _, _, _, verbose = _ctx_flags(ctx)
-    outcomes = validate_skills(paths.claude_dir / "skills")
-    report([], outcomes, verbose=True)
-    raise typer.Exit(1 if any(o.status == Status.WARNED for o in outcomes) else 0)
+    raise typer.Exit(_run_skills(ctx))
 
 
 app.add_typer(opencode_app, name="opencode")
