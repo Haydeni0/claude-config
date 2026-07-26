@@ -1,4 +1,4 @@
-# Claude guidelines
+# Agent guidelines
 
 ## General
 
