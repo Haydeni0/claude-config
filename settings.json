@@ -178,7 +178,8 @@
     "pyright-lsp@claude-plugins-official": false,
     "superpowers@claude-plugins-official": true,
     "evo@evo-hq-evo": true,
-    "slack@claude-plugins-official": true
+    "slack@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "evo-hq-evo": {
