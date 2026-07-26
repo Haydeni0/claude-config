@@ -20,15 +20,15 @@
       "rm */mnt/data*": "deny",
       "rmdir /mnt/data*": "deny",
       "unlink /mnt/data*": "deny",
-      "gh api* -X DELETE*": "ask",
-      "gh api* -X POST*": "ask",
-      "gh api* -X PATCH*": "ask",
-      "gh api* -X PUT*": "ask",
-      "gh api* --method DELETE*": "ask",
-      "gh api* --method POST*": "ask",
-      "gh api* --method PATCH*": "ask",
-      "gh api* --method PUT*": "ask",
-      "gh api* --input*": "ask"
+      "gh api* -X DELETE*": "deny",
+      "gh api* -X POST*": "deny",
+      "gh api* -X PATCH*": "deny",
+      "gh api* -X PUT*": "deny",
+      "gh api* --method DELETE*": "deny",
+      "gh api* --method POST*": "deny",
+      "gh api* --method PATCH*": "deny",
+      "gh api* --method PUT*": "deny",
+      "gh api* --input*": "deny"
     }
   }
 }

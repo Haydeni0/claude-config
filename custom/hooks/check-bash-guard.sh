@@ -53,7 +53,7 @@ deny() {
 # boundaries (\< \>) so verbs match at the start of the command, after
 # whitespace, or after shell metachars (quotes, parens) - not just after
 # whitespace.
-if ! echo "$cmd" | grep -qE 'aws[[:space:]]+s3(api)?[[:space:]]|/mnt|\<(rm|rmdir|shred|unlink|trash|find|sudo|dd|mkfs|chmod)\>|git[[:space:]]+push'; then
+if ! echo "$cmd" | grep -qE 'aws[[:space:]]+s3(api)?[[:space:]]|/mnt|\<(rm|rmdir|shred|unlink|trash|find|sudo|dd|mkfs|chmod)\>|git[[:space:]]+(push|api)|gh[[:space:]]+api'; then
     exit 0
 fi
 
@@ -126,6 +126,40 @@ while (( i + 2 < n )); do
         while (( j < n )); do
             if [[ "${tokens[j]}" == "--force" || "${tokens[j]}" == "-f" ]]; then
                 deny "Blocked: git push --force is not permitted. git push --force is not permitted for the agent - run it yourself outside Claude. (hook: check-bash-guard.sh)"
+            fi
+            j=$((j + 1))
+        done
+    fi
+    i=$((i + 1))
+done
+
+# gh api write methods: deny DELETE/POST/PATCH/PUT (via -X or --method[=])
+# or --input (sends a request body). GET is allowed. Catches wrapped forms
+# (bash -c, $(...)) via the flattened token scan.
+i=0
+while (( i + 1 < n )); do
+    if [[ "${tokens[i]}" == "gh" && "${tokens[i+1]}" == "api" ]]; then
+        j=$((i + 2))
+        while (( j < n )); do
+            t="${tokens[j]}"
+            if [[ "$t" == "-X" || "$t" == "--method" ]]; then
+                method="${tokens[j+1]:-}"
+                case "$method" in
+                    DELETE|POST|PATCH|PUT)
+                        deny "Blocked: gh api -X ${method} is a write method. gh api write methods are not permitted for the agent - run them yourself outside Claude. (hook: check-bash-guard.sh)"
+                        ;;
+                esac
+            fi
+            if [[ "$t" == --method=* ]]; then
+                method="${t#--method=}"
+                case "$method" in
+                    DELETE|POST|PATCH|PUT)
+                        deny "Blocked: gh api --method=${method} is a write method. gh api write methods are not permitted for the agent - run them yourself outside Claude. (hook: check-bash-guard.sh)"
+                        ;;
+                esac
+            fi
+            if [[ "$t" == "--input" ]]; then
+                deny "Blocked: gh api --input sends a request body. gh api write methods are not permitted for the agent - run them yourself outside Claude. (hook: check-bash-guard.sh)"
             fi
             j=$((j + 1))
         done

@@ -256,6 +256,36 @@
       ]
     },
     {
+      "name": "gh_api_writes_blocked",
+      "label": "gh api write methods blocked",
+      "expect": "deny",
+      "needle": "gh api",
+      "commands": [
+        "gh api -X DELETE /repos/x/y",
+        "gh api -X POST /repos/x/y",
+        "gh api -X PATCH /repos/x/y",
+        "gh api -X PUT /repos/x/y",
+        "gh api --method DELETE /repos/x/y",
+        "gh api --method=POST /repos/x/y",
+        "gh api --input payload.json /repos/x/y",
+        "gh api /repos/x/y -X DELETE",
+        "bash -c \"gh api -X DELETE /repos/x/y\"",
+        "echo $(gh api -X DELETE /repos/x/y)"
+      ]
+    },
+    {
+      "name": "gh_api_reads_allowed",
+      "label": "gh api reads allowed",
+      "expect": "allow",
+      "commands": [
+        "gh api /repos/x/y",
+        "gh api repos/x/y/issues",
+        "gh api --method GET /repos/x/y",
+        "gh api -X GET /repos/x/y",
+        "gh api /repos/x/y --jq .name"
+      ]
+    },
+    {
       "name": "benign_allowed",
       "label": "benign command allowed",
       "expect": "allow",

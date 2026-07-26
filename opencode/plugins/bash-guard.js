@@ -45,11 +45,13 @@ const CHMOD_REASON =
   "chmod 777 is not permitted for the agent - permission weakening. (plugin: bash-guard.js)"
 const GIT_FORCE_REASON =
   "git push --force is not permitted for the agent - run it yourself outside opencode. (plugin: bash-guard.js)"
+const GH_API_REASON =
+  "gh api write methods are not permitted for the agent - run them yourself outside opencode. (plugin: bash-guard.js)"
 
 // Cheap pre-check: skip unless something relevant is mentioned. Correctness
 // does not depend on this (the guards return allow when nothing matches), it
 // only keeps the common case fast.
-const PRECHECK = /aws\s+s3(api)?\s|\/mnt\b|\b(rm|rmdir|shred|unlink|trash|find|sudo|dd|mkfs|chmod)\b|\bgit\s+push\b/
+const PRECHECK = /aws\s+s3(api)?\s|\/mnt\b|\b(rm|rmdir|shred|unlink|trash|find|sudo|dd|mkfs|chmod)\b|\bgit\s+(push|api)\b|\bgh\s+api\b/
 
 // S3 guard: flatten separators + quote/subshell/backslash chars so wrapped/compound
 // forms (bash -c "...", $(...), a && b, \rm) tokenize to bare tokens.
@@ -110,6 +112,33 @@ export function decide(command) {
       for (let j = i + 2; j < n; j++) {
         if (tokens[j] === "--force" || tokens[j] === "-f") {
           return { deny: true, reason: `Blocked: git push --force is not permitted. ${GIT_FORCE_REASON}` }
+        }
+      }
+    }
+  }
+
+  // gh api write methods: deny DELETE/POST/PATCH/PUT (via -X or --method[=])
+  // or --input (sends a request body). GET is allowed. Catches wrapped forms
+  // (bash -c, $(...)) via the flattened token scan.
+  const GH_WRITE_METHODS = new Set(["DELETE", "POST", "PATCH", "PUT"])
+  for (let i = 0; i + 1 < n; i++) {
+    if (tokens[i] === "gh" && tokens[i + 1] === "api") {
+      for (let j = i + 2; j < n; j++) {
+        const t = tokens[j]
+        if (t === "-X" || t === "--method") {
+          const method = tokens[j + 1]
+          if (method && GH_WRITE_METHODS.has(method)) {
+            return { deny: true, reason: `Blocked: gh api -X ${method} is a write method. ${GH_API_REASON}` }
+          }
+        }
+        if (t.startsWith("--method=")) {
+          const method = t.slice(9)
+          if (GH_WRITE_METHODS.has(method)) {
+            return { deny: true, reason: `Blocked: gh api --method=${method} is a write method. ${GH_API_REASON}` }
+          }
+        }
+        if (t === "--input") {
+          return { deny: true, reason: `Blocked: gh api --input sends a request body. ${GH_API_REASON}` }
         }
       }
     }
