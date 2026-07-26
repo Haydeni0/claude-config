@@ -1,10 +1,260 @@
 # Claude guidelines
 
-@claude_md_imports/karpathy-guidelines.md
+# Karpathy Guidelines
 
-@claude_md_imports/programming-principles.md
+Behavioral guidelines to reduce common LLM coding mistakes, derived from [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876) on LLM coding pitfalls.
 
-@claude_md_imports/verification-language.md
+**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
+
+## 1. Think Before Coding
+
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+## 2. Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+## 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it - don't delete it.
+
+When your changes create orphans:
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+## 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+# Programming Principles
+
+What good code looks like. Always-loaded, so kept to universal principles only.
+Apply when writing, reviewing or editing code.
+
+- Scope: behavioral/process rules live in karpathy-guidelines. This file is about the code itself.
+- A principle belongs here only if it is (1) universal - true regardless of feature/design, (2) about the code not the process, (3) not already covered elsewhere. Design-dependent preferences ("use Protocols here") do NOT belong - they are conditional.
+
+## Programming principles: General
+
+- **Name by what a thing is or does, not what it's used for.** Usage-based names rot the moment the same code serves a second caller.
+
+  ```python
+  # bad
+  user_list_for_dropdown
+  # good
+  active_users
+  ```
+
+- **Comment the *why*, never the *what*.** If the "what" needs a comment, rename or restructure instead.
+
+  ```python
+  # bad
+  i += 1  # increment i
+  # good
+  i += 1  # skip the header row; the export always has one
+  ```
+
+- **No lineage or incident history in docstrings or comments.** "Moved from X", "Rehomed from Y", "Previously in Z" describe git history, not behavior. "See incident #123", "we used to do X but crashed so switched to Y", "fixed bug N", past decision rationale (KV-pool math, crash root-causes, perf-incident refs) describe *why a past decision was made* - equally unreadable by a new reader, and they rot fast (the crash is gone, the flag is renamed, the number drifts). Both go in the commit message or PR body, not the code. A comment should explain a *current* constraint a reader must respect to work with the code safely, not how the code got here. Exception: a live deprecation notice ("old import still works but is deprecated") is actionable - remove it once the old path is gone.
+
+- **Flatten with guard clauses; don't nest the happy path.** Early return/raise on preconditions, then the main logic sits unindented.
+
+- **A boolean/flag parameter means the function does two things - prefer named alternatives.** Two functions, or an enum, over a bare boolean - the call site `render(True)` tells the reader nothing.
+
+  ```python
+  # bad
+  render(is_admin)
+  # good
+  render_admin() / render_user()   # or render(role=Role.ADMIN)
+  ```
+
+- **Don't add silent fallbacks or default values on unexpected failure.** Let it fail loudly with context, unless a fallback was explicitly asked for. Masked failures produce wrong output instead of a visible crash.
+
+- **Don't duplicate logic that already exists, and use the project's wrapper over the raw library.** Duplicated validators/clients/utils diverge over time; bypassing a wrapper sidesteps its auth, logging, and error handling.
+
+- **Keep functions pure by default; push side effects to the boundary.** A function that mixes computation with I/O or state mutation is harder to test and reason about. Separate the two unless the side effect is the function's whole purpose.
+
+- **Error messages must carry actionable context** - what operation failed, the relevant inputs, and enough state to reproduce.
+
+  ```python
+  # bad
+  raise ValueError("error")
+  # good
+  raise ValueError(f"API call failed: status={resp.status_code} params={params} body={resp.text[:500]}")
+  ```
+
+- **Give every meaningful literal a named constant whose name encodes the reason**, not just the value. `MINIMUM_LEGAL_AGE`, not a bare `18`.
+
+- **Keep all statements in a function at one level of abstraction.** Don't mix high-level intent (`process_payment()`) with low-level mechanics (`cart.items[i].price * 0.9`) in the same body; extract the detail.
+
+- **Don't extract a shared abstraction until the third occurrence.** Two instances rarely reveal the right generalisation; premature extraction locks in the wrong shape.
+
+- **Prefer composition over inheritance, and depend on behavior not concrete type.** Inheritance couples a subclass to its parent's internals and forces a single hierarchy; composition keeps pieces swappable. Where a seam is needed, type against an interface (e.g. a `Protocol`) so callers depend on what a thing does, not what it is. Don't add the interface until a second implementation makes the seam real.
+
+  ```python
+  # bad - subclass to reuse, locks the hierarchy
+  class CsvReport(Database): ...
+  # good - compose the dependency
+  class CsvReport:
+      def __init__(self, store: SupportsRead): ...
+  ```
+
+## Programming principles: Python
+
+- **Use `X | None` and builtin generics, not `Optional` / `typing.List`.** (3.10+)
+
+  ```python
+  # bad
+  def f(x: Optional[str]) -> List[int]: ...
+  # good
+  def f(x: str | None) -> list[int]: ...
+  ```
+
+- **Use `pathlib.Path` over `os.path`** for all filesystem work - composable with `/`, cross-platform, covers what `os`/`os.path`/`shutil` did separately.
+
+- **Don't pass around strings for things that have a richer type.** Validate at the boundary and carry the typed value through: `Path` not `str` for filesystem paths, `int`/`float` not `str` for numbers, `Literal[...]` or an `Enum` not `str` for a value from a fixed set. A `str` parameter that's really one of N choices, or a path, or a number, forces every caller to parse and re-validate; a typed parameter makes invalid states unrepresentable. Applies to CLI args (typer types them at the boundary), function signatures, dataclass fields, config loaders - anywhere data crosses a boundary.
+
+- **Use a structured model (dataclass / pydantic) over `dict` or `Any` for data with a known shape.** `dict[str, Any]` defeats type checking and lets schema violations slip to runtime.
+
+- **Keep types sound - don't suppress.** Avoid `# type: ignore` and `Any`; fix the type or signature instead. If truly unavoidable, scope the ignore to a code (`# type: ignore[code]`) and say why. Prefer narrowing (`isinstance`, overloads, `TypeGuard`) over widening to `Any`.
+
+- **Default new dataclasses to `@dataclass(slots=True)`; add `frozen=True` for value objects** (immutable, hashable, usable as a dict key).
+
+- **Use `StrEnum` (3.11+) for string-valued enums.** Members are strings directly - no `.value` unwrapping at every call site.
+
+- **Re-raise with explicit chaining.** `raise NewError(...) from exc`; use `from None` only to deliberately suppress the chain. Attach context with `exc.add_note(...)` (3.11+) rather than wrapping in a new exception just for a message.
+
+- **Prefer EAFP (try/except) for operations that genuinely fail at runtime** (I/O, lookups) - a check-then-act has a TOCTOU race. But don't use exceptions to branch on *expected* business logic; that's control flow, use a conditional.
+
+- **Don't use f-strings in `logging` calls** - they evaluate eagerly even when the log level is suppressed; pass lazy `%` args. (`f"{x=}"` is handy for debug output, though.)
+
+  ```python
+  # bad
+  logging.debug(f"processing {expensive()}")
+  # good
+  logging.debug("processing %s", expensive())
+  ```
+
+- **Use a generator expression, not a list comprehension, when the result is iterated once** or passed to `sum`/`any`/`all`/`max`. O(1) peak memory instead of building a throwaway list - but only safe for a single pass; assign to a list if you iterate more than once.
+
+- **Use absolute imports, not relative imports.** Exception: `__init__.py` re-exports (`from .module import Thing`) are fine.
+
+# Verification Language
+
+Don't hedge when you can verify. Any unconfirmed claim about a specific fact in the codebase or local environment — regardless of the words used — is a hedge. Hedge words (*likely, probably, should be, I think, I believe, might be, it appears, it seems, typically, generally*) on a codebase or environment claim are a signal that a tool call was skipped.
+
+## The rule
+
+Before writing a claim about the codebase or environment, ask: can I verify this right now with a tool call (grep, read, bash)?
+
+- **Yes** → make the call, then state the result as fact.
+- **No, and the claim is blocking** → stop and ask. Don't proceed on a guess.
+- **No, and the claim is non-blocking** → flag the assumption explicitly: "Assuming X — correct me if wrong."
+
+**Blocking** means: the claim influences what tool call comes next, what code gets written, or what recommendation is made. If getting it wrong changes your next action, it's blocking.
+
+**"Can I verify this"** means: is the information reachable by any available tool. If the file is in the working tree, it is reachable. "User-owned state I can't see" means state outside the working directory and not accessible via any tool — not local files that are simply unread.
+
+## Multi-step chains
+
+The hardest case: verifying a fact requires two or three chained reads. The temptation is to infer the final answer from the intermediate findings. Don't.
+
+Every link in the chain must be verified, not just the terminal facts.
+
+❌ Bad: "The model likely uses float32 — that's the PyTorch default."
+✅ Good: read `model.py` → find `dtype=cfg.model_dtype` → read `config.yaml` → find `model_dtype: bfloat16` → state: "The model uses bfloat16, set in `config.yaml`."
+
+The path being "a few steps away" is not a reason to skip it. If the chain is reasonably followable, follow it.
+
+## Red flags - stop
+
+- "The function probably does X" — read the function.
+- "This is likely caused by Y" — grep for Y, run the code, check the logs.
+- "That config option is probably Z" — read the config file.
+- "It should work because..." — run it and confirm.
+- "I read file A and file B, so C is probably..." — verify C directly.
+
+## "Assuming X" is not a free pass
+
+"Assuming X — correct me if wrong" is only valid when a tool call genuinely cannot reach the information. If the file exists in the working tree, read it. Using "Assuming X" to avoid a tool call is the same violation as hedging.
+
+## Legitimate exceptions
+
+Hedging is correct when the uncertainty is genuinely unreachable:
+
+- State outside the working directory (prod environment, external service, remote config).
+- Future behavior of an external system.
+- User intent or requirements that haven't been stated.
+
+In these cases, name the uncertainty precisely: "I can't verify your prod config — if X is set, then Y; otherwise Z."
+
+## Examples
+
+**Single read:**
+❌ "The default timeout is probably 30 seconds."
+✅ (reads `client.py` line 12) "The default timeout is 30 seconds."
+
+**Two chained reads:**
+❌ "The model likely uses float32 — PyTorch default."
+✅ (reads `model.py` → `dtype=cfg.model_dtype`; reads `config.yaml` → `model_dtype: bfloat16`) "The model uses bfloat16, set in `config.yaml`."
+
+**Grep + read:**
+❌ "MAX_RETRIES is probably defined somewhere in utils."
+✅ (greps for `MAX_RETRIES` → `utils/http.py:14`; reads line) "`MAX_RETRIES = 3`, `utils/http.py:14`."
+
+**Genuine exception, non-blocking:**
+❌ "The staging DB probably uses the same schema as prod."
+✅ "Assuming staging and prod share the same schema — correct me if wrong."
+
+**Genuine exception, blocking:**
+❌ "The API key is probably in your `.env` so this should work."
+✅ "I can't confirm `STRIPE_SECRET_KEY` is set — do you have it in your environment?"
+
+## Rationalizations
+
+| Excuse | Reality |
+|---|---|
+| "A quick read would slow down the response" | A wrong answer wastes more time. |
+| "It's obvious from context" | Obvious guesses are still guesses. |
+| "I said 'probably' so I'm covered" | Hedging without verifying is still unverified. |
+| "The chain is too indirect" | If it's followable, follow it. |
+| "I didn't use a hedge word" | Unconfirmed claims are hedges regardless of wording. |
+| "It's a non-blocking claim" | If it influences your next action, it's blocking. |
 
 ## General
 

@@ -29,11 +29,10 @@ def pi_keybindings(tmp_path: pathlib.Path) -> pathlib.Path:
 
 @pytest.fixture
 def claude_md(tmp_path: pathlib.Path) -> pathlib.Path:
-    """A CLAUDE.md with an @import and an @skills/ reference."""
-    (tmp_path / "claude" / "claude_md_imports").mkdir(parents=True)
-    (tmp_path / "claude" / "claude_md_imports" / "extra.md").write_text("Extra rules.\n")
+    """A CLAUDE.md with an @skills/ reference."""
     claude_md = tmp_path / "claude" / "CLAUDE.md"
-    claude_md.write_text("# Rules\n@claude_md_imports/extra.md\nSee @skills/uv.\n")
+    claude_md.parent.mkdir(parents=True)
+    claude_md.write_text("# Rules\nExtra rules.\nSee @skills/uv.\n")
     return claude_md
 
 
@@ -44,9 +43,7 @@ def pi_home(tmp_path: pathlib.Path) -> pathlib.Path:
     (home / "pi").mkdir(parents=True)
     (home / "pi" / "settings.json").write_text(json.dumps({"skills": ["~/.claude/skills"]}))
     (home / "pi" / "keybindings.json").write_text(json.dumps({"app.tree.foldOrUp": ["alt+left"], "app.tree.unfoldOrDown": ["alt+right"]}))
-    (home / "claude_md_imports").mkdir(parents=True)
-    (home / "claude_md_imports" / "extra.md").write_text("Extra rules.\n")
-    (home / "CLAUDE.md").write_text("# Rules\n@claude_md_imports/extra.md\nSee @skills/uv.\n")
+    (home / "CLAUDE.md").write_text("# Rules\nExtra rules.\nSee @skills/uv.\n")
     (home / "skills").mkdir(parents=True)
     (home / "skills" / "uv").mkdir(parents=True)
     (home / "skills" / "uv" / "SKILL.md").write_text("---\nname: uv\ndescription: d\n---\nBody.\n")
@@ -183,7 +180,6 @@ def test_pi_context_creates_inlined(tmp_path: pathlib.Path, claude_md: pathlib.P
     assert outcome.status == Status.CREATED
     written = target.read_text()
     assert "Extra rules." in written
-    assert "@claude_md_imports/extra.md" not in written
     assert "the `uv` skill" in written
     assert "@skills/uv" not in written
 

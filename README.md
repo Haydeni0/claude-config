@@ -5,7 +5,6 @@ Backup of `~/.claude` config — the single source of truth for [Claude Code](ht
 ## What's tracked
 
 - `CLAUDE.md` — global memory/instructions
-- `claude_md_imports/` — files imported into `CLAUDE.md` via `@` syntax
 - `settings.json` — permissions and plugin config
 - `skills/` — custom skills (some symlink into `custom/plugins/caveman`)
 - `agents/` — custom subagents (`code-reviewer`, `meta-reviewer`)

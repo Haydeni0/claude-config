@@ -13,7 +13,7 @@ Syncs `~/.claude` config into [opencode](https://opencode.ai) (`~/.config/openco
 | `opencode/opencode.json` (base config) | `opencode.json` | passthrough, adds `$schema` |
 | `opencode/tui.json` (TUI config) | `tui.json` | passthrough, adds `$schema` |
 | `opencode/rules.md` (opencode-only rules) | appended to `AGENTS.md` | safety rules appended after CLAUDE.md content |
-| `CLAUDE.md` + `@` imports | `AGENTS.md` | `@path` imports inlined recursively, `@skills/<n>` rewritten to `the \`<n>\` skill` |
+| `CLAUDE.md` | `AGENTS.md` | `@skills/<n>` rewritten to `the \`<n>\` skill` |
 | `agents/*.md` | `agents/*.md` | frontmatter transform (see below) |
 | `commands/` | `commands` | relative symlink |
 | `plugins/cache/.../superpowers/<v>/.opencode/plugins/superpowers.js` | `plugins/superpowers.js` | relative symlink, highest semver resolved |
@@ -27,7 +27,7 @@ Hooks (`hooks/`) are not bridged — opencode's plugin hook model differs. Recre
 |---|---|---|
 | `pi/settings.json` (pointer template) | `settings.json` | **wholesale copy** (template is SOT; pi's own keys are disposable) |
 | `pi/keybindings.json` (optional) | `keybindings.json` | **wholesale copy** (SOT; pi falls back to defaults if absent) |
-| `CLAUDE.md` + `@` imports | `CLAUDE.md` | inlined (`@path` imports expanded, `@skills/<n>` rewritten) — pi can't expand `@` imports |
+| `CLAUDE.md` | `CLAUDE.md` | `@skills/<n>` rewritten (pi can't expand `@` refs) - skills/commands read directly (via pointers), tool validates only |
 | `skills/` | (native) | pi reads `~/.claude/skills` directly (via pointers); tool validates only |
 | `commands/` | (native) | pi reads `~/.claude/commands` directly (via pointers) |
 
@@ -37,7 +37,7 @@ pi's `settings.json` is **wholesale-copied** (no merge, no preserved machine key
 
 | Source in `~/.claude` | Target in `~/.config/goose` | Mechanism |
 |---|---|---|
-| `CLAUDE.md` + `@` imports | `.goosehints` | `@` imports inlined, `@skills/<n>` rewritten (same transform as opencode `AGENTS.md`) |
+| `CLAUDE.md` | `.goosehints` | `@skills/<n>` rewritten (same transform as opencode `AGENTS.md`) |
 | `goose/config.yaml` (base config) | `config.yaml` | copy; refuses to clobber diverging without `--force` (preserves machine-specific settings) |
 | `goose/custom_providers/*.json` | `custom_providers/*.json` | per-file copy; orphans warned (removed with `--force`) |
 | `skills/` | (native) | goose reads `~/.claude/skills` directly via compat path; tool validates only |
@@ -124,4 +124,4 @@ Claude Code `tools`/`disallowedTools`/`skills` map to opencode `permission`:
 After changing anything in `~/.claude`, re-run `sync` (or the relevant group). It is idempotent — unchanged artifacts report `unchanged`, changed ones update.
 
 - **Skills/commands** are read directly by both tools — editing them needs only a `/reload` in pi (opencode picks them up live via symlink), no re-sync required.
-- **Derived files** (opencode's `AGENTS.md`/`agents/`/`opencode.json`, pi's `settings.json`/`CLAUDE.md`/`keybindings.json`, goose's `.goosehints`/`config.yaml`/`custom_providers/`) update on next `sync` run. So: edit CLAUDE.md or its `@` imports → `sync` to refresh `AGENTS.md` (opencode), `CLAUDE.md` (pi), and `.goosehints` (goose).
+- **Derived files** (opencode's `AGENTS.md`/`agents/`/`opencode.json`, pi's `settings.json`/`CLAUDE.md`/`keybindings.json`, goose's `.goosehints`/`config.yaml`/`custom_providers/`) update on next `sync` run. So: edit CLAUDE.md → `sync` to refresh `AGENTS.md` (opencode), `CLAUDE.md` (pi), and `.goosehints` (goose).

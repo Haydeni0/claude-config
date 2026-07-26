@@ -8,9 +8,8 @@ from settings_sync.cli import Paths, app, run_opencode
 
 def _make_claude_home(tmp_path: pathlib.Path) -> pathlib.Path:
     home = tmp_path / "claude"
-    (home / "claude_md_imports").mkdir(parents=True)
-    (home / "claude_md_imports" / "extra.md").write_text("Extra rules.\n")
-    (home / "CLAUDE.md").write_text("# Rules\n@claude_md_imports/extra.md\nSee @skills/uv.\n")
+    home.mkdir(parents=True)
+    (home / "CLAUDE.md").write_text("# Rules\nExtra rules.\nSee @skills/uv.\n")
     (home / "opencode").mkdir(parents=True)
     (home / "opencode" / "opencode.json").write_text(json.dumps({"model": "test/model"}))
     (home / "opencode" / "tui.json").write_text(json.dumps({"theme": "tokyonight"}))
