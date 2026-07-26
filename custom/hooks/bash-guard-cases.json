@@ -1,0 +1,270 @@
+{
+  "$comment": "Shared corpus for bash-guard hooks. Consumed by test_bash_guard.py (Claude check-bash-guard.sh) and bash-guard.test.mjs (opencode bash-guard.js). Add commands here; both test suites parametrize from this file. Each group: expect 'deny' (with needle that must appear in the reason) or 'allow'. Harness-specific tests (payload parsing, plugin no-op) stay in their respective test files.",
+  "groups": [
+    {
+      "name": "s3_deletes_blocked",
+      "label": "S3 delete blocked",
+      "expect": "deny",
+      "needle": "S3",
+      "commands": [
+        "aws s3 rm s3://bucket/foo",
+        "aws s3 rm s3://bucket/foo --recursive",
+        "aws s3 rb s3://bucket",
+        "aws s3 sync --delete ./local s3://bucket/dir",
+        "aws s3 sync ./local s3://bucket/dir --delete",
+        "aws s3api delete-object --bucket b --key foo",
+        "aws s3api delete-objects --bucket b --delete file://d.json",
+        "aws s3api delete-bucket --bucket b",
+        "aws s3api delete-bucket-policy --bucket b",
+        "aws s3api delete-bucket-lifecycle --bucket b",
+        "aws s3api delete-bucket-tagging --bucket b",
+        "aws s3api delete-object-tagging --bucket b --key foo",
+        "aws s3api delete-public-access-block --bucket b",
+        "AWS_PROFILE=coreweave aws s3 rm s3://bucket/foo --recursive",
+        "aws s3 rm --recursive s3://bucket/foo",
+        "  aws s3  rm  s3://bucket/foo  ",
+        "aws\ts3\trm\ts3://bucket/foo",
+        "bash -c \"aws s3 rm s3://bucket/foo\"",
+        "sh -c 'aws s3 rm s3://bucket/foo'",
+        "echo $(aws s3 rm s3://bucket/foo)",
+        "true && aws s3 rm s3://bucket/foo",
+        "false || aws s3 rm s3://bucket/foo",
+        "aws s3 ls s3://bucket/ && aws s3 rm s3://bucket/foo",
+        "bash -c \"aws s3api delete-object --bucket b --key foo\""
+      ]
+    },
+    {
+      "name": "s3_non_deletes_allowed",
+      "label": "S3 non-delete allowed",
+      "expect": "allow",
+      "commands": [
+        "aws s3 ls s3://bucket/",
+        "aws s3 cp s3://bucket/specs/v1.yaml -",
+        "aws s3 cp s3://bucket/specs/v1.yaml ./local.yaml",
+        "aws s3 sync s3://bucket/dir ./local-dir",
+        "aws s3 cp --recursive s3://bucket/dir ./local-dir",
+        "aws s3api list-objects-v2 --bucket b",
+        "aws s3api get-object --bucket b --key foo /tmp/foo",
+        "aws s3api head-object --bucket b --key foo",
+        "aws s3api list-buckets",
+        "aws s3 cp ./local s3://bucket/foo",
+        "aws s3 sync ./local-dir s3://bucket/dir",
+        "aws s3api put-object --bucket b --key foo --body ./foo"
+      ]
+    },
+    {
+      "name": "mnt_data_deletes_blocked",
+      "label": "/mnt/data delete blocked",
+      "expect": "deny",
+      "needle": "/mnt/data",
+      "commands": [
+        "rm -rf /mnt/data",
+        "rm -rf /mnt/data/",
+        "rm /mnt/data/apps/foo",
+        "rm -f /mnt/data/apps/foo",
+        "rmdir /mnt/data/empty",
+        "shred /mnt/data/secret",
+        "unlink /mnt/data/file",
+        "find /mnt/data -delete",
+        "find /mnt/data -name '*.tmp' -delete",
+        "find /mnt/data -name x -exec rm {} +",
+        "find /mnt/data -name x -exec rm -f {} \\;",
+        "find /mnt/data -execdir rm {} ;",
+        "rm -rf /mnt/data/dora_preprocessing/old",
+        "AWS_PROFILE=p rm -rf /mnt/data/scratch",
+        "bash -c \"rm -rf /mnt/data\"",
+        "echo $(rm -rf /mnt/data)",
+        "true && rm -rf /mnt/data",
+        "ls /mnt/data && rm -rf /mnt/data/apps"
+      ]
+    },
+    {
+      "name": "mnt_data_non_deletes_allowed",
+      "label": "/mnt/data non-delete allowed",
+      "expect": "allow",
+      "commands": [
+        "ls /mnt/data",
+        "ls -la /mnt/data/apps",
+        "cat /mnt/data/apps/foo",
+        "find /mnt/data -name '*.csv'",
+        "find /mnt/data -name x -exec cat {} +",
+        "cp ./x /mnt/data/apps/x",
+        "mkdir -p /mnt/data/new",
+        "touch /mnt/data/new/file",
+        "rm -rf /tmp/junk",
+        "rm /home/hayden.dorahy/scratch",
+        "find /tmp -delete",
+        "shred /tmp/secret"
+      ]
+    },
+    {
+      "name": "mnt_data_false_positives_allowed",
+      "label": "/mnt/data false-positive allowed",
+      "expect": "allow",
+      "commands": [
+        "rm /tmp/junk && echo cleaned /mnt/data done",
+        "find /tmp -name x -exec echo {} /mnt/data ;"
+      ]
+    },
+    {
+      "name": "mnt_data_quoted_denied",
+      "label": "/mnt/data quoted-message denied (safe)",
+      "expect": "deny",
+      "needle": "/mnt/data",
+      "commands": [
+        "git commit -m \"rm the /mnt/data scratch dir\"",
+        "echo \"rm -rf /mnt/data is blocked\" >> notes.md"
+      ]
+    },
+    {
+      "name": "root_deletes_blocked",
+      "label": "filesystem root delete blocked",
+      "expect": "deny",
+      "needle": "root",
+      "commands": [
+        "rm -rf /",
+        "rm -r -f /",
+        "rm -fr /",
+        "rm -f -r /",
+        "rm -r /",
+        "rm -rf /*",
+        "rm -r -f /*",
+        "rm -fr /*",
+        "rmdir /",
+        "shred /",
+        "unlink /",
+        "bash -c \"rm -rf /\"",
+        "true && rm -rf /",
+        "echo $(rm -rf /)",
+        "AWS_PROFILE=p rm -rf /"
+      ]
+    },
+    {
+      "name": "subtree_cleanup_allowed",
+      "label": "subtree cleanup allowed",
+      "expect": "allow",
+      "commands": [
+        "rm -rf /tmp/junk",
+        "rm -r -f /tmp/junk",
+        "rm -fr /tmp/junk",
+        "rm -f -r /tmp/junk",
+        "rm -rf /tmp/ds-venv",
+        "rm -r -f /tmp/ds-venv",
+        "rm -rf /home/hayden.dorahy/scratch",
+        "rm -r -f /home/hayden.dorahy/scratch"
+      ]
+    },
+    {
+      "name": "path_norm_mnt_data_blocked",
+      "label": "path-normalization /mnt/data blocked",
+      "expect": "deny",
+      "needle": "/mnt/data",
+      "commands": [
+        "rm -rf //mnt/data",
+        "rm -rf /mnt/./data",
+        "\\rm -rf /mnt/data"
+      ]
+    },
+    {
+      "name": "path_norm_root_blocked",
+      "label": "path-normalization root blocked",
+      "expect": "deny",
+      "needle": "root",
+      "commands": [
+        "rm -rf //",
+        "rm -rf /./"
+      ]
+    },
+    {
+      "name": "find_ok_blocked",
+      "label": "find -ok/-okdir rm blocked",
+      "expect": "deny",
+      "needle": "/mnt/data",
+      "commands": [
+        "find /mnt/data -ok rm {} \\;",
+        "find /mnt/data -okdir rm {} \\;"
+      ]
+    },
+    {
+      "name": "aws_flag_bypass_blocked",
+      "label": "aws flag-before-s3 blocked",
+      "expect": "deny",
+      "needle": "S3",
+      "commands": [
+        "aws --profile=p s3 rm s3://x"
+      ]
+    },
+    {
+      "name": "mnt_parent_blocked",
+      "label": "/mnt parent delete blocked",
+      "expect": "deny",
+      "needle": "/mnt",
+      "commands": [
+        "rm -rf /mnt"
+      ]
+    },
+    {
+      "name": "sudo_blocked",
+      "label": "sudo blocked",
+      "expect": "deny",
+      "needle": "sudo",
+      "commands": [
+        "sudo rm -rf /tmp/x",
+        "bash -c \"sudo rm -rf /tmp/x\""
+      ]
+    },
+    {
+      "name": "dd_blocked",
+      "label": "dd blocked",
+      "expect": "deny",
+      "needle": "dd",
+      "commands": [
+        "dd if=/dev/zero of=/mnt/data/disk",
+        "bash -c \"dd if=/dev/zero of=/dev/sda\""
+      ]
+    },
+    {
+      "name": "mkfs_blocked",
+      "label": "mkfs blocked",
+      "expect": "deny",
+      "needle": "mkfs",
+      "commands": [
+        "mkfs.ext4 /dev/sda1",
+        "bash -c \"mkfs.ext4 /dev/sda1\""
+      ]
+    },
+    {
+      "name": "chmod_777_blocked",
+      "label": "chmod 777 blocked",
+      "expect": "deny",
+      "needle": "chmod",
+      "commands": [
+        "chmod 777 /mnt/data",
+        "chmod -R 777 /mnt/data",
+        "bash -c \"chmod -R 777 /mnt/data\""
+      ]
+    },
+    {
+      "name": "git_force_push_blocked",
+      "label": "git push --force/-f blocked",
+      "expect": "deny",
+      "needle": "force",
+      "commands": [
+        "git push --force origin main",
+        "git push -f origin main",
+        "bash -c \"git push --force origin main\""
+      ]
+    },
+    {
+      "name": "benign_allowed",
+      "label": "benign command allowed",
+      "expect": "allow",
+      "commands": [
+        "",
+        "ls -la",
+        "echo hello",
+        "aws s3 ls s3://bucket/"
+      ]
+    }
+  ]
+}

@@ -6,15 +6,29 @@
       "*": "allow",
       "sudo *": "deny",
       "sudo": "deny",
-      "rm -rf /*": "deny",
       "rm -rf /": "deny",
       "dd *": "deny",
       "mkfs *": "deny",
-      "shred *": "deny",
       "chmod -R 777 *": "deny",
       "chmod 777 *": "deny",
       "git push --force *": "deny",
-      "git push -f *": "deny"
+      "git push -f *": "deny",
+      "aws s3 rm*": "deny",
+      "aws s3 rb*": "deny",
+      "aws s3api delete-*": "deny",
+      "aws s3 sync*--delete*": "deny",
+      "rm */mnt/data*": "deny",
+      "rmdir /mnt/data*": "deny",
+      "unlink /mnt/data*": "deny",
+      "gh api* -X DELETE*": "ask",
+      "gh api* -X POST*": "ask",
+      "gh api* -X PATCH*": "ask",
+      "gh api* -X PUT*": "ask",
+      "gh api* --method DELETE*": "ask",
+      "gh api* --method POST*": "ask",
+      "gh api* --method PATCH*": "ask",
+      "gh api* --method PUT*": "ask",
+      "gh api* --input*": "ask"
     }
   }
 }

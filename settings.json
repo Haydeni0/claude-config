@@ -164,7 +164,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/custom/hooks/check-delete-safety.sh"
+            "command": "bash ~/.claude/custom/hooks/check-bash-guard.sh"
           }
         ]
       }
