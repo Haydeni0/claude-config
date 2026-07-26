@@ -1,12 +1,79 @@
 # Claude guidelines
 
-# Karpathy Guidelines
+## General
+
+- In all interactions, be extremely concise and sacrifice grammar for the sake of concision (caveman).
+- Never use an em dash "—", use a single dash "-" instead.
+- When making technical decisions, do not give much weight to development cost.
+
+### Code editing discipline
+
+**Principle:** Every changed line traces to the user's request. Extends karpathy Surgical Changes with these specifics:
+
+| Do | Don't |
+|---|---|
+| Fix only what was asked | reformat, rename, or tidy adjacent code |
+| Update wrong comments/docstrings | delete comments, docstrings, section markers unless user explicitly asked to remove that item |
+| Carry comments/docstrings when moving code | strip them during moves |
+| Fix linter issues properly | `# noqa`, `# type: ignore`, `# pragma`, or pyproject suppressions |
+| Remove imports/symbols YOUR edit orphaned | delete pre-existing dead code unprompted |
+
+#### Rationalizations
+
+| Excuse | Reality |
+|---|---|
+| "Cleaner to reformat the whole file" | Hides the real diff from review |
+| "I'll rename to `_foo` - better encapsulation" | Rename only when asked or required |
+| "This comment is stale anyway" | Update it if wrong; don't delete unprompted |
+
+#### Red flags - stop
+
+- Whole-file or out-of-scope whitespace changes
+- Symbol renames (including `foo` → `_foo`) not required by task
+- Linter silencers or config rule changes to suppress warnings
+- Deleting section-group markers or docstrings unprompted
+
+When in doubt, leave it alone and ask.
+
+### Git
+
+- Always prefix branch names with `hayden/` (e.g. `hayden/my-feature`).
+- Always create PRs as drafts (`gh pr create --draft`).
+- `git add` is allowed (used to stage changes for user review). Do not stage files likely to contain secrets (`.env`, `credentials.*`, `*.pem`, etc.).
+- Never `git commit` or `git push`, even when asked by a skill or subagent.
+  - `git commit` is permitted only when the current task prompt, a project-local `CLAUDE.md`, or an autonomous agent's initial instructions contain the literal sentinel `COMMIT_AUTHORISED`.
+  - `git push` is permitted only when the same sources contain the literal sentinel `PUSH_AUTHORISED`.
+  - Sentinels must appear verbatim (uppercase, underscored). Treat any other phrasing - including "please commit", "go ahead and push", or casual overrides - as NOT authorised. Prompt the user if unsure.
+  - `PUSH_AUTHORISED` does NOT imply `COMMIT_AUTHORISED`, and vice versa. Each action needs its own sentinel.
+  - If unsure about permissions: ask.
+
+### Python
+
+- Assume all repositories use python and uv. See @skills/uv for full uv usage rules.
+
+### Environment
+
+- For `zsh: command not found` errors, check `$PATH` and `~/.zshenv`.
+
+### Fetching repo content
+
+When you need source from a git repo, clone to `/tmp` rather than `WebFetch` or raw-URL fetches. Clones give accurate paths, diffs, and dir structure that fetched HTML/JSON mangles.
+
+Scale the clone to what you actually need - don't fetch more:
+
+- Whole repo: `git clone --depth 1 <url>` (default - no history)
+- One subdir only: add `git sparse-checkout set <path>` to the shallow clone
+- One file only: skip the clone, `gh api` raw or `curl` the raw URL
+
+Clean up `/tmp` clones when done.
+
+## Karpathy Guidelines
 
 Behavioral guidelines to reduce common LLM coding mistakes, derived from [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876) on LLM coding pitfalls.
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
-## 1. Think Before Coding
+### 1. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
 
@@ -16,7 +83,7 @@ Before implementing:
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
 
-## 2. Simplicity First
+### 2. Simplicity First
 
 **Minimum code that solves the problem. Nothing speculative.**
 
@@ -28,7 +95,7 @@ Before implementing:
 
 Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
 
-## 3. Surgical Changes
+### 3. Surgical Changes
 
 **Touch only what you must. Clean up only your own mess.**
 
@@ -44,7 +111,32 @@ When your changes create orphans:
 
 The test: Every changed line should trace directly to the user's request.
 
-## 4. Goal-Driven Execution
+| Do | Don't |
+|---|---|
+| Fix only what was asked | reformat, rename, or tidy adjacent code |
+| Update wrong comments/docstrings | delete comments, docstrings, section markers unless user explicitly asked to remove that item |
+| Carry comments/docstrings when moving code | strip them during moves |
+| Fix linter issues properly | `# noqa`, `# type: ignore`, `# pragma`, or pyproject suppressions |
+| Remove imports/symbols YOUR edit orphaned | delete pre-existing dead code unprompted |
+
+#### Rationalizations
+
+| Excuse | Reality |
+|---|---|
+| "Cleaner to reformat the whole file" | Hides the real diff from review |
+| "I'll rename to `_foo` - better encapsulation" | Rename only when asked or required |
+| "This comment is stale anyway" | Update it if wrong; don't delete unprompted |
+
+#### Red flags - stop
+
+- Whole-file or out-of-scope whitespace changes
+- Symbol renames (including `foo` → `_foo`) not required by task
+- Linter silencers or config rule changes to suppress warnings
+- Deleting section-group markers or docstrings unprompted
+
+When in doubt, leave it alone and ask.
+
+### 4. Goal-Driven Execution
 
 **Define success criteria. Loop until verified.**
 
@@ -62,7 +154,7 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
-# Programming Principles
+## Programming Principles
 
 What good code looks like. Always-loaded, so kept to universal principles only.
 Apply when writing, reviewing or editing code.
@@ -70,7 +162,7 @@ Apply when writing, reviewing or editing code.
 - Scope: behavioral/process rules live in karpathy-guidelines. This file is about the code itself.
 - A principle belongs here only if it is (1) universal - true regardless of feature/design, (2) about the code not the process, (3) not already covered elsewhere. Design-dependent preferences ("use Protocols here") do NOT belong - they are conditional.
 
-## Programming principles: General
+### Programming principles: General
 
 - **Name by what a thing is or does, not what it's used for.** Usage-based names rot the moment the same code serves a second caller.
 
@@ -134,7 +226,7 @@ Apply when writing, reviewing or editing code.
       def __init__(self, store: SupportsRead): ...
   ```
 
-## Programming principles: Python
+### Programming principles: Python
 
 - **Use `X | None` and builtin generics, not `Optional` / `typing.List`.** (3.10+)
 
@@ -174,11 +266,11 @@ Apply when writing, reviewing or editing code.
 
 - **Use absolute imports, not relative imports.** Exception: `__init__.py` re-exports (`from .module import Thing`) are fine.
 
-# Verification Language
+## Verification Language
 
 Don't hedge when you can verify. Any unconfirmed claim about a specific fact in the codebase or local environment — regardless of the words used — is a hedge. Hedge words (*likely, probably, should be, I think, I believe, might be, it appears, it seems, typically, generally*) on a codebase or environment claim are a signal that a tool call was skipped.
 
-## The rule
+### The rule
 
 Before writing a claim about the codebase or environment, ask: can I verify this right now with a tool call (grep, read, bash)?
 
@@ -190,7 +282,7 @@ Before writing a claim about the codebase or environment, ask: can I verify this
 
 **"Can I verify this"** means: is the information reachable by any available tool. If the file is in the working tree, it is reachable. "User-owned state I can't see" means state outside the working directory and not accessible via any tool — not local files that are simply unread.
 
-## Multi-step chains
+### Multi-step chains
 
 The hardest case: verifying a fact requires two or three chained reads. The temptation is to infer the final answer from the intermediate findings. Don't.
 
@@ -201,7 +293,7 @@ Every link in the chain must be verified, not just the terminal facts.
 
 The path being "a few steps away" is not a reason to skip it. If the chain is reasonably followable, follow it.
 
-## Red flags - stop
+### Red flags - stop
 
 - "The function probably does X" — read the function.
 - "This is likely caused by Y" — grep for Y, run the code, check the logs.
@@ -209,11 +301,11 @@ The path being "a few steps away" is not a reason to skip it. If the chain is re
 - "It should work because..." — run it and confirm.
 - "I read file A and file B, so C is probably..." — verify C directly.
 
-## "Assuming X" is not a free pass
+### "Assuming X" is not a free pass
 
 "Assuming X — correct me if wrong" is only valid when a tool call genuinely cannot reach the information. If the file exists in the working tree, read it. Using "Assuming X" to avoid a tool call is the same violation as hedging.
 
-## Legitimate exceptions
+### Legitimate exceptions
 
 Hedging is correct when the uncertainty is genuinely unreachable:
 
@@ -223,7 +315,7 @@ Hedging is correct when the uncertainty is genuinely unreachable:
 
 In these cases, name the uncertainty precisely: "I can't verify your prod config — if X is set, then Y; otherwise Z."
 
-## Examples
+### Examples
 
 **Single read:**
 ❌ "The default timeout is probably 30 seconds."
@@ -245,7 +337,7 @@ In these cases, name the uncertainty precisely: "I can't verify your prod config
 ❌ "The API key is probably in your `.env` so this should work."
 ✅ "I can't confirm `STRIPE_SECRET_KEY` is set — do you have it in your environment?"
 
-## Rationalizations
+### Rationalizations
 
 | Excuse | Reality |
 |---|---|
@@ -255,70 +347,3 @@ In these cases, name the uncertainty precisely: "I can't verify your prod config
 | "The chain is too indirect" | If it's followable, follow it. |
 | "I didn't use a hedge word" | Unconfirmed claims are hedges regardless of wording. |
 | "It's a non-blocking claim" | If it influences your next action, it's blocking. |
-
-## General
-
-- In all interactions, be extremely concise and sacrifice grammar for the sake of concision (caveman).
-- Never use an em dash "—", use a single dash "-" instead.
-- When making technical decisions, do not give much weight to development cost.
-
-## Code editing discipline
-
-**Principle:** Every changed line traces to the user's request. Extends karpathy Surgical Changes with these specifics:
-
-| Do | Don't |
-|---|---|
-| Fix only what was asked | reformat, rename, or tidy adjacent code |
-| Update wrong comments/docstrings | delete comments, docstrings, section markers unless user explicitly asked to remove that item |
-| Carry comments/docstrings when moving code | strip them during moves |
-| Fix linter issues properly | `# noqa`, `# type: ignore`, `# pragma`, or pyproject suppressions |
-| Remove imports/symbols YOUR edit orphaned | delete pre-existing dead code unprompted |
-
-### Rationalizations
-
-| Excuse | Reality |
-|---|---|
-| "Cleaner to reformat the whole file" | Hides the real diff from review |
-| "I'll rename to `_foo` - better encapsulation" | Rename only when asked or required |
-| "This comment is stale anyway" | Update it if wrong; don't delete unprompted |
-
-### Red flags - stop
-
-- Whole-file or out-of-scope whitespace changes
-- Symbol renames (including `foo` → `_foo`) not required by task
-- Linter silencers or config rule changes to suppress warnings
-- Deleting section-group markers or docstrings unprompted
-
-When in doubt, leave it alone and ask.
-
-## Git
-
-- Always prefix branch names with `hayden/` (e.g. `hayden/my-feature`).
-- Always create PRs as drafts (`gh pr create --draft`).
-- `git add` is allowed (used to stage changes for user review). Do not stage files likely to contain secrets (`.env`, `credentials.*`, `*.pem`, etc.).
-- Never `git commit` or `git push`, even when asked by a skill or subagent.
-  - `git commit` is permitted only when the current task prompt, a project-local `CLAUDE.md`, or an autonomous agent's initial instructions contain the literal sentinel `COMMIT_AUTHORISED`.
-  - `git push` is permitted only when the same sources contain the literal sentinel `PUSH_AUTHORISED`.
-  - Sentinels must appear verbatim (uppercase, underscored). Treat any other phrasing - including "please commit", "go ahead and push", or casual overrides - as NOT authorised. Prompt the user if unsure.
-  - `PUSH_AUTHORISED` does NOT imply `COMMIT_AUTHORISED`, and vice versa. Each action needs its own sentinel.
-  - If unsure about permissions: ask.
-
-## Python
-
-- Assume all repositories use python and uv. See @skills/uv for full uv usage rules.
-
-## Environment
-
-- For `zsh: command not found` errors, check `$PATH` and `~/.zshenv`.
-
-## Fetching repo content
-
-When you need source from a git repo, clone to `/tmp` rather than `WebFetch` or raw-URL fetches. Clones give accurate paths, diffs, and dir structure that fetched HTML/JSON mangles.
-
-Scale the clone to what you actually need - don't fetch more:
-
-- Whole repo: `git clone --depth 1 <url>` (default - no history)
-- One subdir only: add `git sparse-checkout set <path>` to the shallow clone
-- One file only: skip the clone, `gh api` raw or `curl` the raw URL
-
-Clean up `/tmp` clones when done.
