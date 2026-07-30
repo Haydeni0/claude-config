@@ -53,7 +53,7 @@ deny() {
 # boundaries (\< \>) so verbs match at the start of the command, after
 # whitespace, or after shell metachars (quotes, parens) - not just after
 # whitespace.
-if ! echo "$cmd" | grep -qE 'aws[[:space:]]+s3(api)?[[:space:]]|/mnt|\<(rm|rmdir|shred|unlink|trash|find|sudo|dd|mkfs|chmod)\>|git[[:space:]]+(push|api)|gh[[:space:]]+api'; then
+if ! echo "$cmd" | grep -qE 'aws[[:space:]]+s3(api)?[[:space:]]|/mnt|\<(rm|rmdir|shred|unlink|trash|find|sudo|dd|mkfs|chmod)\>|git[[:space:]]+(push|api)|gh[[:space:]]+api|\<kubectl\>|\<k\>'; then
     exit 0
 fi
 
@@ -163,6 +163,61 @@ while (( i + 1 < n )); do
             fi
             j=$((j + 1))
         done
+    fi
+    i=$((i + 1))
+done
+
+# ---------- kubectl guard ----------
+# kubectl|k with a mutating subcommand -> deny (read-only policy). Value-taking
+# global flags (those that consume the next token as their value) are skipped as
+# a pair so `kubectl -n kube-system delete pod foo` finds `delete`, not
+# `kube-system`. Boolean flags and =value forms (--kubeconfig=...) are single
+# tokens already skipped by the -?* flag skip. exec is NOT denied (the kubectl
+# skill guides the agent to read-only use inside exec). rollout is special:
+# `rollout status` is read-only (allowed); rollout restart/undo/pause/resume
+# mutate (denied) - so when the verb is `rollout`, the next non-flag token is
+# inspected.
+KUBECTL_VERBS="delete deletecollection drain edit apply create patch replace scale set expose autoscale run label annotate cordon uncordon taint cp"
+KUBECTL_ROLLOUT_DENY="restart undo pause resume"
+KUBECTL_VALUE_FLAGS="-n --namespace --context --kubeconfig --cluster --user --server -s"
+i=0
+while (( i < n )); do
+    if [[ "${tokens[i]}" == "kubectl" || "${tokens[i]}" == "k" ]]; then
+        j=$((i + 1))
+        while (( j < n )); do
+            t="${tokens[j]}"
+            # value-taking flag: skip the flag AND its value token.
+            if [[ " $KUBECTL_VALUE_FLAGS " == *" $t "* ]]; then
+                j=$((j + 2))
+                continue
+            fi
+            # any other flag (-x, --x, --x=y, -xy): skip it alone.
+            if [[ "$t" == -?* ]]; then
+                j=$((j + 1))
+                continue
+            fi
+            break
+        done
+        (( j < n )) || { i=$((i + 1)); continue; }
+        sub="${tokens[j]}"
+        case "$sub" in
+            delete|deletecollection|drain|edit|apply|create|patch|replace|scale|set|expose|autoscale|run|label|annotate|cordon|uncordon|taint|cp)
+                deny "Blocked: kubectl ${sub} mutates cluster resources. kubectl mutation verbs are not permitted for the agent - run them yourself outside Claude. (hook: check-bash-guard.sh)"
+                ;;
+            rollout)
+                # rollout sub-verb: find next non-flag token; deny if it mutates.
+                rj=$((j + 1))
+                while (( rj < n )) && [[ "${tokens[rj]}" == -?* ]]; do
+                    rj=$((rj + 1))
+                done
+                if (( rj < n )); then
+                    rsub="${tokens[rj]}"
+                    if [[ " $KUBECTL_ROLLOUT_DENY " == *" $rsub "* ]]; then
+                        deny "Blocked: kubectl rollout ${rsub} mutates cluster resources. kubectl mutation verbs are not permitted for the agent - run them yourself outside Claude. (hook: check-bash-guard.sh)"
+                    fi
+                fi
+                ;;
+        esac
     fi
     i=$((i + 1))
 done

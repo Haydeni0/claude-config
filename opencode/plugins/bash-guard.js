@@ -47,11 +47,13 @@ const GIT_FORCE_REASON =
   "git push --force is not permitted for the agent - run it yourself outside opencode. (plugin: bash-guard.js)"
 const GH_API_REASON =
   "gh api write methods are not permitted for the agent - run them yourself outside opencode. (plugin: bash-guard.js)"
+const KUBECTL_REASON =
+  "kubectl mutation verbs are not permitted for the agent - run them yourself outside opencode. (plugin: bash-guard.js)"
 
 // Cheap pre-check: skip unless something relevant is mentioned. Correctness
 // does not depend on this (the guards return allow when nothing matches), it
 // only keeps the common case fast.
-const PRECHECK = /aws\s+s3(api)?\s|\/mnt\b|\b(rm|rmdir|shred|unlink|trash|find|sudo|dd|mkfs|chmod)\b|\bgit\s+(push|api)\b|\bgh\s+api\b/
+const PRECHECK = /aws\s+s3(api)?\s|\/mnt\b|\b(rm|rmdir|shred|unlink|trash|find|sudo|dd|mkfs|chmod)\b|\bgit\s+(push|api)\b|\bgh\s+api\b|\bkubectl\b|\bk\b/
 
 // S3 guard: flatten separators + quote/subshell/backslash chars so wrapped/compound
 // forms (bash -c "...", $(...), a && b, \rm) tokenize to bare tokens.
@@ -140,6 +142,46 @@ export function decide(command) {
         if (t === "--input") {
           return { deny: true, reason: `Blocked: gh api --input sends a request body. ${GH_API_REASON}` }
         }
+      }
+    }
+  }
+
+  // ---------- kubectl guard ----------
+  // kubectl|k with a mutating subcommand -> deny (read-only policy). Value-
+  // taking global flags (those that consume the next token as their value) are
+  // skipped as a pair so `kubectl -n kube-system delete pod foo` finds `delete`,
+  // not `kube-system`. Boolean flags and =value forms (--kubeconfig=...) are
+  // single tokens already skipped by the -?* flag skip. exec is NOT denied (the
+  // kubectl skill guides the agent to read-only use inside exec). rollout is
+  // special: `rollout status` is read-only (allowed); rollout
+  // restart/undo/pause/resume mutate (denied) - so when the verb is `rollout`,
+  // the next non-flag token is inspected.
+  const KUBECTL_VERBS = new Set([
+    "delete", "deletecollection", "drain", "edit", "apply", "create",
+    "patch", "replace", "scale", "set", "expose", "autoscale", "run",
+    "label", "annotate", "cordon", "uncordon", "taint", "cp",
+  ])
+  const KUBECTL_ROLLOUT_DENY = new Set(["restart", "undo", "pause", "resume"])
+  const KUBECTL_VALUE_FLAGS = new Set(["-n", "--namespace", "--context", "--kubeconfig", "--cluster", "--user", "--server", "-s"])
+  for (let i = 0; i < n; i++) {
+    if (tokens[i] !== "kubectl" && tokens[i] !== "k") continue
+    let j = i + 1
+    while (j < n) {
+      const t = tokens[j]
+      if (KUBECTL_VALUE_FLAGS.has(t)) { j += 2; continue }
+      if (t.startsWith("-")) { j++; continue }
+      break
+    }
+    if (j >= n) continue
+    const sub = tokens[j]
+    if (KUBECTL_VERBS.has(sub)) {
+      return { deny: true, reason: `Blocked: kubectl ${sub} mutates cluster resources. ${KUBECTL_REASON}` }
+    }
+    if (sub === "rollout") {
+      let rj = j + 1
+      while (rj < n && tokens[rj].startsWith("-")) rj++
+      if (rj < n && KUBECTL_ROLLOUT_DENY.has(tokens[rj])) {
+        return { deny: true, reason: `Blocked: kubectl rollout ${tokens[rj]} mutates cluster resources. ${KUBECTL_REASON}` }
       }
     }
   }
