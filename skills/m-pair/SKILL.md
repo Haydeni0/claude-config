@@ -18,3 +18,7 @@ from a `?access_token=` query param in `--url`. If a notebook URL carries
 `?access_token=...`, extract it and pass via `MARIMO_TOKEN` with a clean
 `--url` (path only) - otherwise the `/api/sessions` request mangles the query
 param into the path and returns "No active sessions" even when one exists.
+
+## General marimo gotchas
+
+See [MEMORY.md](MEMORY.md) for marimo quirks to remember.
