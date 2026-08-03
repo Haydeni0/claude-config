@@ -66,7 +66,7 @@ Gather instruction files: the root `CLAUDE.md` plus any `CLAUDE.md` in directori
 
 ### Stage 2: Review (4 parallel subagents)
 
-Dispatch 4 subagents in parallel, each a lens. Each returns findings as a structured list, never prose:
+Dispatch 4 subagents in parallel as foreground agents (multiple Agent tool calls in a single message, not `run_in_background`). Foreground returns all results inline when complete so Stage 3 can proceed immediately; background dispatch forces a wait loop and blocks the orchestrator. A lens that returns an empty findings list has completed successfully - do not re-dispatch a lens that has returned. Only re-dispatch on a confirmed agent error, never on absence of a completion notification. Each returns findings as a structured list, never prose:
 
 ```
 - file: <path>
@@ -109,7 +109,7 @@ False-positive examples to ignore (give to each lens verbatim):
 
 ### Stage 3: Verify (single subagent)
 
-Dispatch one verifier subagent. It receives all structured findings from all 4 lenses and:
+Dispatch one verifier subagent as a foreground agent (not `run_in_background`). It receives all structured findings from all 4 lenses and:
 
 1. **Dedup across lenses.** Same file + overlapping line range + same issue → merge into one finding. Keep the higher-severity label. Combine the content fields.
 
