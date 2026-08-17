@@ -1,92 +1,4 @@
 {
-  "agentPushNotifEnabled": true,
-  "effortLevel": "medium",
-  "enabledPlugins": {
-    "evo@evo-hq-evo": true,
-    "pyright-lsp@claude-plugins-official": false,
-    "skill-creator@claude-plugins-official": true,
-    "slack@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true
-  },
-  "extraKnownMarketplaces": {
-    "evo-hq-evo": {
-      "source": {
-        "repo": "evo-hq/evo",
-        "source": "github"
-      }
-    }
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "command": "jq -r '.tool_input.command' | grep -qE 'gh api .*(-X (DELETE|POST|PATCH|PUT)|--method[= ](DELETE|POST|PATCH|PUT)|--input)' && printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"gh api write methods blocked\"}}' || true",
-            "type": "command"
-          }
-        ],
-        "matcher": "Bash"
-      },
-      {
-        "hooks": [
-          {
-            "command": "bash ~/.claude/custom/hooks/rtk-wrapper.sh",
-            "type": "command"
-          }
-        ],
-        "matcher": "Bash"
-      },
-      {
-        "hooks": [
-          {
-            "command": "bash ~/.claude/custom/hooks/check-bash-guard.sh",
-            "type": "command"
-          }
-        ],
-        "matcher": "Bash"
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "command": "bash ~/.claude/custom/hooks/caveman-activate.sh",
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "bash ~/.claude/custom/hooks/rtk-ensure.sh",
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "bash '/mnt/home/hayden.dorahy/.claude/hooks/herdr-agent-state.sh' session",
-            "timeout": 10,
-            "type": "command"
-          }
-        ],
-        "matcher": "*"
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "command": "bash ~/.claude/custom/hooks/caveman-mode-tracker.sh",
-            "type": "command"
-          }
-        ]
-      }
-    ]
-  },
-  "inputNeededNotifEnabled": true,
-  "model": "sonnet[1m]",
   "permissions": {
     "allow": [
       "Bash(git status*)",
@@ -182,8 +94,6 @@
       "Bash(rtk *)",
       "Bash(evo *)"
     ],
-    "ask": [],
-    "defaultMode": "auto",
     "deny": [
       "Bash(aws s3 rm*)",
       "Bash(aws s3 rb*)",
@@ -196,14 +106,104 @@
       "Bash(shred /mnt/data*)",
       "Bash(find /mnt/data*)"
     ],
+    "ask": [],
+    "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
-  "skipAutoPermissionPrompt": true,
+  "model": "sonnet",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.command' | grep -qE 'gh api .*(-X (DELETE|POST|PATCH|PUT)|--method[= ](DELETE|POST|PATCH|PUT)|--input)' && printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"gh api write methods blocked\"}}' || true"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/custom/hooks/rtk-wrapper.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/custom/hooks/check-bash-guard.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/custom/hooks/caveman-activate.sh"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/custom/hooks/rtk-ensure.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/mnt/home/hayden.dorahy/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/custom/hooks/caveman-mode-tracker.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "evo@evo-hq-evo": true,
+    "pyright-lsp@claude-plugins-official": false,
+    "skill-creator@claude-plugins-official": true,
+    "slack@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "evo-hq-evo": {
+      "source": {
+        "source": "github",
+        "repo": "evo-hq/evo"
+      }
+    }
+  },
+  "effortLevel": "medium",
+  "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
-  "statusLine": {
-    "command": "bash ~/.claude/statusline-command.sh",
-    "type": "command"
-  },
-  "tui": "fullscreen"
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true
 }
