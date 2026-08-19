@@ -1,6 +1,6 @@
 ---
 name: linear-agent-update
-description: Use when writing or updating any Linear comment or diff comment via the Linear MCP tools (save_comment, save_diff_comment, or editing an existing comment). Use whenever about to post agent-generated content to a Linear issue, project, initiative, document, milestone, or PR review - to hide verbose and unverified agent output behind a collapsed toggle by default so human readers are not flooded with it.
+description: Use when writing or updating any Linear comment or diff comment via the Linear MCP tools (save_comment, save_diff_comment, or editing an existing comment). Use whenever about to post to a Linear issue, project, initiative, document, milestone, or PR review.
 ---
 
 # linear-agent-update
@@ -9,7 +9,7 @@ description: Use when writing or updating any Linear comment or diff comment via
 
 Agents post verbose, partly-unverified output to Linear. Humans don't want to wade through it. This skill wraps every agent comment so the verified conclusion is visible by default and the reasoning, exploration, and speculation is hidden behind a collapsed toggle the reader can expand.
 
-Core principle: **position is the trust signal.** Verified content sits in the visible layer (the toggle title or a short visible line). Unverified content sits inside the collapsed toggle body, tagged `[unverified]`. A human scanning Linear sees only what the agent verified; the rest is one click away, explicitly marked.
+Core principle: **position is two signals at once.** The title (or short-form line) carries the verified conclusion - the bottom line a reader scans. The toggle body hides the rest: verbose reasoning and supporting detail (even when verified) AND unverified speculation (tagged `[unverified]`). A human scanning Linear sees only the verified conclusion; the volume and the uncertainty are one click away.
 
 ## When to use
 
@@ -48,7 +48,7 @@ A single Linear collapsible toggle. The title carries the verified conclusion; t
 ```
 +++ AGENT: <verified conclusion - one line>
 
-<body: reasoning, exploration, steps, speculation - tagged per below>
+<body: reasoning, exploration, steps, supporting detail - trim per below; tag any unverified claim [unverified]>
 
 +++
 ```
@@ -67,15 +67,29 @@ Fix: timeout now derives from the refresh window.
 +++
 ```
 
-## What goes where - the verification split
+## What goes where - two signals, one position
 
-The split between visible (title) and hidden (body) is a verification decision, not a length decision.
+The split between visible (title) and hidden (body) serves two purposes at once: it hides verbosity AND it sorts by trust.
 
-**Title (visible) = verified content.** What the agent did or observed this session, or a sound judgment it can stand behind. "Fixed the bug, tests pass" (ran them). "Recommend switching to JWT" (a judgment the agent owns). Try to verify claims before asserting them in the title.
+**Title (visible) = the verified conclusion.** One line - what the agent did or observed this session, or a sound judgment it can stand behind. "Fixed the bug, tests pass" (ran them). "Recommend switching to JWT" (a judgment the agent owns). Try to verify claims before asserting them in the title. The title is the surface a reader scans and trusts; keep it to the bottom line.
 
-**Body (hidden) = everything else.** Reasoning, the exploration path, alternative approaches considered, supporting detail, and any speculation. If a claim is unverified, it goes in the body and is tagged `[unverified]` (see below).
+**Body (hidden) = everything else.** Two kinds of content land here:
+1. **Verbose verified detail** - reasoning, the exploration path, alternative approaches considered, supporting detail. All verified, but too long for a scan. The body hides the volume so it doesn't flood the reader.
+2. **Unverified speculation** - any claim not yet confirmed. Tag these `[unverified]` (see below).
 
-The rule: if you can't verify something, it does not go in the title. Demote it to the toggle body and mark it. The title is the surface a reader trusts; the body is the surface a reader treats as reasoning-in-progress.
+The rule has two halves:
+- **Verbosity:** if it's not the one-line bottom line, it goes in the body - even when fully verified. The title is for scanning; the body is for the reader who wants depth.
+- **Trust:** if you can't verify something, it does not go in the title. Demote it to the body and tag it `[unverified]`. Unverified content never sits in the visible layer.
+
+So an all-verified-but-verbose update still uses the long form: the verified conclusion in the title, the verified supporting detail in the body (untagged - it's confirmed). The toggle hides verbosity regardless of trust level.
+
+### The toggle is a floor on visibility, not a license to write more
+
+Hiding output behind a toggle does not make verbose output fine - it just moves the cost. A reader who expands still wades through it, and you spent the effort producing it. The toggle is a safety net for content that genuinely needs depth (reasoning a reviewer may want, steps to reproduce, exploration that led to the conclusion). It is not a bin for everything you thought along the way.
+
+Write the body as if it might be read: trim reasoning that doesn't help a reader understand or reproduce the conclusion, cut exploration that dead-ended (unless it's a gotcha worth recording), drop restated context. If the body is long, that's a signal to tighten the thinking, not a sign the toggle is doing its job. A tight body respects the reader who clicks expand; a wall of text wastes their click.
+
+The short form exists for the same reason - if the whole update is one or two sentences, there's nothing to hide and nothing to trim. Don't pad a short update into a toggle to "use the skill properly"; the skill's goal is less noise, not more structure.
 
 ### Conversational replies (answering a direct human question)
 
@@ -137,3 +151,4 @@ If a human explicitly tells you to post text verbatim ("post this exactly", "pos
 | Text outside the toggle (e.g. a stray "AGENT UPDATE" header) | Remove it - the toggle is the whole comment |
 | Wrapping a human's verbatim text | Transcribe raw when told to post exactly |
 | Applying the toggle to an issue description or document | Only comments and diff comments - see non-goals |
+| Wall-of-text body - the toggle hides verbosity, not a license to write it | Trim: cut dead-end exploration, restated context, reasoning that doesn't help understand or reproduce the conclusion |
