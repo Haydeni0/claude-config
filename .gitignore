@@ -3,6 +3,7 @@
 
 # Track config
 !.gitignore
+!.gitattributes
 !README.md
 !CLAUDE.md
 !settings.json
