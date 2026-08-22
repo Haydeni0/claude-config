@@ -323,6 +323,7 @@ def test_cli_all_includes_goose(tmp_path: pathlib.Path, goose_home: pathlib.Path
             "--pi-dir", str(pi_dir),
             "--goose-dir", str(goose_dir),
             "--agy-dir", str(tmp_path / "gemini-config"),
+            "--agy-cli-dir", str(tmp_path / "gemini-cli"),
             "all",
         ],
     )

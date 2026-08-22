@@ -2,9 +2,22 @@ import os
 import pathlib
 from typer.testing import CliRunner
 
-from settings_sync.agy import sync_agy_agents_md, sync_agy_skills
+from settings_sync.agy import sync_agy_agents_md, sync_agy_settings, sync_agy_skills
 from settings_sync.cli import Paths, app, run_agy
 from settings_sync.sync import Status
+
+
+def test_sync_agy_settings(tmp_path: pathlib.Path):
+    source = tmp_path / "gemini" / "settings.json"
+    source.parent.mkdir(parents=True)
+    source.write_text('{"model": "gemini-3.7-flash"}\n')
+    target = tmp_path / "antigravity-cli" / "settings.json"
+
+    outcome = sync_agy_settings(target, source)
+
+    assert outcome.status == Status.CREATED
+    assert target.is_file()
+    assert '"model": "gemini-3.7-flash"' in target.read_text()
 
 
 def test_sync_agy_agents_md(tmp_path: pathlib.Path):
@@ -84,11 +97,16 @@ def test_cli_agy_all(tmp_path: pathlib.Path):
     (claude / "CLAUDE.md").write_text("# Rules\nSee @skills/uv.\n")
     (claude / "skills" / "uv").mkdir(parents=True)
     (claude / "skills" / "uv" / "SKILL.md").write_text("---\nname: uv\ndescription: d\n---\nBody\n")
+    (claude / "gemini").mkdir(parents=True)
+    (claude / "gemini" / "settings.json").write_text('{"model": "gemini-3.7-flash"}\n')
 
     agy_dir = tmp_path / "gemini" / "config"
+    agy_cli_dir = tmp_path / "gemini" / "antigravity-cli"
 
-    result = runner.invoke(app, ["--claude-dir", str(claude), "--agy-dir", str(agy_dir), "agy"])
+    result = runner.invoke(app, ["--claude-dir", str(claude), "--agy-dir", str(agy_dir), "--agy-cli-dir", str(agy_cli_dir), "agy"])
 
     assert result.exit_code == 0
     assert (agy_dir / "AGENTS.md").is_file()
     assert (agy_dir / "skills" / "uv").is_symlink()
+    assert (agy_cli_dir / "settings.json").is_file()
+    assert '"model": "gemini-3.7-flash"' in (agy_cli_dir / "settings.json").read_text()

@@ -16,7 +16,7 @@ import typer
 
 from settings_sync.agents import sync_agents_dir
 from settings_sync.agents_md import sync_agents_md
-from settings_sync.agy import sync_agy_agents_md, sync_agy_skills
+from settings_sync.agy import sync_agy_agents_md, sync_agy_settings, sync_agy_skills
 from settings_sync.commands import sync_commands
 from settings_sync.config import sync_config, sync_tui
 from settings_sync.goose import sync_goose_config, sync_goose_hints, sync_goose_providers
@@ -34,7 +34,7 @@ agy_app = typer.Typer(add_completion=False, no_args_is_help=False, help="Sync ag
 OPENCODE_STEPS = ("config", "tui", "agents-md", "agents", "commands", "plugins")
 PI_STEPS = ("config", "context", "keybindings")
 GOOSE_STEPS = ("hints", "config", "providers")
-AGY_STEPS = ("agents-md", "skills")
+AGY_STEPS = ("settings", "agents-md", "skills")
 
 
 @dataclass(slots=True, frozen=True)
@@ -44,6 +44,7 @@ class Paths:
     pi_dir: Path | None = None
     goose_dir: Path | None = None
     agy_dir: Path | None = None
+    agy_cli_dir: Path | None = None
 
 
 def run_opencode_step(name: str, paths: Paths, force: bool, dry_run: bool) -> list[Outcome]:
@@ -96,6 +97,9 @@ def run_goose_step(name: str, paths: Paths, force: bool, dry_run: bool) -> list[
 def run_agy_step(name: str, paths: Paths, force: bool, dry_run: bool) -> list[Outcome]:
     if paths.agy_dir is None:
         raise ValueError("agy_dir is required for agy steps")
+    if name == "settings":
+        target = (paths.agy_cli_dir / "settings.json") if paths.agy_cli_dir else (paths.agy_dir / "settings.json")
+        return [sync_agy_settings(target, paths.claude_dir / "gemini" / "settings.json", force, dry_run)]
     if name == "agents-md":
         return [sync_agy_agents_md(paths.agy_dir / "AGENTS.md", paths.claude_dir / "CLAUDE.md", force, dry_run)]
     if name == "skills":
@@ -233,9 +237,10 @@ def callback(
     pi_dir: Path = typer.Option(Path.home() / ".pi" / "agent", "--pi-dir", help="Target ~/.pi/agent directory."),
     goose_dir: Path = typer.Option(Path.home() / ".config" / "goose", "--goose-dir", help="Target ~/.config/goose directory."),
     agy_dir: Path = typer.Option(Path.home() / ".gemini" / "config", "--agy-dir", help="Target ~/.gemini/config directory."),
+    agy_cli_dir: Path = typer.Option(Path.home() / ".gemini" / "antigravity-cli", "--agy-cli-dir", help="Target ~/.gemini/antigravity-cli directory."),
 ) -> None:
     """Sync ~/.claude config into opencode, pi, goose, and agy. ~/.claude is the source of truth."""
-    ctx.obj = {"paths": Paths(claude_dir=claude_dir, opencode_dir=opencode_dir, pi_dir=pi_dir, goose_dir=goose_dir, agy_dir=agy_dir), "force": force, "dry_run": dry_run, "check": check, "verbose": verbose}
+    ctx.obj = {"paths": Paths(claude_dir=claude_dir, opencode_dir=opencode_dir, pi_dir=pi_dir, goose_dir=goose_dir, agy_dir=agy_dir, agy_cli_dir=agy_cli_dir), "force": force, "dry_run": dry_run, "check": check, "verbose": verbose}
     if ctx.invoked_subcommand is None:
         typer.echo("Syncing all tools (opencode + pi + goose + agy)...")
         raise typer.Exit(_run_all(ctx))
@@ -361,6 +366,11 @@ def agy_callback(ctx: typer.Context) -> None:
     if ctx.invoked_subcommand is None:
         typer.echo("Syncing agy...")
         raise typer.Exit(_run_steps(ctx, "agy", AGY_STEPS))
+
+
+@agy_app.command()
+def settings(ctx: typer.Context) -> None:
+    raise typer.Exit(_run_steps(ctx, "agy", ("settings",)))
 
 
 @agy_app.command("agents-md")

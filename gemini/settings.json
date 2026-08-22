@@ -1,0 +1,17 @@
+{
+  "model": "Gemini 3.7 Flash (High)",
+  "colorScheme": "dark",
+  "enableTelemetry": false,
+  "defaultMode": "auto",
+  "toolExecutionPolicy": "always-proceed",
+  "autoExecutionPolicy": "always-proceed",
+  "artifactReviewMode": "always-proceed",
+  "dangerouslySkipPermissions": true,
+  "notifications": {
+    "enabled": true
+  },
+  "trustedWorkspaces": [
+    "/home/hayden",
+    "/home/hayden/gitrepos/odysseus"
+  ]
+}

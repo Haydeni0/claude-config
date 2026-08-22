@@ -4,7 +4,19 @@ import shutil
 from pathlib import Path
 
 from settings_sync.agents_md import sync_agents_md
-from settings_sync.sync import Outcome, Status, sync_symlink
+from settings_sync.sync import Outcome, Status, sync_symlink, sync_text
+
+
+def sync_agy_settings(
+    target: Path,
+    source: Path,
+    force: bool = False,
+    dry_run: bool = False,
+) -> Outcome:
+    """Sync ~/.claude/gemini/settings.json -> target settings.json."""
+    if not source.is_file():
+        return Outcome(target, Status.NO_SOURCE, f"settings source not found: {source}")
+    return sync_text(target, source.read_text(), force=force, dry_run=dry_run)
 
 
 def sync_agy_agents_md(

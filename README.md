@@ -15,6 +15,7 @@ Backup of `~/.claude` config — the single source of truth for [Claude Code](ht
 - `settings-sync/` — syncs this config into [opencode](https://opencode.ai), [pi](https://pi.dev), [goose](https://goose.dev), and [agy](https://antigravity.google); see [settings-sync/README.md](settings-sync/README.md)
 - `pi/` — base pi config (pointer template + pinned `packages[]`), wired by `sync`; see [pi/README.md](pi/README.md)
 - `goose/` — base goose config (`config.yaml`, `custom_providers/`), synced by settings-sync; see [goose/README.md](goose/README.md)
+- `gemini/` — base gemini/agy config (`settings.json`), synced by settings-sync
 - `sync.sh` — one-command machine setup: runs settings-sync + installs the machine-local tools the repo declares ([evo](https://github.com/evo-hq/evo) for claude-code/opencode, pi packages incl. [pi-web-access](https://github.com/nicobailon/pi-web-access))
 
 ## Typical workflows

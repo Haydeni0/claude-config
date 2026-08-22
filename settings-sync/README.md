@@ -47,12 +47,13 @@ goose discovers skills and agents from `~/.claude` natively (backward-compat pat
 
 ### agy
 
-| Source in `~/.claude` | Target in `~/.gemini/config` | Mechanism |
+| Source in `~/.claude` | Target | Mechanism |
 |---|---|---|
-| `CLAUDE.md` | `AGENTS.md` | `@skills/<n>` rewritten to `the \`<n>\` skill` |
-| `skills/` | `skills/` | relative symlink per skill directory; orphans warned (removed with `--force`) |
+| `gemini/settings.json` | `~/.gemini/antigravity-cli/settings.json` | copy; refuses to clobber diverging without `--force` |
+| `CLAUDE.md` | `~/.gemini/config/AGENTS.md` | `@skills/<n>` rewritten to `the \`<n>\` skill` |
+| `skills/` | `~/.gemini/config/skills/` | relative symlink per skill directory; orphans warned (removed with `--force`) |
 
-`agy` (Antigravity) reads global rules from `AGENTS.md` and discovers custom skills from `skills/`.
+`agy` (Antigravity) reads agent settings from `antigravity-cli/settings.json`, global rules from `AGENTS.md`, and discovers custom skills from `skills/`.
 
 
 ## Usage
