@@ -1,9 +1,10 @@
-"""CLI entrypoint: sync ~/.claude config into opencode, pi, and goose.
+"""CLI entrypoint: sync ~/.claude config into opencode, pi, goose, and agy.
 
 ~/.claude is the single source of truth. `sync opencode` derives config
 into ~/.config/opencode; `sync pi` writes pointers + inlined context
 into ~/.pi/agent; `sync goose` writes hints + config + providers into
-~/.config/goose. Bare `sync` (or `sync all`) runs all three.
+~/.config/goose; `sync agy` writes rules + skills into ~/.gemini/config.
+Bare `sync` (or `sync all`) runs all four.
 """
 
 import difflib
@@ -15,6 +16,7 @@ import typer
 
 from settings_sync.agents import sync_agents_dir
 from settings_sync.agents_md import sync_agents_md
+from settings_sync.agy import sync_agy_agents_md, sync_agy_skills
 from settings_sync.commands import sync_commands
 from settings_sync.config import sync_config, sync_tui
 from settings_sync.goose import sync_goose_config, sync_goose_hints, sync_goose_providers
@@ -27,10 +29,12 @@ app = typer.Typer(add_completion=False, no_args_is_help=False)
 opencode_app = typer.Typer(add_completion=False, no_args_is_help=False, help="Sync opencode config.")
 pi_app = typer.Typer(add_completion=False, no_args_is_help=False, help="Sync pi config.")
 goose_app = typer.Typer(add_completion=False, no_args_is_help=False, help="Sync goose config.")
+agy_app = typer.Typer(add_completion=False, no_args_is_help=False, help="Sync agy config.")
 
 OPENCODE_STEPS = ("config", "tui", "agents-md", "agents", "commands", "plugins")
 PI_STEPS = ("config", "context", "keybindings")
 GOOSE_STEPS = ("hints", "config", "providers")
+AGY_STEPS = ("agents-md", "skills")
 
 
 @dataclass(slots=True, frozen=True)
@@ -39,6 +43,7 @@ class Paths:
     opencode_dir: Path
     pi_dir: Path | None = None
     goose_dir: Path | None = None
+    agy_dir: Path | None = None
 
 
 def run_opencode_step(name: str, paths: Paths, force: bool, dry_run: bool) -> list[Outcome]:
@@ -88,6 +93,16 @@ def run_goose_step(name: str, paths: Paths, force: bool, dry_run: bool) -> list[
     raise ValueError(f"unknown goose step: {name}")
 
 
+def run_agy_step(name: str, paths: Paths, force: bool, dry_run: bool) -> list[Outcome]:
+    if paths.agy_dir is None:
+        raise ValueError("agy_dir is required for agy steps")
+    if name == "agents-md":
+        return [sync_agy_agents_md(paths.agy_dir / "AGENTS.md", paths.claude_dir / "CLAUDE.md", force, dry_run)]
+    if name == "skills":
+        return sync_agy_skills(paths.agy_dir / "skills", paths.claude_dir / "skills", force, dry_run)
+    raise ValueError(f"unknown agy step: {name}")
+
+
 def run_opencode(paths: Paths, force: bool, dry_run: bool, steps: tuple[str, ...] = OPENCODE_STEPS) -> tuple[list[Outcome], list[Outcome]]:
     sync_outcomes: list[Outcome] = []
     for step in steps:
@@ -112,6 +127,14 @@ def run_goose(paths: Paths, force: bool, dry_run: bool, steps: tuple[str, ...] =
     return sync_outcomes, skills_outcomes
 
 
+def run_agy(paths: Paths, force: bool, dry_run: bool, steps: tuple[str, ...] = AGY_STEPS) -> tuple[list[Outcome], list[Outcome]]:
+    sync_outcomes: list[Outcome] = []
+    for step in steps:
+        sync_outcomes.extend(run_agy_step(step, paths, force, dry_run))
+    skills_outcomes = validate_skills(paths.claude_dir / "skills")
+    return sync_outcomes, skills_outcomes
+
+
 def run_all_tools(paths: Paths, force: bool, dry_run: bool) -> tuple[list[Outcome], list[Outcome]]:
     sync_outcomes: list[Outcome] = []
     for step in OPENCODE_STEPS:
@@ -121,6 +144,9 @@ def run_all_tools(paths: Paths, force: bool, dry_run: bool) -> tuple[list[Outcom
     if paths.goose_dir is not None:
         for step in GOOSE_STEPS:
             sync_outcomes.extend(run_goose_step(step, paths, force, dry_run))
+    if paths.agy_dir is not None:
+        for step in AGY_STEPS:
+            sync_outcomes.extend(run_agy_step(step, paths, force, dry_run))
     skills_outcomes = validate_skills(paths.claude_dir / "skills")
     return sync_outcomes, skills_outcomes
 
@@ -180,7 +206,7 @@ def _run_steps(ctx: typer.Context, tool: str, steps: tuple[str, ...]) -> int:
     paths = _ctx_paths(ctx)
     force, dry_run, check, verbose = _ctx_flags(ctx)
     effective_dry = dry_run or check
-    runner = {"opencode": run_opencode, "pi": run_pi, "goose": run_goose}[tool]
+    runner = {"opencode": run_opencode, "pi": run_pi, "goose": run_goose, "agy": run_agy}[tool]
     sync_outcomes, skills_outcomes = runner(paths, force, effective_dry, steps)
     report(sync_outcomes, skills_outcomes, verbose)
     return exit_code(sync_outcomes) or (1 if any(o.status == Status.WARNED for o in skills_outcomes) else 0)
@@ -206,18 +232,19 @@ def callback(
     opencode_dir: Path = typer.Option(Path.home() / ".config" / "opencode", "--opencode-dir", help="Target ~/.config/opencode directory."),
     pi_dir: Path = typer.Option(Path.home() / ".pi" / "agent", "--pi-dir", help="Target ~/.pi/agent directory."),
     goose_dir: Path = typer.Option(Path.home() / ".config" / "goose", "--goose-dir", help="Target ~/.config/goose directory."),
+    agy_dir: Path = typer.Option(Path.home() / ".gemini" / "config", "--agy-dir", help="Target ~/.gemini/config directory."),
 ) -> None:
-    """Sync ~/.claude config into opencode, pi, and goose. ~/.claude is the source of truth."""
-    ctx.obj = {"paths": Paths(claude_dir=claude_dir, opencode_dir=opencode_dir, pi_dir=pi_dir, goose_dir=goose_dir), "force": force, "dry_run": dry_run, "check": check, "verbose": verbose}
+    """Sync ~/.claude config into opencode, pi, goose, and agy. ~/.claude is the source of truth."""
+    ctx.obj = {"paths": Paths(claude_dir=claude_dir, opencode_dir=opencode_dir, pi_dir=pi_dir, goose_dir=goose_dir, agy_dir=agy_dir), "force": force, "dry_run": dry_run, "check": check, "verbose": verbose}
     if ctx.invoked_subcommand is None:
-        typer.echo("Syncing all tools (opencode + pi + goose)...")
+        typer.echo("Syncing all tools (opencode + pi + goose + agy)...")
         raise typer.Exit(_run_all(ctx))
 
 
 @app.command()
 def all(ctx: typer.Context) -> None:
-    """Sync opencode, pi, and goose."""
-    typer.echo("Syncing all tools (opencode + pi + goose)...")
+    """Sync opencode, pi, goose, and agy."""
+    typer.echo("Syncing all tools (opencode + pi + goose + agy)...")
     raise typer.Exit(_run_all(ctx))
 
 
@@ -326,9 +353,30 @@ def skills(ctx: typer.Context) -> None:
     raise typer.Exit(_run_skills(ctx))
 
 
+# ---- agy group ----
+
+@agy_app.callback(invoke_without_command=True)
+def agy_callback(ctx: typer.Context) -> None:
+    """Sync agy config (all steps)."""
+    if ctx.invoked_subcommand is None:
+        typer.echo("Syncing agy...")
+        raise typer.Exit(_run_steps(ctx, "agy", AGY_STEPS))
+
+
+@agy_app.command("agents-md")
+def agy_agents_md(ctx: typer.Context) -> None:
+    raise typer.Exit(_run_steps(ctx, "agy", ("agents-md",)))
+
+
+@agy_app.command()
+def skills(ctx: typer.Context) -> None:
+    raise typer.Exit(_run_steps(ctx, "agy", ("skills",)))
+
+
 app.add_typer(opencode_app, name="opencode")
 app.add_typer(pi_app, name="pi")
 app.add_typer(goose_app, name="goose")
+app.add_typer(agy_app, name="agy")
 
 
 def main() -> None:

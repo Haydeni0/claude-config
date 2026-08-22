@@ -45,13 +45,23 @@ pi's `settings.json` is **wholesale-copied** (no merge, no preserved machine key
 
 goose discovers skills and agents from `~/.claude` natively (backward-compat paths). Agent frontmatter: goose only reads `name`/`description`/`model` - Claude Code keys (`tools`/`disallowedTools`/`skills`) are ignored. Commands are not synced (goose slash commands use a different format - `config.yaml` entries mapping to recipe files). See [`goose/README.md`](../goose/README.md).
 
+### agy
+
+| Source in `~/.claude` | Target in `~/.gemini/config` | Mechanism |
+|---|---|---|
+| `CLAUDE.md` | `AGENTS.md` | `@skills/<n>` rewritten to `the \`<n>\` skill` |
+| `skills/` | `skills/` | relative symlink per skill directory; orphans warned (removed with `--force`) |
+
+`agy` (Antigravity) reads global rules from `AGENTS.md` and discovers custom skills from `skills/`.
+
+
 ## Usage
 
 ```bash
 # In the examples below, `sync` is the invocation from Run above, i.e.
 # `uv run --directory ~/.claude/settings-sync sync` (or your `ssync` alias).
 
-# sync everything (opencode + pi + goose); refuse on conflict, exit 1 if any conflict
+# sync everything (opencode + pi + goose + agy); refuse on conflict, exit 1 if any conflict
 sync
 sync all                       # explicit
 
@@ -59,9 +69,11 @@ sync all                       # explicit
 sync opencode                  # all opencode steps
 sync pi                        # pointers + inlined context
 sync goose                     # hints + config + providers
+sync agy                       # rules + skills
 sync opencode config           # one step (config|tui|agents-md|agents|commands|plugins|skills)
 sync pi config                 # one step (config|context|keybindings)
 sync goose config              # one step (hints|config|providers)
+sync agy agents-md             # one step (agents-md|skills)
 
 # flags (before the group name)
 sync --dry-run                 # preview, write nothing
@@ -71,17 +83,18 @@ sync --verbose                 # show diffs for changed text artifacts
 sync --pi-dir /tmp/glm-pi pi   # target a different pi agent dir
 ```
 
-Global options (`--force`, `--dry-run`, `--check`, `--verbose`, `--claude-dir`, `--opencode-dir`, `--pi-dir`, `--goose-dir`) go before the subcommand. Override paths for testing or alternate harnesses.
+Global options (`--force`, `--dry-run`, `--check`, `--verbose`, `--claude-dir`, `--opencode-dir`, `--pi-dir`, `--goose-dir`, `--agy-dir`) go before the subcommand. Override paths for testing or alternate harnesses.
 
 ## Run
 
 Stateless — no install step, just run it from the repo each time (needs [uv](https://docs.astral.sh/uv/)):
 
 ```bash
-uv run --directory ~/.claude/settings-sync sync          # sync everything (opencode + pi + goose)
+uv run --directory ~/.claude/settings-sync sync          # sync everything (opencode + pi + goose + agy)
 uv run --directory ~/.claude/settings-sync sync opencode # granular
 uv run --directory ~/.claude/settings-sync sync pi       # granular
-uv run --directory ~/.claude/settings-sync sync goose     # granular
+uv run --directory ~/.claude/settings-sync sync goose    # granular
+uv run --directory ~/.claude/settings-sync sync agy      # granular
 # tip: alias ssync='uv run --directory ~/.claude/settings-sync sync' for brevity
 ```
 

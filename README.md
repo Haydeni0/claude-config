@@ -1,6 +1,6 @@
 # claude-config
 
-Backup of `~/.claude` config — the single source of truth for [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [opencode](https://opencode.ai), [pi](https://pi.dev), and [goose](https://goose.dev).
+Backup of `~/.claude` config — the single source of truth for [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [opencode](https://opencode.ai), [pi](https://pi.dev), [goose](https://goose.dev), and [agy (Antigravity)](https://antigravity.google).
 
 ## What's tracked
 
@@ -12,7 +12,7 @@ Backup of `~/.claude` config — the single source of truth for [Claude Code](ht
 - `hooks/` + `RTK.md` — RTK token-rewrite hook
 - `statusline-command.sh` — CLI statusline
 - `opencode/` — base opencode config (`opencode.json`, `tui.json`), synced by settings-sync
-- `settings-sync/` — syncs this config into [opencode](https://opencode.ai), [pi](https://pi.dev), and [goose](https://goose.dev); see [settings-sync/README.md](settings-sync/README.md)
+- `settings-sync/` — syncs this config into [opencode](https://opencode.ai), [pi](https://pi.dev), [goose](https://goose.dev), and [agy](https://antigravity.google); see [settings-sync/README.md](settings-sync/README.md)
 - `pi/` — base pi config (pointer template + pinned `packages[]`), wired by `sync`; see [pi/README.md](pi/README.md)
 - `goose/` — base goose config (`config.yaml`, `custom_providers/`), synced by settings-sync; see [goose/README.md](goose/README.md)
 - `sync.sh` — one-command machine setup: runs settings-sync + installs the machine-local tools the repo declares ([evo](https://github.com/evo-hq/evo) for claude-code/opencode, pi packages incl. [pi-web-access](https://github.com/nicobailon/pi-web-access))
@@ -55,14 +55,15 @@ git submodule update --init --recursive
 
 **Claude Code** reads `~/.claude` directly — nothing to run.
 
-**opencode**, **pi**, and **goose** are all synced by `settings-sync`, and the machine-local tools the repo declares (evo, pi packages) are installed by `sync.sh`. All need [uv](https://docs.astral.sh/uv/).
+**opencode**, **pi**, **goose**, and **agy** are all synced by `settings-sync`, and the machine-local tools the repo declares (evo, pi packages) are installed by `sync.sh`. All need [uv](https://docs.astral.sh/uv/).
 
 ```bash
 # install opencode: https://opencode.ai  •  install pi: https://pi.dev  •  install goose: https://goose.dev
 bash ~/.claude/sync.sh                                    # one command: settings-sync + install evo + pi packages
 uv run --directory ~/.claude/settings-sync sync opencode # granular: opencode config only (no installs)
 uv run --directory ~/.claude/settings-sync sync pi       # granular: pi config only (no installs)
-uv run --directory ~/.claude/settings-sync sync goose     # granular: goose config only (no installs)
+uv run --directory ~/.claude/settings-sync sync goose    # granular: goose config only (no installs)
+uv run --directory ~/.claude/settings-sync sync agy      # granular: agy config only (no installs)
 uv run --directory ~/.claude/settings-sync sync --check  # drift check (read-only)
 # tip: alias ssync='uv run --directory ~/.claude/settings-sync sync' for brevity
 ```
@@ -71,6 +72,7 @@ uv run --directory ~/.claude/settings-sync sync --check  # drift check (read-onl
 - **opencode** — derives config into `~/.config/opencode`; re-run `sync.sh` (or `sync`) after every `~/.claude` edit.
 - **pi** — writes pointers + inlined context + `packages[]` into `~/.pi/agent`; skills/commands are read directly (just `/reload` in pi after edits), only the context file is derived.
 - **goose** — derives config into `~/.config/goose`; skills/agents are read directly from `~/.claude` (native compat), only `.goosehints`/`config.yaml`/`custom_providers/` are derived. Re-run `sync.sh` (or `sync`) after every `~/.claude` edit.
+- **agy** — derives config into `~/.gemini/config`; rules are written to `AGENTS.md` and skills are symlinked into `skills/`. Re-run `sync.sh` (or `sync`) after every `~/.claude` edit.
 
 See [settings-sync/README.md](settings-sync/README.md), [pi/README.md](pi/README.md), and [goose/README.md](goose/README.md).
 
