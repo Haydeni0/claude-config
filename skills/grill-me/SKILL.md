@@ -7,7 +7,9 @@ metadata:
 
 Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
 
-Each turn is exactly one Q[N] block, in the format below. Ask it, then stop and wait for the answer before forming the next question.
+Do NOT use question tools or interactive modal prompts (such as `ask_question`, `AskUserQuestion`). Always output questions directly as regular markdown text in chat.
+
+Each turn is exactly one Q[N] block, in the format below. Ask it in chat text, then stop and wait for the answer before forming the next question.
 
 ## Question format
 
