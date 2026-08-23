@@ -6,7 +6,7 @@ Backup of `~/.claude` config — the single source of truth for [Claude Code](ht
 
 - `CLAUDE.md` — global memory/instructions
 - `settings.json` — permissions and plugin config
-- `skills/` — custom skills (some symlink into `custom/plugins/caveman`)
+- `skills/` — custom skills (includes `agent-config` cross-harness guide; some symlink into `custom/plugins/caveman`)
 - `commands/` — custom slash commands
 - `custom/` — hooks and plugins (includes [caveman](https://github.com/JuliusBrussee/caveman) submodule)
 - `hooks/` + `RTK.md` — RTK token-rewrite hook
@@ -31,6 +31,10 @@ Backup of `~/.claude` config — the single source of truth for [Claude Code](ht
 - **Interfaces** — `Help me brainstorm interfaces/classes for this spec. /grill-me` — exit: protocols, classes, module layout agreed — then: spec merge
 - **Tests** — `Help me plan tests for this spec before we implement. /grill-me /pytest-guidelines` — exit: public API test strategy agreed — then: spec merge
 - **Implement** — `Implement per spec. /tdd` — exit: `tdd_scaffolding/` deleted; behavioral tests pass per `pytest-guidelines`
+
+### Harness config & skill authoring
+
+- **Configure harness / Add skill** - `/agent-config` - single source of truth is `~/.claude/`: edit source in repo -> `uv run --directory ~/.claude/settings-sync sync <tool> --force` -> `uv run --directory ~/.claude/settings-sync pytest`.
 
 ## Install (new machine)
 
