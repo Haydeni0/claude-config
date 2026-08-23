@@ -6,6 +6,7 @@
   "colorScheme": "dark",
   "enableTelemetry": false,
   "showTips": false,
+  "showFeedbackSurvey": false,
   "trustedWorkspaces": [
     "/home/hayden",
     "/home/hayden/gitrepos/odysseus"
