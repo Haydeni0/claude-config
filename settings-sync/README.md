@@ -76,15 +76,15 @@ sync pi config                 # one step (config|context|keybindings)
 sync goose config              # one step (hints|config|providers)
 sync agy agents-md             # one step (agents-md|skills)
 
-# flags (before the group name)
+# flags (accepted before or after group/subcommand)
 sync --dry-run                 # preview, write nothing
-sync --check                   # exit nonzero on drift, write nothing
-sync --force                   # clobber diverging derived files
+sync agy --check               # exit nonzero on drift, write nothing
+sync goose --force             # clobber diverging derived files
 sync --verbose                 # show diffs for changed text artifacts
 sync --pi-dir /tmp/glm-pi pi   # target a different pi agent dir
 ```
 
-Global options (`--force`, `--dry-run`, `--check`, `--verbose`, `--claude-dir`, `--opencode-dir`, `--pi-dir`, `--goose-dir`, `--agy-dir`) go before the subcommand. Override paths for testing or alternate harnesses.
+Common flags (`--force`, `--dry-run`, `--check`, `--verbose`) work anywhere in the command line (e.g. `sync --check agy`, `sync agy --check`, or `sync agy settings --force`). Path override options (`--claude-dir`, `--opencode-dir`, `--pi-dir`, `--goose-dir`, `--agy-dir`, `--agy-cli-dir`) go before the tool subcommand.
 
 ## Run
 

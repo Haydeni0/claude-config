@@ -246,9 +246,63 @@ def callback(
         raise typer.Exit(_run_all(ctx))
 
 
+def _update_ctx_flags(
+    ctx: typer.Context,
+    force: bool = False,
+    dry_run: bool = False,
+    check: bool = False,
+    verbose: bool = False,
+) -> None:
+    if ctx.obj is None:
+        return
+    if force:
+        ctx.obj["force"] = True
+    if dry_run:
+        ctx.obj["dry_run"] = True
+    if check:
+        ctx.obj["check"] = True
+    if verbose:
+        ctx.obj["verbose"] = True
+
+
+def _make_step_cmd(tool: str, steps: tuple[str, ...]):
+    def cmd(
+        ctx: typer.Context,
+        force: bool = typer.Option(False, "--force", help="Clobber conflicting managed paths."),
+        dry_run: bool = typer.Option(False, "--dry-run", help="Show what would change without writing."),
+        check: bool = typer.Option(False, "--check", help="Exit nonzero if drift detected (writes nothing)."),
+        verbose: bool = typer.Option(False, "--verbose", "-v", help="Show diffs for changed text artifacts."),
+    ) -> None:
+        _update_ctx_flags(ctx, force=force, dry_run=dry_run, check=check, verbose=verbose)
+        raise typer.Exit(_run_steps(ctx, tool, steps))
+
+    return cmd
+
+
+def _make_skills_cmd():
+    def cmd(
+        ctx: typer.Context,
+        force: bool = typer.Option(False, "--force", help="Clobber conflicting managed paths."),
+        dry_run: bool = typer.Option(False, "--dry-run", help="Show what would change without writing."),
+        check: bool = typer.Option(False, "--check", help="Exit nonzero if drift detected (writes nothing)."),
+        verbose: bool = typer.Option(False, "--verbose", "-v", help="Show diffs for changed text artifacts."),
+    ) -> None:
+        _update_ctx_flags(ctx, force=force, dry_run=dry_run, check=check, verbose=verbose)
+        raise typer.Exit(_run_skills(ctx))
+
+    return cmd
+
+
 @app.command()
-def all(ctx: typer.Context) -> None:
+def all(
+    ctx: typer.Context,
+    force: bool = typer.Option(False, "--force", help="Clobber conflicting managed paths."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show what would change without writing."),
+    check: bool = typer.Option(False, "--check", help="Exit nonzero if drift detected (writes nothing)."),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show diffs for changed text artifacts."),
+) -> None:
     """Sync opencode, pi, goose, and agy."""
+    _update_ctx_flags(ctx, force=force, dry_run=dry_run, check=check, verbose=verbose)
     typer.echo("Syncing all tools (opencode + pi + goose + agy)...")
     raise typer.Exit(_run_all(ctx))
 
@@ -256,131 +310,95 @@ def all(ctx: typer.Context) -> None:
 # ---- opencode group ----
 
 @opencode_app.callback(invoke_without_command=True)
-def opencode_callback(ctx: typer.Context) -> None:
+def opencode_callback(
+    ctx: typer.Context,
+    force: bool = typer.Option(False, "--force", help="Clobber conflicting managed paths."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show what would change without writing."),
+    check: bool = typer.Option(False, "--check", help="Exit nonzero if drift detected (writes nothing)."),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show diffs for changed text artifacts."),
+) -> None:
     """Sync opencode config (all steps)."""
+    _update_ctx_flags(ctx, force=force, dry_run=dry_run, check=check, verbose=verbose)
     if ctx.invoked_subcommand is None:
         typer.echo("Syncing opencode...")
         raise typer.Exit(_run_steps(ctx, "opencode", OPENCODE_STEPS))
 
 
-@opencode_app.command()
-def config(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "opencode", ("config",)))
-
-
-@opencode_app.command()
-def tui(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "opencode", ("tui",)))
-
-
-@opencode_app.command("agents-md")
-def agents_md(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "opencode", ("agents-md",)))
-
-
-@opencode_app.command()
-def agents(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "opencode", ("agents",)))
-
-
-@opencode_app.command()
-def commands(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "opencode", ("commands",)))
-
-
-@opencode_app.command()
-def plugins(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "opencode", ("plugins",)))
-
-
-@opencode_app.command()
-def skills(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_skills(ctx))
+opencode_app.command("config")(_make_step_cmd("opencode", ("config",)))
+opencode_app.command("tui")(_make_step_cmd("opencode", ("tui",)))
+opencode_app.command("agents-md")(_make_step_cmd("opencode", ("agents-md",)))
+opencode_app.command("agents")(_make_step_cmd("opencode", ("agents",)))
+opencode_app.command("commands")(_make_step_cmd("opencode", ("commands",)))
+opencode_app.command("plugins")(_make_step_cmd("opencode", ("plugins",)))
+opencode_app.command("skills")(_make_skills_cmd())
 
 
 # ---- pi group ----
 
 @pi_app.callback(invoke_without_command=True)
-def pi_callback(ctx: typer.Context) -> None:
+def pi_callback(
+    ctx: typer.Context,
+    force: bool = typer.Option(False, "--force", help="Clobber conflicting managed paths."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show what would change without writing."),
+    check: bool = typer.Option(False, "--check", help="Exit nonzero if drift detected (writes nothing)."),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show diffs for changed text artifacts."),
+) -> None:
     """Sync pi config (pointers + inlined context)."""
+    _update_ctx_flags(ctx, force=force, dry_run=dry_run, check=check, verbose=verbose)
     if ctx.invoked_subcommand is None:
         typer.echo("Syncing pi...")
         raise typer.Exit(_run_steps(ctx, "pi", PI_STEPS))
 
 
-@pi_app.command()
-def config(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "pi", ("config",)))
-
-
-@pi_app.command()
-def context(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "pi", ("context",)))
-
-
-@pi_app.command()
-def keybindings(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "pi", ("keybindings",)))
-
-
-@pi_app.command()
-def skills(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_skills(ctx))
+pi_app.command("config")(_make_step_cmd("pi", ("config",)))
+pi_app.command("context")(_make_step_cmd("pi", ("context",)))
+pi_app.command("keybindings")(_make_step_cmd("pi", ("keybindings",)))
+pi_app.command("skills")(_make_skills_cmd())
 
 
 # ---- goose group ----
 
 @goose_app.callback(invoke_without_command=True)
-def goose_callback(ctx: typer.Context) -> None:
+def goose_callback(
+    ctx: typer.Context,
+    force: bool = typer.Option(False, "--force", help="Clobber conflicting managed paths."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show what would change without writing."),
+    check: bool = typer.Option(False, "--check", help="Exit nonzero if drift detected (writes nothing)."),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show diffs for changed text artifacts."),
+) -> None:
     """Sync goose config (all steps)."""
+    _update_ctx_flags(ctx, force=force, dry_run=dry_run, check=check, verbose=verbose)
     if ctx.invoked_subcommand is None:
         typer.echo("Syncing goose...")
         raise typer.Exit(_run_steps(ctx, "goose", GOOSE_STEPS))
 
 
-@goose_app.command()
-def hints(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "goose", ("hints",)))
-
-
-@goose_app.command()
-def config(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "goose", ("config",)))
-
-
-@goose_app.command()
-def providers(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "goose", ("providers",)))
-
-
-@goose_app.command()
-def skills(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_skills(ctx))
+goose_app.command("hints")(_make_step_cmd("goose", ("hints",)))
+goose_app.command("config")(_make_step_cmd("goose", ("config",)))
+goose_app.command("providers")(_make_step_cmd("goose", ("providers",)))
+goose_app.command("skills")(_make_skills_cmd())
 
 
 # ---- agy group ----
 
 @agy_app.callback(invoke_without_command=True)
-def agy_callback(ctx: typer.Context) -> None:
+def agy_callback(
+    ctx: typer.Context,
+    force: bool = typer.Option(False, "--force", help="Clobber conflicting managed paths."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show what would change without writing."),
+    check: bool = typer.Option(False, "--check", help="Exit nonzero if drift detected (writes nothing)."),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show diffs for changed text artifacts."),
+) -> None:
     """Sync agy config (all steps)."""
+    _update_ctx_flags(ctx, force=force, dry_run=dry_run, check=check, verbose=verbose)
     if ctx.invoked_subcommand is None:
         typer.echo("Syncing agy...")
         raise typer.Exit(_run_steps(ctx, "agy", AGY_STEPS))
 
 
-@agy_app.command()
-def settings(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "agy", ("settings",)))
-
-
-@agy_app.command("agents-md")
-def agy_agents_md(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "agy", ("agents-md",)))
-
-
-@agy_app.command()
-def skills(ctx: typer.Context) -> None:
-    raise typer.Exit(_run_steps(ctx, "agy", ("skills",)))
+agy_app.command("settings")(_make_step_cmd("agy", ("settings",)))
+agy_app.command("agents-md")(_make_step_cmd("agy", ("agents-md",)))
+agy_app.command("skills")(_make_step_cmd("agy", ("skills",)))
 
 
 app.add_typer(opencode_app, name="opencode")

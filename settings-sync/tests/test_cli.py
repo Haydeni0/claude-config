@@ -164,3 +164,34 @@ def test_run_opencode_pure_returns_outcomes(tmp_path: pathlib.Path):
     from settings_sync.sync import Status
 
     assert Status.CREATED in statuses
+
+
+def test_subcommand_flags_after_group(tmp_path: pathlib.Path):
+    claude = _make_claude_home(tmp_path)
+    opencode = tmp_path / "config" / "opencode"
+    pi_dir = tmp_path / "pi-agent"
+    goose_dir = tmp_path / "goose-config"
+    agy_dir = tmp_path / "gemini-config"
+    agy_cli_dir = tmp_path / "gemini-cli"
+
+    # --check on subcommand
+    result_check = runner.invoke(app, ["--claude-dir", str(claude), "--opencode-dir", str(opencode), "--pi-dir", str(pi_dir), "--goose-dir", str(goose_dir), "--agy-dir", str(agy_dir), "--agy-cli-dir", str(agy_cli_dir), "agy", "--check"])
+    assert result_check.exit_code == 1
+    assert not (agy_cli_dir / "settings.json").exists()
+
+    # --force on subcommand
+    result_force = runner.invoke(app, ["--claude-dir", str(claude), "--opencode-dir", str(opencode), "--pi-dir", str(pi_dir), "--goose-dir", str(goose_dir), "--agy-dir", str(agy_dir), "--agy-cli-dir", str(agy_cli_dir), "agy", "--force"])
+    assert result_force.exit_code == 0
+    assert (agy_cli_dir / "settings.json").is_file()
+
+
+def test_leaf_command_flags(tmp_path: pathlib.Path):
+    claude = _make_claude_home(tmp_path)
+    agy_dir = tmp_path / "gemini-config"
+    agy_cli_dir = tmp_path / "gemini-cli"
+
+    result = runner.invoke(app, ["--claude-dir", str(claude), "--agy-dir", str(agy_dir), "--agy-cli-dir", str(agy_cli_dir), "agy", "settings", "--force"])
+    assert result.exit_code == 0
+    assert (agy_cli_dir / "settings.json").is_file()
+    assert not (agy_dir / "AGENTS.md").exists()
+
