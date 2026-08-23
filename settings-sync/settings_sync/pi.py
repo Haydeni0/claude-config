@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from settings_sync.agents_md import build_agents_md
-from settings_sync.sync import Outcome, Status, sync_text
+from settings_sync.sync import Outcome, Status, sync_json, sync_text
 
 
 def sync_pi_config(target: Path, template: Path, dry_run: bool = False) -> Outcome:
@@ -18,7 +18,7 @@ def sync_pi_config(target: Path, template: Path, dry_run: bool = False) -> Outco
     if not template.is_file():
         return Outcome(target, Status.NO_SOURCE, f"template not found: {template}")
     content = template.read_text()
-    return sync_text(target, content, force=True, dry_run=dry_run)
+    return sync_json(target, content, force=True, dry_run=dry_run)
 
 
 def sync_pi_context(target: Path, claude_md: Path, force: bool = False, dry_run: bool = False) -> Outcome:
@@ -45,4 +45,4 @@ def sync_pi_keybindings(target: Path, source: Path, dry_run: bool = False) -> Ou
     if not source.is_file():
         return Outcome(target, Status.NO_SOURCE, f"keybindings source not found: {source}")
     content = source.read_text()
-    return sync_text(target, content, force=True, dry_run=dry_run)
+    return sync_json(target, content, force=True, dry_run=dry_run)

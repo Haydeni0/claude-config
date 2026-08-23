@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from settings_sync.frontmatter import dump, parse
-from settings_sync.sync import Outcome, Status, sync_text
+from settings_sync.sync import Outcome, sync_dir_files
 
 CLAUDE_TO_OPENCODE_TOOLS: dict[str, str] = {
     "Read": "read",
@@ -71,28 +71,11 @@ def transform_agent(markdown: str) -> tuple[str, list[str]]:
 
 
 def sync_agents_dir(target_dir: Path, source_dir: Path, force: bool = False, dry_run: bool = False) -> list[Outcome]:
-    outcomes: list[Outcome] = []
-    target_dir.mkdir(parents=True, exist_ok=True)
-
-    source_names = {p.name for p in source_dir.glob("*.md") if p.is_file()}
-    for source_file in sorted(source_dir.glob("*.md"), key=lambda p: p.name):
-        if not source_file.is_file():
-            continue
-        transformed, warnings = transform_agent(source_file.read_text())
-        for w in warnings:
-            outcomes.append(Outcome(source_file, Status.WARNED, w))
-        target_file = target_dir / source_file.name
-        outcomes.append(sync_text(target_file, transformed, force=force, dry_run=dry_run))
-
-    for target_file in sorted(target_dir.glob("*.md"), key=lambda p: p.name):
-        if target_file.name not in source_names:
-            if dry_run:
-                outcomes.append(Outcome(target_file, Status.WOULD_REPLACE, "orphan (would delete)"))
-                continue
-            if not force:
-                outcomes.append(Outcome(target_file, Status.WARNED, "orphan not in source; use --force to remove"))
-                continue
-            target_file.unlink()
-            outcomes.append(Outcome(target_file, Status.REPLACED, "deleted orphan"))
-
-    return outcomes
+    return sync_dir_files(
+        target_dir,
+        source_dir,
+        pattern="*.md",
+        force=force,
+        dry_run=dry_run,
+        transform=lambda p: transform_agent(p.read_text()),
+    )

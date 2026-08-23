@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from settings_sync.agents_md import build_agents_md
-from settings_sync.sync import Outcome, Status, sync_text
+from settings_sync.sync import Outcome, Status, sync_dir_files, sync_json, sync_text
 
 
 def sync_goose_hints(target: Path, claude_md: Path, force: bool = False, dry_run: bool = False) -> Outcome:
@@ -36,44 +36,5 @@ def sync_goose_config(target: Path, source: Path, force: bool = False, dry_run: 
 
 
 def sync_goose_providers(target_dir: Path, source_dir: Path, force: bool = False, dry_run: bool = False) -> list[Outcome]:
-    """Sync ~/.claude/goose/custom_providers/*.json into ~/.config/goose/custom_providers/.
-
-    Each provider JSON is copied as-is (no transform). Orphaned target files
-    not in source are warned (or removed with --force), matching the agents dir
-    pattern.
-    """
-    outcomes: list[Outcome] = []
-
-    if not source_dir.is_dir():
-        outcomes.append(Outcome(target_dir, Status.NO_SOURCE, f"providers source dir not found: {source_dir}"))
-        return outcomes
-
-    if dry_run:
-        source_names = {p.name for p in source_dir.glob("*.json") if p.is_file()}
-        for source_file in sorted(source_dir.glob("*.json"), key=lambda p: p.name):
-            if not source_file.is_file():
-                continue
-            outcomes.append(sync_text(target_dir / source_file.name, source_file.read_text(), force, dry_run))
-        for target_file in sorted(target_dir.glob("*.json"), key=lambda p: p.name) if target_dir.is_dir() else []:
-            if target_file.name not in source_names:
-                outcomes.append(Outcome(target_file, Status.WOULD_REPLACE, "orphan (would delete)"))
-        return outcomes
-
-    target_dir.mkdir(parents=True, exist_ok=True)
-
-    source_names = {p.name for p in source_dir.glob("*.json") if p.is_file()}
-
-    for source_file in sorted(source_dir.glob("*.json"), key=lambda p: p.name):
-        if not source_file.is_file():
-            continue
-        outcomes.append(sync_text(target_dir / source_file.name, source_file.read_text(), force, dry_run))
-
-    for target_file in sorted(target_dir.glob("*.json"), key=lambda p: p.name):
-        if target_file.name not in source_names:
-            if not force:
-                outcomes.append(Outcome(target_file, Status.WARNED, "orphan not in source; use --force to remove"))
-                continue
-            target_file.unlink()
-            outcomes.append(Outcome(target_file, Status.REPLACED, "deleted orphan"))
-
-    return outcomes
+    """Sync ~/.claude/goose/custom_providers/*.json into ~/.config/goose/custom_providers/."""
+    return sync_dir_files(target_dir, source_dir, pattern="*.json", force=force, dry_run=dry_run, sync_fn=sync_json)

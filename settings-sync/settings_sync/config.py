@@ -4,7 +4,7 @@ import json
 import re
 from pathlib import Path
 
-from settings_sync.sync import Outcome, Status, sync_text
+from settings_sync.sync import Outcome, Status, sync_json
 
 OPENCODE_SCHEMA = "https://opencode.ai/config.json"
 TUI_SCHEMA = "https://opencode.ai/tui.json"
@@ -71,7 +71,11 @@ def build_config(base_path: Path) -> dict:
 
 
 def sync_config(target: Path, base_path: Path, force: bool = False, dry_run: bool = False) -> Outcome:
-    config = build_config(base_path)
+    try:
+        config = build_config(base_path)
+    except json.JSONDecodeError as err:
+        return Outcome(target, Status.FAILED, f"invalid JSON in {base_path}: {err}")
+
     if not dry_run:
         if not _merge_legacy_jsonc(target, config):
             return Outcome(
@@ -80,7 +84,7 @@ def sync_config(target: Path, base_path: Path, force: bool = False, dry_run: boo
                 f"could not parse existing {target.with_suffix('.jsonc')}; fix or remove it manually",
             )
     content = json.dumps(config, indent=2) + "\n"
-    return sync_text(target, content, force=force, dry_run=dry_run)
+    return sync_json(target, content, force=force, dry_run=dry_run)
 
 
 def build_tui(base_path: Path) -> dict:
@@ -93,6 +97,9 @@ def build_tui(base_path: Path) -> dict:
 
 
 def sync_tui(target: Path, base_path: Path, force: bool = False, dry_run: bool = False) -> Outcome:
-    config = build_tui(base_path)
+    try:
+        config = build_tui(base_path)
+    except json.JSONDecodeError as err:
+        return Outcome(target, Status.FAILED, f"invalid JSON in {base_path}: {err}")
     content = json.dumps(config, indent=2) + "\n"
-    return sync_text(target, content, force=force, dry_run=dry_run)
+    return sync_json(target, content, force=force, dry_run=dry_run)

@@ -184,7 +184,11 @@ def _format_diff(outcome: Outcome) -> str:
 
 
 def report(sync_outcomes: list[Outcome], skills_outcomes: list[Outcome], verbose: bool) -> None:
+    unchanged_count = 0
     for o in sync_outcomes:
+        if not verbose and o.status == Status.UNCHANGED:
+            unchanged_count += 1
+            continue
         typer.echo(f"  {o.status.value:14s} {o.path}")
         if o.detail:
             typer.echo(f"                 {o.detail}")
@@ -192,6 +196,8 @@ def report(sync_outcomes: list[Outcome], skills_outcomes: list[Outcome], verbose
             diff = _format_diff(o)
             if diff:
                 typer.echo(diff)
+    if not verbose and unchanged_count > 0:
+        typer.echo(f"  {Status.UNCHANGED.value:14s} {unchanged_count} entries up to date")
     for o in skills_outcomes:
         typer.echo(f"  {o.status.value:14s} {o.detail}")
 
