@@ -5,17 +5,10 @@
       "Bash(git diff*)",
       "Bash(git log*)",
       "Bash(git show *)",
-      "Bash(git -C * status*)",
-      "Bash(git -C * diff*)",
-      "Bash(git -C * log*)",
-      "Bash(git -C * show *)",
       "Bash(git fetch*)",
       "Bash(git merge-base*)",
       "Bash(git add*)",
       "Bash(git commit*)",
-      "Bash(git -C * fetch*)",
-      "Bash(git -C * merge-base*)",
-      "Bash(git -C * add*)",
       "Bash(gh issue list *)",
       "Bash(gh issue view *)",
       "Bash(gh issue status*)",
@@ -110,7 +103,6 @@
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "sonnet",
   "hooks": {
     "PreToolUse": [
       {
@@ -200,6 +192,11 @@
     }
   },
   "effortLevel": "medium",
+  "modelSettings": {
+    "claude-sonnet-5": {
+      "effortLevel": "high"
+    }
+  },
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
