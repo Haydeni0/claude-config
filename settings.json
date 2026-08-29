@@ -84,7 +84,6 @@
       "mcp__claude_ai_Notion__notion-get-teams",
       "mcp__claude_ai_Notion__notion-query-data-sources",
       "mcp__claude_ai_Notion__notion-query-meeting-notes",
-      "Bash(rtk *)",
       "Bash(evo *)"
     ],
     "deny": [
@@ -103,6 +102,7 @@
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
+  "model": "opus",
   "hooks": {
     "PreToolUse": [
       {
@@ -111,15 +111,6 @@
           {
             "type": "command",
             "command": "jq -r '.tool_input.command' | grep -qE 'gh api .*(-X (DELETE|POST|PATCH|PUT)|--method[= ](DELETE|POST|PATCH|PUT)|--input)' && printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"gh api write methods blocked\"}}' || true"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/custom/hooks/rtk-wrapper.sh"
           }
         ]
       },
@@ -139,14 +130,6 @@
           {
             "type": "command",
             "command": "bash ~/.claude/custom/hooks/caveman-activate.sh"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/custom/hooks/rtk-ensure.sh"
           }
         ]
       },
@@ -194,6 +177,9 @@
   "effortLevel": "medium",
   "modelSettings": {
     "claude-sonnet-5": {
+      "effortLevel": "high"
+    },
+    "claude-opus-5": {
       "effortLevel": "high"
     }
   },

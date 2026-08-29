@@ -56,10 +56,9 @@ __pycache__/
 # Track the machine setup script (runs settings-sync + installs evo/pi packages)
 !sync.sh
 
-# Track RTK files
+# Track hooks
 !hooks/
 !hooks/**
-!RTK.md
 
 # Track pi config (shared with pi via sync pi)
 !pi/

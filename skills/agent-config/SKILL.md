@@ -56,7 +56,7 @@ description: Use when viewing, editing, or updating settings, rules, skills, com
 - Global rules live in `CLAUDE.md`. `@skills/<name>` references are auto-transformed into `the \`<name>\` skill` for Pi, Opencode, Goose, AGY.
 - Harness-specific rules go in `<tool>/rules.md` (e.g. `opencode/rules.md`).
 - Submodules (`custom/plugins/`) are symlinked into `skills/`. Run `git submodule update --init --recursive` after clone/pull.
-- Hooks (`hooks/`, `RTK.md`) are Claude Code only and not bridged.
+- Hooks (`hooks/`) are Claude Code only and not bridged.
 
 ## 3-Step Verification Runbook
 

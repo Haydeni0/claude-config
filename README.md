@@ -9,7 +9,6 @@ Backup of `~/.claude` config — the single source of truth for [Claude Code](ht
 - `skills/` — custom skills (includes `agent-config` cross-harness guide; some symlink into `custom/plugins/caveman`)
 - `commands/` — custom slash commands
 - `custom/` — hooks and plugins (includes [caveman](https://github.com/JuliusBrussee/caveman) submodule)
-- `hooks/` + `RTK.md` — RTK token-rewrite hook
 - `statusline-command.sh` — CLI statusline
 - `opencode/` — base opencode config (`opencode.json`, `tui.json`), synced by settings-sync
 - `settings-sync/` — syncs this config into [opencode](https://opencode.ai), [pi](https://pi.dev), [goose](https://goose.dev), and [agy](https://antigravity.google); see [settings-sync/README.md](settings-sync/README.md)
