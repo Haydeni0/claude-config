@@ -175,14 +175,6 @@
     }
   },
   "effortLevel": "medium",
-  "modelSettings": {
-    "claude-sonnet-5": {
-      "effortLevel": "high"
-    },
-    "claude-opus-5": {
-      "effortLevel": "high"
-    }
-  },
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,

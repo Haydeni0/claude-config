@@ -79,7 +79,7 @@ cost_w="${slt}Cost: ${cost_fmt}${rst}"
 # ============================================================
 # Widget: thinking-effort  (magenta)
 # ============================================================
-effort=$(jq -r '.effortLevel // "medium"' "$HOME/.claude/settings.json" 2>/dev/null || echo "medium")
+effort=$(echo "$input" | jq -r '.effort.level // "medium"')
 thinking_w="${slt}Thinking: ${effort}${rst}"
 
 # ============================================================
