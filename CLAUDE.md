@@ -157,7 +157,7 @@ Apply when writing, reviewing or editing code.
   i += 1  # skip the header row; the export always has one
   ```
 
-- **No lineage or incident history in docstrings or comments.** "Moved from X", "Rehomed from Y", "Previously in Z" describe git history, not behavior. "See incident #123", "we used to do X but crashed so switched to Y", "fixed bug N", past decision rationale (KV-pool math, crash root-causes, perf-incident refs) describe *why a past decision was made* - equally unreadable by a new reader, and they rot fast (the crash is gone, the flag is renamed, the number drifts). Both go in the commit message or PR body, not the code. A comment should explain a *current* constraint a reader must respect to work with the code safely, not how the code got here. Exception: a live deprecation notice ("old import still works but is deprecated") is actionable - remove it once the old path is gone.
+- **No lineage or incident history in docstrings or comments.** "Moved from X", "Rehomed from Y", "Previously in Z" describe git history, not behavior. "See incident #123", "we used to do X but crashed so switched to Y", "fixed bug N", past decision rationale (KV-pool math, crash root-causes, perf-incident refs) describe *why a past decision was made* - equally unreadable by a new reader, and they rot fast (the crash is gone, the flag is renamed, the number drifts). Both go in the commit message or PR body, not the code. Same for timestamps: a comment states the constraint ("NFS write rate ~280 MB/s"), never when it was measured or "as of" which version - dates live in the doc recording the measurement. A comment should explain a *current* constraint a reader must respect to work with the code safely, not how the code got here. Exception: a live deprecation notice ("old import still works but is deprecated") is actionable - remove it once the old path is gone.
 
 - **Flatten with guard clauses; don't nest the happy path.** Early return/raise on preconditions, then the main logic sits unindented.
 
@@ -176,7 +176,7 @@ Apply when writing, reviewing or editing code.
 
 - **Keep functions pure by default; push side effects to the boundary.** A function that mixes computation with I/O or state mutation is harder to test and reason about. Separate the two unless the side effect is the function's whole purpose.
 
-- **Error messages must carry actionable context** - what operation failed, the relevant inputs, and enough state to reproduce.
+- **Error messages must carry actionable context** - what operation failed, the relevant inputs, and enough state to reproduce. Never file or module paths - the traceback already supplies locations, and hardcoded paths go stale on refactor.
 
   ```python
   # bad
@@ -240,6 +240,11 @@ Apply when writing, reviewing or editing code.
 - **Use a generator expression, not a list comprehension, when the result is iterated once** or passed to `sum`/`any`/`all`/`max`. O(1) peak memory instead of building a throwaway list - but only safe for a single pass; assign to a list if you iterate more than once.
 
 - **Use absolute imports, not relative imports.** Exception: `__init__.py` re-exports (`from .module import Thing`) are fine.
+
+### Documentation
+
+- **Cross-reference this repo's own docs by section, heading, or requirement ID - never by line number.** Line numbers into your own moving text rot on every edit. `file:line` is only for third-party code, cited *with the installed version* ("unguarded index at `fsdp.py:660`, torch 2.10.0") - that is an evidence snapshot, not navigation.
+- **Before closing any task that touched comments, docstrings, or project docs:** re-read the changed files and grep for (a) datestamps, (b) references to names just deleted, (c) line-number citations into files edited in the same change. No tooling - a reviewer-grade grep catches the rot same-session edits cause.
 
 ## Verification Language
 
