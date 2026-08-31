@@ -10,35 +10,6 @@
 - When doing bug fixes, always start with reproducing the bug in an E2E setting as closely aligned with how an end user would experience it as possible. This makes sure you find the real problem so your fix will actually solve it.
 - When asked to fix/change something in one place, check (e.g. grep) whether the same pattern or problem exists elsewhere in the codebase. If it does, tell the user it exists in multiple places and ask whether to fix those too - don't fix them unprompted, and don't silently leave them unmentioned.
 
-### Code editing discipline
-
-**Principle:** Every changed line traces to the user's request. Extends karpathy Surgical Changes with these specifics:
-
-| Do | Don't |
-|---|---|
-| Fix only what was asked | reformat, rename, or tidy adjacent code |
-| Update wrong comments/docstrings | delete comments, docstrings, section markers unless user explicitly asked to remove that item |
-| Carry comments/docstrings when moving code | strip them during moves |
-| Fix linter issues properly | `# noqa`, `# type: ignore`, `# pragma`, or pyproject suppressions |
-| Remove imports/symbols YOUR edit orphaned | delete pre-existing dead code unprompted |
-
-#### Rationalizations
-
-| Excuse | Reality |
-|---|---|
-| "Cleaner to reformat the whole file" | Hides the real diff from review |
-| "I'll rename to `_foo` - better encapsulation" | Rename only when asked or required |
-| "This comment is stale anyway" | Update it if wrong; don't delete unprompted |
-
-#### Red flags - stop
-
-- Whole-file or out-of-scope whitespace changes
-- Symbol renames (including `foo` → `_foo`) not required by task
-- Linter silencers or config rule changes to suppress warnings
-- Deleting section-group markers or docstrings unprompted
-
-When in doubt, leave it alone and ask.
-
 ### Git
 
 - Always prefix branch names with `hayden/` (e.g. `hayden/my-feature`).
