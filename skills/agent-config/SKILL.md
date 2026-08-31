@@ -1,6 +1,6 @@
 ---
 name: agent-config
-description: Use when viewing, editing, or updating settings, rules, skills, commands, or configuration for any AI coding harness - including Claude Code (~/.claude), opencode (~/.config/opencode), pi (~/.pi/agent), goose (~/.config/goose), or Antigravity / Gemini CLI (~/.gemini). Triggers on modifying harness configs, adding cross-harness skills, or running settings-sync.
+description: Use whenever the user edits, adds to, or asks about config for an AI coding agent harness: Claude Code, opencode, pi, goose, Gemini CLI/Antigravity. Covers installing a skill in any harness, slash commands, agents, permissions (allow/deny rules), hooks, model/provider settings, rules files (CLAUDE.md, AGENTS.md, .goosehints), and cross-harness sync. Also covers post-edit questions - "did I need to do anything else?", "why didn't my change take effect?", "where does this setting live?". Key: harness config files/dirs (~/.config/opencode/opencode.json, ~/.config/goose, ~/.pi/agent, ~/.gemini) are generated from ~/.claude - a hand edit there must go back into ~/.claude and be synced. In scope for any request touching these harnesses' settings, skills, commands, rules, or config paths, however small the edit. Not for non-agent config: git, npm, tsconfig, pyproject, shell, editors.
 ---
 
 # Agent Harness Configuration & Authoring
