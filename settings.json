@@ -180,5 +180,8 @@
   "skipWorkflowUsageWarning": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "skillOverrides": {
+    "ponytail-help": "off"
+  }
 }
