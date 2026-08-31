@@ -10,6 +10,12 @@
 - When doing bug fixes, always start with reproducing the bug in an E2E setting as closely aligned with how an end user would experience it as possible. This makes sure you find the real problem so your fix will actually solve it.
 - When asked to fix/change something in one place, check (e.g. grep) whether the same pattern or problem exists elsewhere in the codebase. If it does, tell the user it exists in multiple places and ask whether to fix those too - don't fix them unprompted, and don't silently leave them unmentioned.
 
+### Backlog
+
+- **Projects have a `.claude/backlog.md` at the git root** for deferred side topics, maintained via the `backlog` skill.
+- **When starting work in a project, read its backlog if present and surface open items** (ID + one line each) before diving in - recommend what to pick up first and why. Don't act on them unprompted.
+- **When you spot an off-scope issue mid-task** (bug, design smell, idea), record it to the backlog yourself with the skill and mention it in one clause - keep working. Don't fix it, and don't rely on chat alone to preserve it.
+
 ### Git
 
 - Always prefix branch names with `hayden/` (e.g. `hayden/my-feature`).
@@ -79,6 +85,7 @@ When editing existing code:
 - Don't refactor things that aren't broken.
 - Match existing style, even if you'd do it differently.
 - If you notice unrelated dead code, mention it - don't delete it.
+- Mentions of off-scope issues get recorded, not just spoken: add them to the project's backlog (see Backlog section above) so they outlive the scrollback.
 
 When your changes create orphans:
 - Remove imports/variables/functions that YOUR changes made unused.
