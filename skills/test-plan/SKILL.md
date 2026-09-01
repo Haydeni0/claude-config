@@ -20,7 +20,7 @@ Timing-agnostic. Invoke during design, after a design is done, or mid-implementa
 
 ### Pillar A - what makes a good test
 
-Two gate checks govern every planned test. They come from `superpowers:writing-good-tests.md` - load that skill if you need the full canon (mutation check, warning signs, the gate functions verbatim).
+Two gate checks govern every planned test. They come from `tdd-core/writing-good-tests.md` - load that skill if you need the full canon (mutation check, warning signs, the gate functions verbatim).
 
 **Gate 1: name the break.** Before planning a test, answer: what production change makes this test fail, and is that change a bug or a decision? A test earns its place by catching a wrong branch, missing side effect, wrong argument, boundary case, or broken contract. Drop tests that can only fail through an intentional decision (change-detectors), that assert expected values computed by the code under test (mirror assertions), or that exist for coverage with no side effect or outcome.
 
@@ -107,8 +107,8 @@ Present the final test plan inline. Offer to write it to a file if the user want
 ## Defer, don't duplicate
 
 - **`pytest-guidelines`** - HOW to write pytest (uv run, mocker not unittest.mock, patch-where-used, parametrize, typed fixtures, keeper vs scaffolding). This skill references it for mechanics; it handles WHAT to test.
-- **`superpowers:writing-good-tests.md`** - the full good-test canon (gate functions, mutation check, warning signs). This skill references it for the gates; it adds the planning heuristics those gates filter.
+- **`tdd-core/writing-good-tests.md`** - the full good-test canon (gate functions, mutation check, warning signs). This skill references it for the gates; it adds the planning heuristics those gates filter.
 - **`grill-me`** - the interrogative loop. This skill drafts a plan for `grill-me` to sharpen; it does not reimplement the Q&A loop.
-- **`tdd` / `superpowers:test-driven-development`** - the red-green-refactor loop that consumes this plan. This skill produces the plan; TDD executes it.
+- **`tdd` / `tdd-core`** - the red-green-refactor loop that consumes this plan. This skill produces the plan; TDD executes it.
 
 Keeping each skill focused avoids divergence when one is updated.

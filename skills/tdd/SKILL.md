@@ -3,9 +3,9 @@ name: tdd
 description: Use when implementing any feature or bugfix, before writing implementation code, or when using test-driven development.
 ---
 
-This builds upon the `superpowers:test-driven-development` skill. Invoke the `superpowers:test-driven-development` skill now, if not already.
+This builds upon the `tdd-core` skill (its forked local copy). Invoke the `tdd-core` skill now, if not already.
 
-Additional context to the `superpowers:test-driven-development` skill:
+Additional context to the `tdd-core` skill:
 
 ## Scaffolding Tests (Python projects)
 
