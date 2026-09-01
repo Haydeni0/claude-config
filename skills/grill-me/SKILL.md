@@ -48,6 +48,16 @@ Why a literal sentinel, not fuzzy detection: the grill is a deliberate-rigor for
 
 If a question can be answered by exploring the codebase, explore it instead of asking.
 
+**Push YAGNI** - when an approach carries a feature nobody asked for, name it and propose cutting it. Ruthless trimming is the grill's job, not a later cleanup.
+
+**Generate alternatives, don't confirm one** - for significant design decisions, propose 2-3 approaches with tradeoffs and your recommendation, rather than asking "does X sound good?". A single candidate hides the options nobody considered.
+
+**Flag decomposition early** - if the request describes multiple independent subsystems, raise it before refining details: what are the pieces, how do they relate, what order? Each piece then gets its own grill → spec → plan cycle.
+
+**Design for isolation** - as boundaries emerge, check each unit: what does it do, how is it used, what does it depend on? If a unit can't be understood without reading its internals, the boundary needs work.
+
+**Offer the spike** - when the real question is feasibility ("can we...?"), propose a cheap probe instead of full design: state the question and probe plan in 2-3 sentences, get a nod, investigate as cheaply as correctness allows, report a recommendation. Anything built stays labeled throwaway.
+
 ## Ending the session
 
 When all major branches are resolved, produce a **decision log** - one line per decision:
