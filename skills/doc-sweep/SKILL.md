@@ -144,8 +144,32 @@ The report ends the turn. Apply starts only on the user's next message.
 4. Frontmatter `status:` on acted-on files only (never repo-wide retrofit);
    use the repo's vocabulary if it has one.
 5. Update inbound links (grep old paths across live docs).
-6. Verify: old-path grep zero hits outside archive, links resolve,
+6. Dispatch a fresh-context reviewer subagent (below). FAIL findings return
+   to the human before staging. Do not self-certify the apply.
+7. Verify: old-path grep zero hits outside archive, links resolve,
    before/after required-reading count. `git add`, never commit.
+
+### Fresh-context reviewer (mandatory, before staging)
+
+The agent that applied the changes is the worst judge of them - it shares
+the apply's blind spots. Dispatch one read-only subagent that sees the work
+cold. It gets: the approved report, the diff (`git diff HEAD` + `git
+status`), the pristine baseline (`git show HEAD:<path>`), and this skill's
+Never-list. It checks, each PASS/VIOLATION with file + evidence:
+
+1. Scope - every diff hunk maps to an approved finding; nothing extra,
+   nothing missing
+2. EXTRACT byte-verbatim vs `git show HEAD:<master>` (the extracted range)
+3. Snapshot bodies byte-identical to HEAD except authorized banner/frontmatter
+4. FIX diffs are exactly what the report showed
+5. Untracked/ignored files unchanged - git has no baseline for these, so
+   verify via mtime (inside the apply window?) and content that references
+   this run
+6. Approved deletes happened, and only those
+7. Links in changed files resolve; old-path grep clean
+
+Its FAIL blocks staging. Violations go back to the human with the
+reviewer's evidence; the human decides revert (git checkout) or accept.
 
 ## Actions
 
@@ -192,3 +216,4 @@ with banner, entries gone from master, fixed paths exist) - the next run sees
 | Acting on an untracked scratch "to rescue it" | Report the risk; the human names the action |
 | Punting a stale-status finding to FLAG because the fix touches a few lines | If repo state mechanically decides the truth (config value, file existence, count), it is a FIX - show the surgical diff. FLAG only when evidence cannot say which side is right. |
 | Asking where archives go on a clean run | Only when archive/extract findings exist and no convention detected |
+| Self-certifying the apply ("verified my own changes, all green") | The applier shares its own blind spots. Fresh-context reviewer is mandatory before staging |
