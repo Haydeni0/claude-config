@@ -256,6 +256,9 @@ Apply when writing, reviewing or editing code.
 ### Documentation
 
 - **Cross-reference this repo's own docs by section, heading, or requirement ID - never by line number.** Line numbers into your own moving text rot on every edit. `file:line` is only for third-party code, cited *with the installed version* ("unguarded index at `fsdp.py:660`, torch 2.10.0") - that is an evidence snapshot, not navigation.
+- **For a known upstream/library issue, link the issue - don't re-explain it in full.** The link stays current; a pasted explanation of someone else's bug rots.
+- **Don't state what code does *not* do in docstrings/comments.** "Does not modify input" describes an absent behavior - either assert the real contract ("returns a new array") or say nothing. Lists of negations are LLM slop.
+- **Document general behavior once, at the base - not per subclass/caller.** A concrete preprocessor's docstring shouldn't explain how preprocessors work; that belongs on the base class. Same for functions: don't restate what a called function's docstring already says.
 - **Before closing any task that touched comments, docstrings, or project docs:** re-read the changed files and grep for (a) datestamps, (b) references to names just deleted, (c) line-number citations into files edited in the same change. No tooling - a reviewer-grade grep catches the rot same-session edits cause.
 
 ## Verification Language

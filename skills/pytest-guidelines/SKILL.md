@@ -46,6 +46,13 @@ Test **observable behavior** through public APIs. Never write keeper tests for n
 
 If refactoring internals forces keeper test changes, the test was too coupled - rewrite at a higher level.
 
+### Naming and Content
+
+- Short names when unambiguous: if the only test for `foo` is `test_foo`, don't write `test_foo_does_x_when_called_with_y`. Add a distinguishing suffix only when multiple tests cover one function.
+- Neutral data names, not usage names: `array1`, `array2` not `volume.pressure`, `volume.velocity` when the code under test takes arbitrary arrays - usage names imply a domain contract the test doesn't exercise.
+- Concrete inputs, literal expected outputs. `assert calc(100) == 108.875`, not `assert calc(x) == x * 1.08875` - a recomputed expectation re-implements the logic and fails with it.
+- Don't restate in test comments what the tested object's public docstring already says, and don't narrate implementation details - the reader has the code.
+
 ### Rationalizations
 
 | Excuse | Reality |
@@ -109,6 +116,8 @@ def test_total(mocker: MockerFixture, calculator: OrderCalculator):
 - Custom fixture without return type in keeper tests
 - Untyped fixture param on keeper test (`tmp_path` with no annotation)
 - `Any` on a fixture param when a concrete type exists
+- Expected output recomputed with the same expression the code under test uses (tautology)
+- Overly long test name for a function with a single test
 
 ## Example
 
