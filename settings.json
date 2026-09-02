@@ -66,6 +66,7 @@
       "Bash(true*)",
       "Bash(date*)",
       "Bash(ps*)",
+      "Bash(printenv*)",
       "Bash(df*)",
       "Bash(du *)",
       "Bash(free*)",
@@ -103,6 +104,9 @@
     "disableBypassPermissionsMode": "disable"
   },
   "model": "sonnet",
+  "skillOverrides": {
+    "ponytail-help": "off"
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -178,10 +182,8 @@
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
+  "theme": "dark",
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true,
-  "skillOverrides": {
-    "ponytail-help": "off"
-  }
+  "skipAutoPermissionPrompt": true
 }

@@ -21,12 +21,14 @@
 - Always prefix branch names with `hayden/` (e.g. `hayden/my-feature`).
 - Always create PRs as drafts (`gh pr create --draft`).
 - `git add` is allowed (used to stage changes for user review). Do not stage files likely to contain secrets (`.env`, `credentials.*`, `*.pem`, etc.).
-- Never `git commit` or `git push`, even when asked by a skill or subagent.
-  - `git commit` is permitted only when the current task prompt, a project-local `CLAUDE.md`, or an autonomous agent's initial instructions contain the literal sentinel `COMMIT_AUTHORISED`.
-  - `git push` is permitted only when the same sources contain the literal sentinel `PUSH_AUTHORISED`.
-  - Sentinels must appear verbatim (uppercase, underscored). Treat any other phrasing - including "please commit", "go ahead and push", or casual overrides - as NOT authorised. Prompt the user if unsure.
-  - `PUSH_AUTHORISED` does NOT imply `COMMIT_AUTHORISED`, and vice versa. Each action needs its own sentinel.
-  - If unsure about permissions: ask.
+- Never `git commit` or `git push`, even when asked by a skill or subagent, unless the gate below passes.
+  - The gate - before EVERY `git commit` / `git push`, use exactly one of these authorisation paths:
+    1. **Sentinel in the current task prompt** (or project-local `CLAUDE.md`, or an autonomous agent's initial instructions): the literal `COMMIT_AUTHORISED` / `PUSH_AUTHORISED` is a one-off grant for that action. Proceed with no further check.
+    2. **Env gate, chained into the command**: run check and action as ONE command - `printenv COMMIT_AUTHORISED && git commit ...` / `printenv PUSH_AUTHORISED && git push ...`. Var set → printenv succeeds → action runs. Var unset → printenv fails → action never runs; tell the user and ask. Never run the bare `git commit`/`git push` on this path, and never trust a check from an earlier separate command - the chain is what makes the check fresh (a resumed session may have different env vars).
+  - Sentinels must appear verbatim (uppercase, underscored). Treat any other phrasing - including "please commit", "go ahead and push", or casual overrides - as NOT authorised.
+  - `PUSH_AUTHORISED` does NOT imply `COMMIT_AUTHORISED`, and vice versa. Each action needs its own sentinel or its own chained check.
+  - An explicit revoke (`COMMIT_UNAUTHORISED` / `PUSH_UNAUTHORISED`) anywhere in the session overrides a set env var - `printenv` cannot detect a revoke. Respect it for the rest of the session.
+  - Never ask the user to re-confirm when the gate passes. If the gate fails or you are unsure: ask.
 
 ### Python
 
