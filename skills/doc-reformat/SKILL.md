@@ -53,6 +53,8 @@ Capture surrounding quotes verbatim: if the source wraps a phrase in quotes (`"s
 
 Return the manifest as a numbered list. Each entry is one literal, with its value verbatim. Do not interpret, summarize, or decide what matters - extract exhaustively.
 
+Then run the STALE-PATH ADVISORY (advisory only, never gating): among the extracted path-like literals (file paths, script names, directory refs - not URLs, not tokens), check which do NOT exist on the filesystem from the current working directory (`test -e` / `ls`). Report the misses in a one-line advisory note below the manifest, e.g. `Note: the source references paths that do not exist here: deploy.sh, /etc/app/config.yaml - stale or local-only; left untouched.` Never fix, never flag as an error, never let it affect the verbatim contract or the Loss Auditor gate. The doc may describe another machine's layout - this is a notice, not a correction.
+
 ### Step 2 - Dispatch the Formatter
 
 Dispatch a sub-agent. Give it the source AND the Guardian's manifest. It produces the reformatted doc: clean headers, bullet lists, tables for before/after comparisons, bolded key terms. It MAY reword prose, reorder, merge redundant sections, and drop conversational filler.
