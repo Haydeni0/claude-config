@@ -160,12 +160,12 @@ Apply when writing, reviewing or editing code.
   active_users
   ```
 
-- **Comment the *why*, never the *what*.** If the "what" needs a comment, rename or restructure instead.
+- **A comment must sit at a different altitude than the code it annotates - lower (units, edge cases, why this magic number) or higher (intent, contract) - never the same.** A same-altitude comment just restates the code in prose and adds nothing; if the "what" needs restating, rename or restructure instead. Same-altitude tells: a docstring that just re-says the function name ("Gets the user by id"), a closing-brace/end-of-block comment (`# end for`), a comment repeating the line beside it. A redundant comment is worse than none - it's a lie waiting to happen, since no test catches it going stale when the code changes.
 
   ```python
-  # bad
+  # bad - same altitude, restates the line
   i += 1  # increment i
-  # good
+  # good - lower altitude, explains a non-obvious constraint
   i += 1  # skip the header row; the export always has one
   ```
 
@@ -260,6 +260,7 @@ Apply when writing, reviewing or editing code.
 - **Don't state what code does *not* do in docstrings/comments.** "Does not modify input" describes an absent behavior - either assert the real contract ("returns a new array") or say nothing. Lists of negations are LLM slop.
 - **Document general behavior once, at the base - not per subclass/caller.** A concrete preprocessor's docstring shouldn't explain how preprocessors work; that belongs on the base class. Same for functions: don't restate what a called function's docstring already says.
 - **Before closing any task that touched comments, docstrings, or project docs:** re-read the changed files and grep for (a) datestamps, (b) references to names just deleted, (c) line-number citations into files edited in the same change. No tooling - a reviewer-grade grep catches the rot same-session edits cause.
+- **A contract-defining docstring on a public function/module boundary is not slop** - it states what callers may rely on, not how the code works internally. The altitude test targets redundant *internal* comments and docstrings that merely restate the signature, not documentation of a public contract.
 
 ## Verification Language
 

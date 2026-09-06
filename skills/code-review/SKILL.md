@@ -82,6 +82,8 @@ The four lenses:
 
 **Lens 1 - CLAUDE.md / instruction-files compliance.** Audit the diff against the gathered instruction files. For each finding, the lens must cite which instruction file and which line calls out the issue. Not all instructions in CLAUDE.md are applicable during review (some are guidance for writing code, not review criteria) - flag only violations of instructions that are enforceable on the diff.
 
+When checking docstring/comment slop specifically, look for: comments at the same altitude as the code (restating a line in prose), docstrings that just restate the function name/signature, closing-brace/end-of-block comments (`# end for`), negation statements ("does not X"), lineage/incident history ("moved from X", "see incident #123"), line-number cross-refs into the same repo, and per-subclass restatement of base-class behavior. Do not flag a contract-defining docstring on a public function/module boundary - that's documentation, not slop.
+
 **Lens 2 - Bugs in diff.** Shallow scan of the diff only. Focus on large bugs. Ignore small issues and nitpicks. Do not read extra context beyond the changes themselves. Ignore likely false positives.
 
 **Lens 3 - Full-file + caller-trace depth.** Read the full file (working tree) for each changed file, not just the diff. Trace how the changes interact with callers, dependencies, and downstream consumers. Check whether the changes break any implicit contracts or assumptions in adjacent code. This lens catches issues the shallow scan misses.
