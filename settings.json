@@ -103,7 +103,6 @@
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "sonnet",
   "skillOverrides": {
     "ponytail-help": "off"
   },
