@@ -7,22 +7,22 @@ description: Use when reviewing uncommitted changes, a branch diff, or any git d
 
 ## Overview
 
-Multi-lens code review of a git diff. The main session resolves the scope (asking the user if ambiguous), then dispatches one orchestrator subagent that runs 4 parallel review lenses and a verify pass, returning a severity-grouped review. The core is read-only: it never writes, edits, or mutates the repository, and never runs commands that compile or execute project code.
+Multi-lens code review of a git diff. The main session resolves the scope (asking the user if ambiguous), then dispatches one orchestrator subagent (unrestricted, able to spawn its own subagents) that runs 4 parallel review lenses and a verify pass, returning a severity-grouped review. Harnesses without subagent spawning run the whole procedure inline. The core is read-only: it never writes, edits, or mutates the repository, and never runs commands that compile or execute project code.
 
 ## Hierarchy
 
 ```
 main session (/code-review or model-invoked)
   ├─ pre-step: resolve scope (parse phrase; if ambiguous, ask user)
-  └─ orchestrator subagent (dispatched with resolved scope + the procedure below)
+  └─ orchestrator subagent (unrestricted, spawns its own subagents; dispatched with resolved scope + the procedure below)
        ├─ stage 1: context (git diff, gather CLAUDE.md)
-       ├─ stage 2: 4 lens subagents (parallel)
-       ├─ stage 3: verify subagent (score + dedup)
+       ├─ stage 2: 4 lens subagents (parallel; inline sequential if no subagent spawning)
+       ├─ stage 3: verify subagent (score + dedup; inline if no subagent spawning)
        └─ stage 4: deliver (return review markdown to main session)
   └─ main session emits returned markdown to chat
 ```
 
-The main session does NOT spawn the lenses or collate their output. It resolves scope (including user interaction, which subagents cannot do), dispatches one orchestrator subagent, and emits the orchestrator's returned review. The body of this skill IS the orchestrator's procedure - paste it into the orchestrator's dispatch prompt.
+The main session does NOT spawn the lenses or collate their output. It resolves scope (including user interaction, which subagents cannot do), dispatches one orchestrator subagent (unrestricted/general-purpose - not a single-shot/fork-style agent, which cannot spawn the lenses), and emits the orchestrator's returned review. If the harness has no subagent spawning at all, the main session runs the orchestrator procedure inline. The body of this skill IS the orchestrator's procedure - paste it into the orchestrator's dispatch prompt.
 
 ## Pre-step (main session, before dispatching the orchestrator)
 
@@ -40,11 +40,11 @@ Parse the user's scope phrase. Run `git status --short` and `git diff --stat` to
 
 If the scope is ambiguous between plausible interpretations (e.g. both uncommitted changes AND a branch ahead of upstream, with no phrase disambiguating), ask the user one clarifying question. Do not pick a default silently. If unambiguous, proceed.
 
-Pass the resolved scope token (e.g. `uncommitted`, `branch`, `ref:origin/main`, `branch path:src/auth`) to the orchestrator. Then dispatch the orchestrator subagent with that scope and the procedure below, and emit its returned review markdown to chat.
+Pass the resolved scope token (e.g. `uncommitted`, `branch`, `ref:origin/main`, `branch path:src/auth`) to the orchestrator. Dispatch it as an unrestricted/general-purpose agent that can spawn its own subagents - never a single-shot/fork-style agent, which is one-shot by definition and cannot run the parallel lens stage. If the harness cannot spawn subagents at all, skip dispatch and run the orchestrator procedure below inline (all four stages, sequentially). Then emit the review markdown to chat.
 
 ## Orchestrator procedure (paste into the orchestrator's dispatch prompt)
 
-You are a code review orchestrator. You receive a resolved scope and run four stages. You are read-only: do not write, edit, or mutate any repository file, and do not run commands that compile or execute project code (no `python`, `npm`, `make`, `pytest`, `cargo`, `docker run`, etc.). Return the final review markdown as your response.
+You are a code review orchestrator. You receive a resolved scope and run four stages. If your harness cannot spawn subagents, run all four stages inline yourself, sequentially, with the lens subagent prompts executed as inline analysis passes instead of separate agents. You are read-only: do not write, edit, or mutate any repository file, and do not run commands that compile or execute project code (no `python`, `npm`, `make`, `pytest`, `cargo`, `docker run`, etc.). Return the final review markdown as your response.
 
 ### Stage 1: Context
 
@@ -66,7 +66,7 @@ Gather instruction files: the root `CLAUDE.md` plus any `CLAUDE.md` in directori
 
 ### Stage 2: Review (4 parallel subagents)
 
-Dispatch 4 subagents in parallel as foreground agents (multiple Agent tool calls in a single message, not `run_in_background`). Foreground returns all results inline when complete so Stage 3 can proceed immediately; background dispatch forces a wait loop and blocks the orchestrator. A lens that returns an empty findings list has completed successfully - do not re-dispatch a lens that has returned. Only re-dispatch on a confirmed agent error, never on absence of a completion notification. Each returns findings as a structured list, never prose:
+Dispatch 4 subagents in parallel as foreground agents (multiple Agent tool calls in a single message, not `run_in_background`). Foreground returns all results inline when complete so Stage 3 can proceed immediately; background dispatch forces a wait loop and blocks the orchestrator. If the harness has no subagent spawning, run the 4 lenses inline sequentially - same prompts, same calibration rules, one after another. A lens that returns an empty findings list has completed successfully - do not re-dispatch a lens that has returned. Only re-dispatch on a confirmed agent error, never on absence of a completion notification. Each returns findings as a structured list, never prose:
 
 ```
 - file: <path>
@@ -109,7 +109,7 @@ False-positive examples to ignore (give to each lens verbatim):
 
 ### Stage 3: Verify (single subagent)
 
-Dispatch one verifier subagent as a foreground agent (not `run_in_background`). It receives all structured findings from all 4 lenses and:
+Dispatch one verifier subagent as a foreground agent (not `run_in_background`); if the harness cannot spawn subagents, run the verification inline. It receives all structured findings from all 4 lenses and:
 
 1. **Dedup across lenses.** Same file + overlapping line range + same issue → merge into one finding. Keep the higher-severity label. Combine the content fields.
 

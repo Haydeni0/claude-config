@@ -63,7 +63,9 @@ Do NOT run tests, build commands, or attempt to fix anything - this is a read-on
 
 5. **Dispatch the code-review orchestrator**
 
-   Dispatch one orchestrator subagent. Pass it:
+   Dispatch one orchestrator subagent. It must be able to spawn its own subagents (the orchestrator procedure runs 4 parallel lens subagents + 1 verifier) - use an unrestricted/general-purpose agent, never a single-shot/fork-style agent (forks are one-shot and forbidden from spawning subagents). If the harness cannot spawn subagents at all, skip dispatch and run the orchestrator procedure inline yourself, then continue at step 6.
+
+   Pass it:
    - The resolved scope: `ref:origin/<baseRefName>` (the orchestrator maps this to `git diff origin/<baseRefName>...HEAD` - three-dot, deterministic, matching GitHub's PR view). No inference or ambiguity-asking - pr-review resolves the scope explicitly.
    - The PR title and description as context (the description informs what's intentional, stopping a reviewer from flagging an intentional refactor).
    - The full orchestrator procedure from the [code-review](../code-review/SKILL.md) skill (stages 1-4: context, 4 parallel lenses, verify, deliver). Paste that procedure into the orchestrator's dispatch prompt.
