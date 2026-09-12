@@ -9,6 +9,7 @@
 - For one-off or infrequent operational work, start with the simplest direct end-to-end path. Do not build wrappers, control planes, policy layers, custom verifiers, or automation unless the direct path exposes a concrete blocker or repeated need that justifies the added machinery.
 - When doing bug fixes, always start with reproducing the bug in an E2E setting as closely aligned with how an end user would experience it as possible. This makes sure you find the real problem so your fix will actually solve it.
 - When asked to fix/change something in one place, check (e.g. grep) whether the same pattern or problem exists elsewhere in the codebase. If it does, tell the user it exists in multiple places and ask whether to fix those too - don't fix them unprompted, and don't silently leave them unmentioned.
+- Never ask the user questions via the `AskUserQuestion` interactive modal tool (or equivalents in other harnesses such as `ask_question`). Ask questions as plain chat text instead, one at a time - a message may carry context or preamble, but at most one question demanding an answer. Wait for the answer before continuing.
 
 ### Backlog
 
